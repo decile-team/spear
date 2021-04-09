@@ -1,11 +1,13 @@
-from hls_data_types import test_w
-from utils import merge_dict_a_into_b
-import data_utils
-import metrics_utils
+# from hls_data_types import test_w
+from my_data_types import test_w
+# from utils import merge_dict_a_into_b
+# import data_utils
+# import metrics_utils
+import my_utils
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
-from analyze_w_predictions import analyze_w_predictions
+# from analyze_w_predictions import analyze_w_predictions
 
 class HLSTest():
     def __init__(self, hls, config):

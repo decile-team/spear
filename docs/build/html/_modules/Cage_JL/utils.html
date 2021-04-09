@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Cage_JL.utils &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>Cage_JL.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Cage_JL.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.distributions.beta</span> <span class="kn">import</span> <span class="n">Beta</span>
+
+
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		expected order in pickle file is NUMPY ndarrays x, l, m, L, d, r, s, n, k</span>
+<span class="sd">			x: (num_instances, num_features), x[i][j] is jth feature of ith instance</span>
+<span class="sd">			</span>
+<span class="sd">			l: (num_instances, num_rules), l[i][j] is the prediction of jth LF(range: 0 to num_classes-1) on ith instance. l[i][j] = num_classes imply Abstain</span>
+<span class="sd">			</span>
+<span class="sd">			m: (num_instances, num_rules), m[i][j] is 1 if jth LF didn&#39;t Abstain on ith instance. Else it is 0</span>
+<span class="sd">			</span>
+<span class="sd">			L: (num_instances, 1), L[i] is true label(range: 0 to num_classes-1) of ith instance, if available. Else it is num_classes</span>
+<span class="sd">			</span>
+<span class="sd">			d: (num_instances, 1), d[i] is 1 if ith instance is labelled. Else it is 0</span>
+<span class="sd">			</span>
+<span class="sd">			r: (num_instances, num_rules), r[i][j] is 1 if ith instance is an exemplar for jth rule. Else it is 0</span>
+<span class="sd">			</span>
+<span class="sd">			s: (num_instances, num_rules), s[i][j] is the continuous score of ith instance given by jth continuous LF</span>
+<span class="sd">			</span>
+<span class="sd">			n: (num_rules,), n[i] is 1 if ith LF has continuous counter part, else it is 0</span>
+<span class="sd">			</span>
+<span class="sd">			k: (num_rules,), k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+
+<span class="sd">	Args: </span>
+<span class="sd">		path: path to pickle file with data in the format above</span>
+
+<span class="sd">	Return:</span>
+<span class="sd">		A list containing all the numpy arrays mentioned above</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+			<span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+				<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+
+			<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># l, m</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># l, r</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># l, s</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#L, l</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#d, l</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span> <span class="c1">#n, l</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span> <span class="c1">#k, l</span>
+	<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#x, l</span>
+	<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">#m</span>
+	<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">#d</span>
+	<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">#r</span>
+	<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">#n</span>
+
+	<span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="phi"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.phi">[docs]</a><span class="k">def</span> <span class="nf">phi</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		A helper function</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		l: [n_lfs]</span>
+<span class="sd">	Return:</span>
+<span class="sd">		[n_classes, n_lfs], element wise product of input tensors(each row of theta dot product with l)</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">return</span> <span class="n">theta</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="calculate_normalizer"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.calculate_normalizer">[docs]</a><span class="k">def</span> <span class="nf">calculate_normalizer</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: Used to find Z(the normaliser) in CAGE</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		k: [n_lfs], labels corresponding to LFs</span>
+<span class="sd">		n_classes: num of classes/labels</span>
+<span class="sd">	Return:</span>
+<span class="sd">		a real value, representing the normaliser</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">z</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+		<span class="n">m_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">phi</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+		<span class="n">z</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">m_y</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">z</span></div>
+
+
+<div class="viewcode-block" id="probability_l_y"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.probability_l_y">[docs]</a><span class="k">def</span> <span class="nf">probability_l_y</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: Used to find probability involving the term psi_theta, the potential function for all LFs</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</span>
+<span class="sd">		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+<span class="sd">		n_classes: num of classes/labels</span>
+<span class="sd">	Return:</span>
+<span class="sd">		[n_instances, n_classes], the psi_theta value for each instance, for each class(true label y)</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">probability</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_classes</span><span class="p">))</span>
+	<span class="n">z</span> <span class="o">=</span> <span class="n">calculate_normalizer</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+		<span class="n">probability</span><span class="p">[:,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">phi</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">z</span>
+
+	<span class="k">return</span> <span class="n">probability</span><span class="o">.</span><span class="n">double</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="probability_s_given_y_l"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.probability_s_given_y_l">[docs]</a><span class="k">def</span> <span class="nf">probability_s_given_y_l</span><span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: Used to find probability involving the term psi_pi, the potential function for all continuous LFs</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</span>
+<span class="sd">		y: a value in [0, n_classes-1], representing true label, for which psi_pi is calculated</span>
+<span class="sd">		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</span>
+<span class="sd">		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+<span class="sd">		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</span>
+<span class="sd">		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</span>
+<span class="sd">	Return:</span>
+<span class="sd">		[n_instances], the psi_pi value for each instance, for the given label(true label y)</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">eq</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span><span class="o">.</span><span class="n">t</span><span class="p">()</span>
+	<span class="n">r</span> <span class="o">=</span> <span class="n">qc</span> <span class="o">*</span> <span class="n">eq</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">qc</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">eq</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+	<span class="n">params</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span>
+	<span class="n">probability</span> <span class="o">=</span> <span class="mi">1</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+		<span class="n">m</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+		<span class="n">probability</span> <span class="o">*=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">s</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">double</span><span class="p">()))</span> <span class="o">*</span> <span class="n">l</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="o">*</span> <span class="n">continuous_mask</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> \
+		<span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">l</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">continuous_mask</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+	<span class="k">return</span> <span class="n">probability</span></div>
+
+
+<div class="viewcode-block" id="probability"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.probability">[docs]</a><span class="k">def</span> <span class="nf">probability</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: Used to find probability of given instances for all possible y&#39;s</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		pi: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</span>
+<span class="sd">		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</span>
+<span class="sd">		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+<span class="sd">		n_classes: num of classes/labels</span>
+<span class="sd">		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</span>
+<span class="sd">		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</span>
+<span class="sd">	Return:</span>
+<span class="sd">		[n_instances, n_classes], the probability for an instance being a particular class</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">p_l_y</span> <span class="o">=</span> <span class="n">probability_l_y</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+	<span class="n">p_s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_classes</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+	<span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+		<span class="n">p_s</span><span class="p">[:,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">probability_s_given_y_l</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">p_l_y</span> <span class="o">*</span> <span class="n">p_s</span></div>
+
+
+<div class="viewcode-block" id="log_likelihood_loss"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.log_likelihood_loss">[docs]</a><span class="k">def</span> <span class="nf">log_likelihood_loss</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: negative of log likelihood loss</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		pi: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</span>
+<span class="sd">		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</span>
+<span class="sd">		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+<span class="sd">		n_classes: num of classes/labels</span>
+<span class="sd">		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</span>
+<span class="sd">		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</span>
+<span class="sd">	Return:</span>
+<span class="sd">		a real value, summation over (the log of probability for an instance, marginalised over y(true labels))</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-8</span>
+	<span class="k">return</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">probability</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="precision_loss"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.precision_loss">[docs]</a><span class="k">def</span> <span class="nf">precision_loss</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span> 
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: Precison loss, the R(theta) term in CAGE loss function</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+<span class="sd">		n_classes: num of classes/labels</span>
+<span class="sd">		a: [n_lfs], a[i] is the quality guide for ith LF. Value(s) must be between 0 and 1</span>
+<span class="sd">	Return:</span>
+<span class="sd">		a real value, R(t) term</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">n_lfs</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">prob</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+	<span class="n">z_per_lf</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+		<span class="n">m_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">phi</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">)))</span>
+		<span class="n">per_lf_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensordot</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">m_y</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">m_y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> \
+		<span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="n">prob</span><span class="p">[:,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">per_lf_matrix</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="n">z_per_lf</span> <span class="o">+=</span> <span class="n">prob</span><span class="p">[:,</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+	<span class="n">prob</span> <span class="o">/=</span> <span class="n">z_per_lf</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="n">correct_prob</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">):</span>
+		<span class="n">correct_prob</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+	<span class="n">loss</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">correct_prob</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">correct_prob</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+	<span class="k">return</span> <span class="o">-</span><span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="predict_gm"><a class="viewcode-back" href="../../index.html#Cage_JL.utils.predict_gm">[docs]</a><span class="k">def</span> <span class="nf">predict_gm</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Graphical model utils: Used to predict the labels after the training is done</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		theta: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		pi: [n_classes, n_lfs], the parameters</span>
+<span class="sd">		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</span>
+<span class="sd">		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</span>
+<span class="sd">		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</span>
+<span class="sd">		n_classes: num of classes/labels</span>
+<span class="sd">		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</span>
+<span class="sd">		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</span>
+<span class="sd">	Return:</span>
+<span class="sd">		[n_instances], the predicted class for an instance</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probability</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">continuous_mask</span><span class="p">,</span> <span class="n">qc</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

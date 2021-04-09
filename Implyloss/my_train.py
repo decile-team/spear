@@ -1,10 +1,9 @@
-from hls_data_types import f_d, f_d_U
-from utils import merge_dict_a_into_b
-import metrics_utils
+# from hls_data_types import f_d, f_d_U
+# from utils import merge_dict_a_into_b
+# import metrics_utils
+import my_utils, my_data_types
 import json
 import time
-
-# import tensorflow as tf
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 import numpy as np
@@ -12,11 +11,11 @@ import pickle
 import sys,os
 from sklearn.metrics import precision_recall_fscore_support
 from snorkel.labeling import labeling_function
-# from snorkel.labeling import MajorityLabelVoter
-# from snorkel.labeling import LabelModel
-# from snorkel.labeling import MajorityLabelVoter
+from snorkel.labeling import MajorityLabelVoter
+from snorkel.labeling import LabelModel
+from snorkel.labeling import MajorityLabelVoter
 from sklearn.metrics import precision_recall_fscore_support
-from snorkel_utils import conv_l_to_lsnork
+# from snorkel_utils import conv_l_to_lsnork
 
 # All training methods for HLS
 class HLSTrain():
@@ -252,6 +251,10 @@ class HLSTrain():
 
 
     def init_metrics(self):
+        '''
+        func desc:
+        initialize the metrics
+        '''
         self.metrics_file = {
                 f_d: self.config.f_d_metrics_pickle,
                 f_d_U: self.config.f_d_U_metrics_pickle,
@@ -274,14 +277,26 @@ class HLSTrain():
                 print('Did not find prev best metric for run type %s. Setting to zero.' % (run_type))
 
     def get_metric(self, run_type, metrics_dict):
+        '''
+        func desc:
+        get the metrics
+        '''
         return metrics_dict[self.config.f_d_primary_metric]
 
     def save_metrics(self, run_type, metrics_dict):
+         '''
+        func desc:
+        save the metrics
+        '''
         with open(self.metrics_file[run_type], 'wb') as f:
             pickle.dump(metrics_dict, f)
         print('\ndumped metrics dict to file: ', self.metrics_file[run_type])
 
     def maybe_save_metrics_dict(self, run_type, metrics_dict):
+         '''
+        func desc:
+        save the best metrics
+        '''
         metric = self.get_metric(run_type, metrics_dict)
         if self.best_metric[run_type] < metric:
             self.best_metric[run_type] = metric
@@ -294,6 +309,26 @@ class HLSTrain():
             return False
 
     def compute_f_d_metrics(self, metrics_dict, precision, recall, f1_score, support, global_epoch, f_d_global_step):
+         '''
+        func desc:
+        compute the f_d metrics
+
+        input:
+        self
+        metrics_dict
+        precision
+        recall
+        f1_score
+        support
+        global_epoch
+        f_d_global_step
+
+        output:
+        void
+
+        evaluates:
+        metrics_dict, accuracy
+        '''
         # Class = 1 metrics
         if len(f1_score) == 1:
             metrics_dict['f1_score_1'] = 0

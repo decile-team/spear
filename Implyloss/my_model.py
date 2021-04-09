@@ -84,8 +84,8 @@ class Implyloss:
 		self object
 
 		evaluates:
-		weights, w_logits of rule network
-		f_logits of the classification network
+		weights, w_logits of rule network(Used to train P_j_phi(r_j/x_i) i.e. whether rij = 1 for the ith instance and jth rule) [batch_size, num_rules]
+		f_logits of the classification network (Used to train P_j_theta(l_j/x_i) i.e. the probability of ith instance belonging to jth class)
 		LL_phi term
 		LL_theta term
 		training objective term
@@ -129,22 +129,22 @@ class Implyloss:
 		training_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
 
 		if 'implication' == self.config.mode:
-            implication_loss = self.implication_loss(weights=self.f_d_U_weights,
-                                                    f_probs=self.f_d_U_probs,
-                                                    m=self.f_d_U_m,
-                                                    rule_classes=self.f_d_U_rule_classes,
-                                                    num_classes=self.f_d_U_num_classes,
-                                                    d=d)
-            
-            # (eqn 5)
-            self.f_d_U_implication_loss = LL_phi \
-                                        + LL_theta \
-                                        + self.config.gamma*implication_loss
+			implication_loss = self.implication_loss(weights=self.f_d_U_weights,
+													f_probs=self.f_d_U_probs,
+													m=self.f_d_U_m,
+													rule_classes=self.f_d_U_rule_classes,
+													num_classes=self.f_d_U_num_classes,
+													d=d)
+			
+			# (eqn 5)
+			self.f_d_U_implication_loss = LL_phi \
+										+ LL_theta \
+										+ self.config.gamma*implication_loss
 
-            with tf.control_dependencies([inc_f_d_U_global_step,  ]): # need to define inc_f_d_U_global_step here using f_d_U_train_ops and f_d_train_ops  
-                self.f_d_U_implication_op = f_cross_training_optimizer.minimize( # made f_d_U_ in implication_op also ..check if required ?
-                        self.f_d_U_implication_loss,
-                        var_list=training_var_list) 
+			with tf.control_dependencies([inc_f_d_U_global_step,  ]): # need to define inc_f_d_U_global_step here using f_d_U_train_ops and f_d_train_ops  
+				self.f_d_U_implication_op = f_cross_training_optimizer.minimize( # made f_d_U_ in implication_op also ..check if required ?
+						self.f_d_U_implication_loss,
+						var_list=training_var_list) 
 	
 	# softmax_cross_entropy_with_logits,
 
@@ -288,23 +288,23 @@ class Implyloss:
 		-obj (real number) - the implication loss value
 		'''
 		
-        # computes implication loss (Equation 4 in the paper)
-        # weights are P_{j,\phi} values from the w network (rule network)
-        # weights: [batch_size, num_rules] 
-        # f_probs are probabilities from the f network (classification network)
-        # f_probs: [batch_size, num_classes]
-        psi = 1e-25 # a small value to avoid nans
+		# computes implication loss (Equation 4 in the paper)
+		# weights are P_{j,\phi} values from the w network (rule network)
+		# weights: [batch_size, num_rules] 
+		# f_probs are probabilities from the f network (classification network)
+		# f_probs: [batch_size, num_classes]
+		psi = 1e-25 # a small value to avoid nans
 
-        #[num_rules, num_classes]
-        one_hot_mask = tf.one_hot(rule_classes,num_classes,dtype=tf.float32)
-        #[batch_size, num_rules]
-        f_probs = tf.matmul(f_probs, one_hot_mask, transpose_b=True)
-        obj = 1 - (weights * (1 - f_probs)) #(Argument of log in equation 4)
+		#[num_rules, num_classes]
+		one_hot_mask = tf.one_hot(rule_classes,num_classes,dtype=tf.float32)
+		#[batch_size, num_rules]
+		f_probs = tf.matmul(f_probs, one_hot_mask, transpose_b=True)
+		obj = 1 - (weights * (1 - f_probs)) #(Argument of log in equation 4)
 
-        # computing last term of equation 5, will multiply with gamma outside this function
-        obj = m*tf.log(obj + psi)
-        obj = tf.reduce_sum(obj, axis=-1)
-        obj = obj * (1-d) #defined only for instances in U, so mask by (1-d)
-        obj = tf.reduce_mean(obj)
-        return -obj
+		# computing last term of equation 5, will multiply with gamma outside this function
+		obj = m*tf.log(obj + psi)
+		obj = tf.reduce_sum(obj, axis=-1)
+		obj = obj * (1-d) #defined only for instances in U, so mask by (1-d)
+		obj = tf.reduce_mean(obj)
+		return -obj
 

@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 master_doc = 'index'
-autodoc_mock_imports = ["torch", "sklearn"]
+autodoc_mock_imports = ["torch", "sklearn", "utils", "utils_jl", "models"]
 # -- Project information -----------------------------------------------------
 
 project = 'SPEAR(DECILE)'

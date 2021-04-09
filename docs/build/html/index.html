@@ -1,0 +1,1382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Welcome to SPEAR(DECILE) documentation! &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to SPEAR(DECILE) documentation!</a></li>
+<li><a class="reference internal" href="#labeling">Labeling</a><ul>
+<li><a class="reference internal" href="#module-labeling.lf.core">LF</a></li>
+<li><a class="reference internal" href="#module-labeling.continuous_scoring.core">Continuous scoring</a></li>
+<li><a class="reference internal" href="#module-labeling.apply.core">LFApply</a></li>
+<li><a class="reference internal" href="#module-labeling.lf_set.core">LFSet</a></li>
+<li><a class="reference internal" href="#module-labeling.analysis.core">LFAnalysis</a></li>
+<li><a class="reference internal" href="#module-labeling.noisy_labels.core">Noisy Labels</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-Cage_JL.core_cage">CAGE</a></li>
+<li><a class="reference internal" href="#module-Cage_JL.core_jl">Joint Learning(JL)</a></li>
+<li><a class="reference internal" href="#cage-jl-utils">CAGE, JL utils</a><ul>
+<li><a class="reference internal" href="#module-Cage_JL.models">Feature-based Models</a></li>
+<li><a class="reference internal" href="#cage-utils">CAGE utils</a></li>
+<li><a class="reference internal" href="#module-Cage_JL.utils_jl">JL utils</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implyloss">Implyloss</a></li>
+<li><a class="reference internal" href="#module-Implyloss.my_utils">Implyloss Utils</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Welcome to SPEAR(DECILE) documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-spear-decile-documentation">
+<h1>Welcome to SPEAR(DECILE) documentation!<a class="headerlink" href="#welcome-to-spear-decile-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="labeling">
+<h1>Labeling<a class="headerlink" href="#labeling" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-labeling.lf.core">
+<span id="lf"></span><h2>LF<a class="headerlink" href="#module-labeling.lf.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="labeling.lf.core.LabelingFunction">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.lf.core.</span></code><code class="sig-name descname"><span class="pre">LabelingFunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">…</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">labeling.preprocess.core.BasePreprocessor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_scorer</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.continuous_scoring.core.BaseContinuousScorer" title="labeling.continuous_scoring.core.BaseContinuousScorer"><span class="pre">labeling.continuous_scoring.core.BaseContinuousScorer</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/lf/core.html#LabelingFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf.core.LabelingFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for labeling function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – name for this LF object</p></li>
+<li><p><strong>f</strong> (<em>Callable</em><em>[</em><em>..</em><em>, </em><em>int</em><em>]</em>) – core function which labels the input</p></li>
+<li><p><strong>label</strong> (<em>int</em>) – Which class this LF corresponds to</p></li>
+<li><p><strong>resources</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional resources for core function. Defaults to None.</p></li>
+<li><p><strong>pre</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>BasePreprocessor</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Preprocessors to apply on input before labeling. Defaults to None.</p></li>
+<li><p><strong>cont_scorer</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#labeling.continuous_scoring.core.BaseContinuousScorer" title="labeling.continuous_scoring.core.BaseContinuousScorer"><em>BaseContinuousScorer</em></a><em>]</em><em>, </em><em>optional</em>) – Continuous Scorer to calculate the confidence score. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="labeling.lf.core.labeling_function">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.lf.core.</span></code><code class="sig-name descname"><span class="pre">labeling_function</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">labeling.preprocess.core.BasePreprocessor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_scorer</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.continuous_scoring.core.BaseContinuousScorer" title="labeling.continuous_scoring.core.BaseContinuousScorer"><span class="pre">labeling.continuous_scoring.core.BaseContinuousScorer</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/lf/core.html#labeling_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf.core.labeling_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator class for a labeling function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name for this labeling function. Defaults to None.</p></li>
+<li><p><strong>label</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Which class this LF corresponds to. Defaults to None.</p></li>
+<li><p><strong>resources</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional resources for the LF. Defaults to None.</p></li>
+<li><p><strong>pre</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>BasePreprocessor</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Preprocessors to apply on input before labeling . Defaults to None.</p></li>
+<li><p><strong>cont_scorer</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#labeling.continuous_scoring.core.BaseContinuousScorer" title="labeling.continuous_scoring.core.BaseContinuousScorer"><em>BaseContinuousScorer</em></a><em>]</em><em>, </em><em>optional</em>) – Continuous Scorer to calculate the confidence score. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the decorator is missing parantheses</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-labeling.continuous_scoring.core">
+<span id="continuous-scoring"></span><h2>Continuous scoring<a class="headerlink" href="#module-labeling.continuous_scoring.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="labeling.continuous_scoring.core.BaseContinuousScorer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.continuous_scoring.core.</span></code><code class="sig-name descname"><span class="pre">BaseContinuousScorer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">…</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/continuous_scoring/core.html#BaseContinuousScorer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.continuous_scoring.core.BaseContinuousScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Class for Continuous Scoring function used by the Labeling Function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the continuous scoring function</p></li>
+<li><p><strong>cf</strong> (<em>Callable</em><em>[</em><em>..</em><em>, </em><em>int</em><em>]</em>) – Core function which calculates continuous score</p></li>
+<li><p><strong>resources</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Resources for the scorer. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="labeling.continuous_scoring.core.continuous_scorer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.continuous_scoring.core.</span></code><code class="sig-name descname"><span class="pre">continuous_scorer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/continuous_scoring/core.html#continuous_scorer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.continuous_scoring.core.continuous_scorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator class for continuous scoring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name for the decorator. Defaults to None.</p></li>
+<li><p><strong>resources</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Resources for the scorer. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If decorator is missing parantheses.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-labeling.apply.core">
+<span id="lfapply"></span><h2>LFApply<a class="headerlink" href="#module-labeling.apply.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="labeling.apply.core.ApplierMetadata">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.apply.core.</span></code><code class="sig-name descname"><span class="pre">ApplierMetadata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">faults</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/apply/core.html#ApplierMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.apply.core.ApplierMetadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata about Applier call.</p>
+<dl class="py attribute">
+<dt id="labeling.apply.core.ApplierMetadata.faults">
+<code class="sig-name descname"><span class="pre">faults</span></code><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#labeling.apply.core.ApplierMetadata.faults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="labeling.apply.core.BaseLFApplier">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.apply.core.</span></code><code class="sig-name descname"><span class="pre">BaseLFApplier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf_set</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#labeling.lf_set.core.LFSet" title="labeling.lf_set.core.LFSet"><span class="pre">labeling.lf_set.core.LFSet</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/apply/core.html#BaseLFApplier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.apply.core.BaseLFApplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for LF applier objects.
+Base class for LF applier objects, which executes a set of LFs
+on a collection of data points. Subclasses should operate on
+a single data point collection format (e.g. <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>).
+Subclasses must implement the <code class="docutils literal notranslate"><span class="pre">apply</span></code> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lf_set</strong> (<a class="reference internal" href="#labeling.lf_set.core.LFSet" title="labeling.lf_set.core.LFSet"><em>LFSet</em></a>) – Instace of LFset which has information of set of labeling functions(which is applied on data)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If names of LFs are not unique</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="labeling.apply.core.LFApplier">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.apply.core.</span></code><code class="sig-name descname"><span class="pre">LFApplier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf_set</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#labeling.lf_set.core.LFSet" title="labeling.lf_set.core.LFSet"><span class="pre">labeling.lf_set.core.LFSet</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/apply/core.html#LFApplier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.apply.core.LFApplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>LF applier for a list of data points (e.g. <code class="docutils literal notranslate"><span class="pre">SimpleNamespace</span></code>) or a NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lf_set</strong> (<a class="reference internal" href="#labeling.lf_set.core.LFSet" title="labeling.lf_set.core.LFSet"><em>LFSet</em></a>) – Instace of LFset which has information of set of labeling functions(which is applied on data)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="labeling.apply.core.LFApplier.apply">
+<code class="sig-name descname"><span class="pre">apply</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_points</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fault_tolerant</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#labeling.apply.core.ApplierMetadata" title="labeling.apply.core.ApplierMetadata"><span class="pre">labeling.apply.core.ApplierMetadata</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/labeling/apply/core.html#LFApplier.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.apply.core.LFApplier.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label list of data points or a NumPy array with LFs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_points</strong> (<em>Union</em><em>[</em><em>DataPoints</em><em>, </em><em>np.ndarray</em><em>]</em>) – List of data points or NumPy array to be labeled by LFs</p></li>
+<li><p><strong>progress_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display a progress bar?. Defaults to True.</p></li>
+<li><p><strong>fault_tolerant</strong> (<em>bool</em><em>, </em><em>optional</em>) – Output <code class="docutils literal notranslate"><span class="pre">-1</span></code> if LF execution fails?. Defaults to False.</p></li>
+<li><p><strong>return_meta</strong> (<em>bool</em><em>, </em><em>optional</em>) – Return metadata from apply call?. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>np.ndarray:</dt><dd><p>Matrix of labels emitted by LFs</p>
+</dd>
+<dt>ApplierMetadata:</dt><dd><p>Metadata, such as fault counts, for the apply call</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[np.ndarray, Tuple[np.ndarray, <a class="reference internal" href="#labeling.apply.core.ApplierMetadata" title="labeling.apply.core.ApplierMetadata">ApplierMetadata</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="labeling.apply.core.apply_lfs_to_data_point">
+<code class="sig-prename descclassname"><span class="pre">labeling.apply.core.</span></code><code class="sig-name descname"><span class="pre">apply_lfs_to_data_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lfs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_caller</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">labeling.apply.core._FunctionCaller</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/labeling/apply/core.html#apply_lfs_to_data_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.apply.core.apply_lfs_to_data_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label a single data point with a set of LFs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>DataPoint</em>) – Data point to label</p></li>
+<li><p><strong>index</strong> (<em>int</em>) – Index of the data point</p></li>
+<li><p><strong>lfs</strong> (<em>List</em><em>[</em><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><em>LabelingFunction</em></a><em>]</em>) – List of LFs to label <code class="docutils literal notranslate"><span class="pre">x</span></code> with</p></li>
+<li><p><strong>f_caller</strong> (<em>_FunctionCaller</em>) – A <code class="docutils literal notranslate"><span class="pre">_FunctionCaller</span></code> to record failed LF executions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of (data point index, LF index, label) tuples</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>RowData</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-labeling.lf_set.core">
+<span id="lfset"></span><h2>LFSet<a class="headerlink" href="#module-labeling.lf_set.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="labeling.lf_set.core.LFSet">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.lf_set.core.</span></code><code class="sig-name descname"><span class="pre">LFSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lfs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/lf_set/core.html#LFSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf_set.core.LFSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for Set of Labeling Functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name for this LFset.</p></li>
+<li><p><strong>lfs</strong> (<em>List</em><em>[</em><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><em>LabelingFunction</em></a><em>]</em><em>, </em><em>optional</em>) – List of LFs to add to this object. Defaults to [].</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="labeling.lf_set.core.LFSet.add_lf">
+<code class="sig-name descname"><span class="pre">add_lf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="_modules/labeling/lf_set/core.html#LFSet.add_lf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf_set.core.LFSet.add_lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds single LF to this LFSet</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lf</strong> (<a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><em>LabelingFunction</em></a>) – LF to add</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.lf_set.core.LFSet.add_lf_list">
+<code class="sig-name descname"><span class="pre">add_lf_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="_modules/labeling/lf_set/core.html#LFSet.add_lf_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf_set.core.LFSet.add_lf_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a list of LFs to this LFSet</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lf_list</strong> (<em>List</em><em>[</em><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><em>LabelingFunction</em></a><em>]</em>) – List of LFs to add to this LFSet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.lf_set.core.LFSet.get_lfs">
+<code class="sig-name descname"><span class="pre">get_lfs</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/labeling/lf_set/core.html#LFSet.get_lfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf_set.core.LFSet.get_lfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns LFs contained in this LFSet object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>LFs in this LFSet</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Set[<a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction">LabelingFunction</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.lf_set.core.LFSet.remove_lf">
+<code class="sig-name descname"><span class="pre">remove_lf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="_modules/labeling/lf_set/core.html#LFSet.remove_lf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.lf_set.core.LFSet.remove_lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a LF from this set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lf</strong> (<a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><em>LabelingFunction</em></a>) – LF to remove from this set</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If LF not already in LFset</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-labeling.analysis.core">
+<span id="lfanalysis"></span><h2>LFAnalysis<a class="headerlink" href="#module-labeling.analysis.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="labeling.analysis.core.LFAnalysis">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.analysis.core.</span></code><code class="sig-name descname"><span class="pre">LFAnalysis</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lfs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><span class="pre">labeling.lf.core.LabelingFunction</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abstain</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run analysis on LFs using label matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>L</strong> (<em>np.ndarray</em>) – Label matrix where L_{i,j} is the label given by the jth LF to the ith x instance</p></li>
+<li><p><strong>lfs</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#labeling.lf.core.LabelingFunction" title="labeling.lf.core.LabelingFunction"><em>LabelingFunction</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – Labeling functions used to generate <cite>‘L`</cite>. Defaults to None.</p></li>
+<li><p><strong>abstain</strong> (<em>int</em><em>, </em><em>optional</em>) – label associated with abstain. Defaults to -1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If number of LFs and number of LF matrix columns differ</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.label_conflict">
+<code class="sig-name descname"><span class="pre">label_conflict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.label_conflict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.label_conflict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the fraction of data points with conflicting (non-abstain) labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Fraction of data points with conflicting labels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">label_conflict</span><span class="p">()</span>
+<span class="go">0.2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.label_coverage">
+<code class="sig-name descname"><span class="pre">label_coverage</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.label_coverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.label_coverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the fraction of data points with at least one label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Fraction of data points with labels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">label_coverage</span><span class="p">()</span>
+<span class="go">0.8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.label_overlap">
+<code class="sig-name descname"><span class="pre">label_overlap</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.label_overlap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.label_overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the fraction of data points with at least two (non-abstain) labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Fraction of data points with overlapping labels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">label_overlap</span><span class="p">()</span>
+<span class="go">0.6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.lf_conflicts">
+<code class="sig-name descname"><span class="pre">lf_conflicts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize_by_overlaps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.lf_conflicts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.lf_conflicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute frac. of examples each LF labels and labeled differently by another LF.
+A conflicting example is one that at least one other LF returns a
+different (non-abstain) label for.
+Note that the maximum possible conflict fraction for an LF is the LF’s
+overlaps fraction, unless <code class="docutils literal notranslate"><span class="pre">normalize_by_overlaps=True</span></code>, in which case it is 1.
+Parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize_by_overlaps</strong> (<em>bool</em><em>, </em><em>optional</em>) – Normalize by overlaps of the LF, so that it returns the percent of LF
+overlaps that have conflicts.
+Defaults to False.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fraction of conflicting examples for each LF</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">lf_conflicts</span><span class="p">()</span>
+<span class="go">array([0.2, 0.2, 0. ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">lf_conflicts</span><span class="p">(</span><span class="n">normalize_by_overlaps</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([0.5       , 0.33333333, 0.        ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.lf_coverages">
+<code class="sig-name descname"><span class="pre">lf_coverages</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.lf_coverages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.lf_coverages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute frac. of examples each LF labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Fraction of labeled examples for each LF</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">lf_coverages</span><span class="p">()</span>
+<span class="go">array([0.4, 0.8, 0.4])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.lf_empirical_accuracies">
+<code class="sig-name descname"><span class="pre">lf_empirical_accuracies</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.lf_empirical_accuracies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.lf_empirical_accuracies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute empirical accuracy against a set of labels Y for each LF.
+Usually, Y represents development set labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Y</strong> (<em>np.ndarray</em>) – [n] np.ndarray of gold labels</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Empirical accuracies for each LF</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.lf_overlaps">
+<code class="sig-name descname"><span class="pre">lf_overlaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize_by_coverage</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.lf_overlaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.lf_overlaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute frac. of examples each LF labels that are labeled by another LF.
+An overlapping example is one that at least one other LF returns a
+(non-abstain) label for.
+Note that the maximum possible overlap fraction for an LF is the LF’s
+coverage, unless <code class="docutils literal notranslate"><span class="pre">normalize_by_coverage=True</span></code>, in which case it is 1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize_by_coverage</strong> (<em>bool</em><em>, </em><em>optional</em>) – Normalize by coverage of the LF,
+so that it returns the percent of LF labels that have overlaps.
+Defaults to False.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fraction of overlapping examples for each LF</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">lf_overlaps</span><span class="p">()</span>
+<span class="go">array([0.4, 0.6, 0.4])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">lf_overlaps</span><span class="p">(</span><span class="n">normalize_by_coverage</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([1.  , 0.75, 1.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.lf_polarities">
+<code class="sig-name descname"><span class="pre">lf_polarities</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.lf_polarities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.lf_polarities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Infer the polarities of each LF based on evidence in a label matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Unique output labels for each LF</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[List[int]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">LFAnalysis</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">lf_polarities</span><span class="p">()</span>
+<span class="go">[[0, 1], [0], [0]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.analysis.core.LFAnalysis.lf_summary">
+<code class="sig-name descname"><span class="pre">lf_summary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pandas.core.frame.DataFrame</span><a class="reference internal" href="_modules/labeling/analysis/core.html#LFAnalysis.lf_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.analysis.core.LFAnalysis.lf_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a pandas DataFrame with the various per-LF statistics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Y</strong> (<em>Optional</em><em>[</em><em>np.ndarray</em><em>]</em><em>, </em><em>optional</em>) – [n] np.ndarray of gold labels.
+If provided, the empirical accuracy for each LF will be calculated.
+Defaults to None.</p></li>
+<li><p><strong>plot</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em><em>, </em><em>optional</em>) – If set to true a bar graph is plotted. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Summary statistics for each LF</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-labeling.noisy_labels.core">
+<span id="noisy-labels"></span><h2>Noisy Labels<a class="headerlink" href="#module-labeling.noisy_labels.core" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="labeling.noisy_labels.core.NoisyLabels">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">labeling.noisy_labels.core.</span></code><code class="sig-name descname"><span class="pre">NoisyLabels</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gold_labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rules</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#labeling.lf_set.core.LFSet" title="labeling.lf_set.core.LFSet"><span class="pre">labeling.lf_set.core.LFSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exemplars</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/noisy_labels/core.html#NoisyLabels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.noisy_labels.core.NoisyLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate noisy lables, continuous score  from lf’s applied on data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name for this object.</p></li>
+<li><p><strong>data</strong> (<em>DataPoints</em>) – Datapoints.</p></li>
+<li><p><strong>gold_labels</strong> (<em>Optional</em><em>[</em><em>DataPoints</em><em>]</em>) – Labels for datapoints if available.</p></li>
+<li><p><strong>rules</strong> (<a class="reference internal" href="#labeling.lf_set.core.LFSet" title="labeling.lf_set.core.LFSet"><em>LFSet</em></a>) – Set of Rules to generate noisy labels for the dataset.</p></li>
+<li><p><strong>exemplars</strong> (<em>DataPoints</em>) – [description]</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="labeling.noisy_labels.core.NoisyLabels.generate_pickle">
+<code class="sig-name descname"><span class="pre">generate_pickle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/noisy_labels/core.html#NoisyLabels.generate_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.noisy_labels.core.NoisyLabels.generate_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a pickle file with noisy labels, confidence and other Metadata</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em>, </em><em>optional</em>) – Name for pickle file. Defaults to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="labeling.noisy_labels.core.NoisyLabels.get_labels">
+<code class="sig-name descname"><span class="pre">get_labels</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/labeling/noisy_labels/core.html#NoisyLabels.get_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#labeling.noisy_labels.core.NoisyLabels.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies LFs to the dataset to generate noisy labels and returns noisy labels and confidence scores</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Noisy Labels and Confidences</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Tuple(DataPoints, DataPoints)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-Cage_JL.core_cage">
+<span id="cage"></span><h1>CAGE<a class="headerlink" href="#module-Cage_JL.core_cage" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="Cage_JL.core_cage.Cage">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Cage_JL.core_cage.</span></code><code class="sig-name descname"><span class="pre">Cage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_avg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['binary']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_cage.html#Cage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_cage.Cage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Cage class:</dt><dd><p>Class for Data Programming using CAGE
+[Note: from here on, graphical model(gm) imply CAGE algorithm]</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_classes</strong> – Number of classes/labels, type is integer</p></li>
+<li><p><strong>path</strong> – Path to pickle file of input data</p></li>
+<li><p><strong>metric_avg</strong> – List of average metric to be used in calculating f1_score, default is [‘binary’]</p></li>
+<li><p><strong>n_epochs</strong> – Number of epochs, default is 100</p></li>
+<li><p><strong>lr</strong> – Learning rate for torch.optim, default is 0.01</p></li>
+<li><p><strong>qt</strong> – Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1</p></li>
+<li><p><strong>qc</strong> – Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="Cage_JL.core_cage.Cage.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_cage.html#Cage.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_cage.Cage.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_test</strong> – Path to the pickle file containing test data set</p></li>
+<li><p><strong>path_log</strong> – Path to log file, default value is None. No log is producede if path is None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.ndarray of shape (num_instances,) which are aggregated/predicted labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Cage_JL.core_cage.Cage.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_test</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_cage.html#Cage.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_cage.Cage.predict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_test</strong> – Path to the pickle file containing test data set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.ndarray of shape (num_instances,) which are predicted labels
+[Note: no aggregration/algorithm-running will be done using the current input]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Cage_JL.core_cage.Cage.predict_specific">
+<code class="sig-name descname"><span class="pre">predict_specific</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_test</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_cage.html#Cage.predict_specific"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_cage.Cage.predict_specific" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s_test</strong> – numpy arrays of shape (num_instances, num_rules), s_test[i][j] is the continuous score of jth LF on ith instance</p></li>
+<li><p><strong>m_test</strong> – numpy arrays of shape (num_instances, num_rules), m_test[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.ndarray of shape (num_instances,) which are predicted labels
+[Note: no aggregration/algorithm-running will be done using the current input]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Cage_JL.core_jl">
+<span id="joint-learning-jl"></span><h1>Joint Learning(JL)<a class="headerlink" href="#module-Cage_JL.core_jl" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="Cage_JL.core_jl.Joint_Learning">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Cage_JL.core_jl.</span></code><code class="sig-name descname"><span class="pre">Joint_Learning</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_qt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_gm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_accuracy_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_avg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'macro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_jl.html#Joint_Learning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_jl.Joint_Learning" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Joint_Learning class:</dt><dd><p>[Note: from here on, feature model is short for feature-based classification model and graphical model(gm) imply CAGE algorithm]</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_classes</strong> – Number of classes/labels, type is integer</p></li>
+<li><p><strong>path_L</strong> – Path to pickle file of labelled instances</p></li>
+<li><p><strong>path_U</strong> – Path to pickle file of unlabelled instances</p></li>
+<li><p><strong>path_V</strong> – Path to pickle file of validation instances</p></li>
+<li><p><strong>path_T</strong> – Path to pickle file of test instances</p></li>
+<li><p><strong>loss_func_mask</strong> – list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else</p></li>
+<li><p><strong>is_qt</strong> – True if quality guide is available. False if quality guide is intended to be found from validation instances</p></li>
+<li><p><strong>is_qc</strong> – True if quality index is available. False if quality index is intended to be found from validation instances</p></li>
+<li><p><strong>batch_size</strong> – Batch size, type should be integer</p></li>
+<li><p><strong>lr_feature</strong> – Learning rate for feature model, type is integer or float</p></li>
+<li><p><strong>lr_gm</strong> – Learning rate for graphical model(cage), type is integer or float</p></li>
+<li><p><strong>use_accuracy_score</strong> – The score to use for termination condition on validation set. True for accuracy_score, False for f1_score</p></li>
+<li><p><strong>feature_model</strong> – The model intended to be used for features, allowed values are ‘lr’ or ‘nn’ string, default is ‘nn’</p></li>
+<li><p><strong>metric_avg</strong> – Average metric to be used in calculating f1_score/precision/recall, default is ‘macro’</p></li>
+<li><p><strong>qt</strong> – Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1</p></li>
+<li><p><strong>qc</strong> – Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1</p></li>
+<li><p><strong>n_hidden</strong> – Number of hidden layer nodes if feature model is ‘nn’, type is integer, default is 512</p></li>
+<li><p><strong>n_epochs</strong> – Number of epochs in each run, type is integer, default is 100</p></li>
+<li><p><strong>n_runs</strong> – Number of runs ,type is integer, default is 10</p></li>
+<li><p><strong>start_len</strong> – A parameter used in validation, type is integer, default is 5</p></li>
+<li><p><strong>stop_len</strong> – A parameter used in validation, type is integer, default is 10</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="Cage_JL.core_jl.Joint_Learning.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_gm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_jl.html#Joint_Learning.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_jl.Joint_Learning.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>return_gm</strong> – Return the predictions of graphical model? the allowed values are True, False. Default value is False</p></li>
+<li><p><strong>path</strong> – Path to log file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances,), first one is through graphical model, other one through feature model.
+Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Cage_JL.core_jl.Joint_Learning.predict_cage">
+<code class="sig-name descname"><span class="pre">predict_cage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_test</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_jl.html#Joint_Learning.predict_cage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_jl.Joint_Learning.predict_cage" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Used to find the predicted labels based on the trained parameters of graphical model(CAGE)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_test</strong> – Path to the pickle file containing test data set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.ndarray of shape (num_instances,) which are predicted labels
+[Note: no aggregration/algorithm-running will be done using the current input]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Cage_JL.core_jl.Joint_Learning.predict_feature_model">
+<code class="sig-name descname"><span class="pre">predict_feature_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_test</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/core_jl.html#Joint_Learning.predict_feature_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.core_jl.Joint_Learning.predict_feature_model" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Used to find the predicted labels based on the trained parameters of feature model</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_test</strong> – Path to the pickle file containing test data set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.ndarray of shape (num_instances,) which are predicted labels
+[Note: no aggregration/algorithm-running will be done using the current input]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="cage-jl-utils">
+<h1>CAGE, JL utils<a class="headerlink" href="#cage-jl-utils" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-Cage_JL.models">
+<span id="feature-based-models"></span><h2>Feature-based Models<a class="headerlink" href="#module-Cage_JL.models" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="Cage_JL.models.DeepNet">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Cage_JL.models.</span></code><code class="sig-name descname"><span class="pre">DeepNet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/models.html#DeepNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.models.DeepNet" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Class for Deep neural network, used in Joint learning class/Algorithm</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_size</strong> – number of features</p></li>
+<li><p><strong>hidden_size</strong> – number of nodes in each of the two hidden layers</p></li>
+<li><p><strong>output_size</strong> – number of classes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="Cage_JL.models.DeepNet.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/models.html#DeepNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.models.DeepNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="Cage_JL.models.LogisticRegression">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Cage_JL.models.</span></code><code class="sig-name descname"><span class="pre">LogisticRegression</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/models.html#LogisticRegression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.models.LogisticRegression" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Class for Logistic Regression, used in Joint learning class/Algorithm</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_size</strong> – number of features</p></li>
+<li><p><strong>output_size</strong> – number of classes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="Cage_JL.models.LogisticRegression.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/models.html#LogisticRegression.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.models.LogisticRegression.forward" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="cage-utils">
+<h2>CAGE utils<a class="headerlink" href="#cage-utils" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>From here on, Graphical model imply CAGE algorithm</p>
+<p>JL uses these utils too</p>
+</div></blockquote>
+<span class="target" id="module-Cage_JL.utils"></span><dl class="py function">
+<dt id="Cage_JL.utils.calculate_normalizer">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">calculate_normalizer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#calculate_normalizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.calculate_normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: Used to find Z(the normaliser) in CAGE</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>k</strong> – [n_lfs], labels corresponding to LFs</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a real value, representing the normaliser</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.get_data">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><dl>
+<dt>expected order in pickle file is NUMPY ndarrays x, l, m, L, d, r, s, n, k</dt><dd><p>x: (num_instances, num_features), x[i][j] is jth feature of ith instance</p>
+<p>l: (num_instances, num_rules), l[i][j] is the prediction of jth LF(range: 0 to num_classes-1) on ith instance. l[i][j] = num_classes imply Abstain</p>
+<p>m: (num_instances, num_rules), m[i][j] is 1 if jth LF didn’t Abstain on ith instance. Else it is 0</p>
+<p>L: (num_instances, 1), L[i] is true label(range: 0 to num_classes-1) of ith instance, if available. Else it is num_classes</p>
+<p>d: (num_instances, 1), d[i] is 1 if ith instance is labelled. Else it is 0</p>
+<p>r: (num_instances, num_rules), r[i][j] is 1 if ith instance is an exemplar for jth rule. Else it is 0</p>
+<p>s: (num_instances, num_rules), s[i][j] is the continuous score of ith instance given by jth continuous LF</p>
+<p>n: (num_rules,), n[i] is 1 if ith LF has continuous counter part, else it is 0</p>
+<p>k: (num_rules,), k[i] is the class of ith LF, range: 0 to num_classes-1</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – path to pickle file with data in the format above</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list containing all the numpy arrays mentioned above</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.log_likelihood_loss">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">log_likelihood_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#log_likelihood_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.log_likelihood_loss" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: negative of log likelihood loss</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>pi</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>l</strong> – [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+<li><p><strong>s</strong> – [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+<li><p><strong>continuous_mask</strong> – [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</p></li>
+<li><p><strong>qc</strong> – a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a real value, summation over (the log of probability for an instance, marginalised over y(true labels))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.phi">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">phi</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#phi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.phi" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>A helper function</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>l</strong> – [n_lfs]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[n_classes, n_lfs], element wise product of input tensors(each row of theta dot product with l)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.precision_loss">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">precision_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#precision_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.precision_loss" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: Precison loss, the R(theta) term in CAGE loss function</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+<li><p><strong>a</strong> – [n_lfs], a[i] is the quality guide for ith LF. Value(s) must be between 0 and 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a real value, R(t) term</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.predict_gm">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">predict_gm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#predict_gm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.predict_gm" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: Used to predict the labels after the training is done</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>pi</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>l</strong> – [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+<li><p><strong>s</strong> – [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+<li><p><strong>continuous_mask</strong> – [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</p></li>
+<li><p><strong>qc</strong> – a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[n_instances], the predicted class for an instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.probability">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">probability</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.probability" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: Used to find probability of given instances for all possible y’s</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>pi</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>l</strong> – [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+<li><p><strong>s</strong> – [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+<li><p><strong>continuous_mask</strong> – [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</p></li>
+<li><p><strong>qc</strong> – a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[n_instances, n_classes], the probability for an instance being a particular class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.probability_l_y">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">probability_l_y</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#probability_l_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.probability_l_y" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: Used to find probability involving the term psi_theta, the potential function for all LFs</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>l</strong> – [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[n_instances, n_classes], the psi_theta value for each instance, for each class(true label y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils.probability_s_given_y_l">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils.</span></code><code class="sig-name descname"><span class="pre">probability_s_given_y_l</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils.html#probability_s_given_y_l"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils.probability_s_given_y_l" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Graphical model utils: Used to find probability involving the term psi_pi, the potential function for all continuous LFs</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s</strong> – [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</p></li>
+<li><p><strong>y</strong> – a value in [0, n_classes-1], representing true label, for which psi_pi is calculated</p></li>
+<li><p><strong>l</strong> – [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>continuous_mask</strong> – [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</p></li>
+<li><p><strong>qc</strong> – a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[n_instances], the psi_pi value for each instance, for the given label(true label y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Cage_JL.utils_jl">
+<span id="jl-utils"></span><h2>JL utils<a class="headerlink" href="#module-Cage_JL.utils_jl" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="Cage_JL.utils_jl.entropy">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils_jl.</span></code><code class="sig-name descname"><span class="pre">entropy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils_jl.html#entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils_jl.entropy" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Joint Learning utils: Used in loss 2</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>probabilities</strong> – [num_unsup_instances, num_classes], probabilities[i][j] is probability of ith instance being jth class</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a real value, the entropy value of given probability</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils_jl.kl_divergence">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils_jl.</span></code><code class="sig-name descname"><span class="pre">kl_divergence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probs_q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils_jl.html#kl_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils_jl.kl_divergence" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Joint Learning utils: KL divergence of two probabilities, used in loss 6</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>probs_p</strong> – [num_instances, num_classes]</p></li>
+<li><p><strong>probs_q</strong> – [num_instances, num_classes]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a real value, the KL divergence of given probabilities</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Cage_JL.utils_jl.log_likelihood_loss_supervised">
+<code class="sig-prename descclassname"><span class="pre">Cage_JL.utils_jl.</span></code><code class="sig-name descname"><span class="pre">log_likelihood_loss_supervised</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Cage_JL/utils_jl.html#log_likelihood_loss_supervised"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Cage_JL.utils_jl.log_likelihood_loss_supervised" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Joint Learning utils: Negative log likelihood loss used in loss 4</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>pi</strong> – [n_classes, n_lfs], the parameters</p></li>
+<li><p><strong>l</strong> – [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0</p></li>
+<li><p><strong>s</strong> – [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF</p></li>
+<li><p><strong>k</strong> – [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1</p></li>
+<li><p><strong>n_classes</strong> – num of classes/labels</p></li>
+<li><p><strong>continuous_mask</strong> – [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0</p></li>
+<li><p><strong>qc</strong> – a float value OR [n_lfs], qc[i] quality index for ith LF</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a real value, summation over (the log of probability for an instance)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="implyloss">
+<h1>Implyloss<a class="headerlink" href="#implyloss" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="module-Implyloss.my_utils">
+<span id="implyloss-utils"></span><h1>Implyloss Utils<a class="headerlink" href="#module-Implyloss.my_utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="Implyloss.my_utils.analyze_w_predictions">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">analyze_w_predictions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rule_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#analyze_w_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.analyze_w_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+analyze the rule network by computing the precisions of the rules and comparing old and new rule stats</p>
+<p>input:
+x: [num_instances, num_features]
+l: [num_instances, num_rules]
+m: [num_instances, num_rules]
+L: [num_instances, 1]
+d: [num_instances, 1]
+weights: [num_instances, num_rules]
+probs: [num_instances, num_classes]
+rule_classes: [num_rules,1]</p>
+<p>output:
+void, prints the required statistics</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.compute_accuracy">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">compute_accuracy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">support</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recall</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#compute_accuracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.compute_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+compute the required accuracy</p>
+<p>input:
+support
+recall</p>
+<p>output:
+accuracy</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.conv_l_to_lsnork">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">conv_l_to_lsnork</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#conv_l_to_lsnork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.conv_l_to_lsnork" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+in snorkel convention
+if a rule does not cover an instance assign it label -1
+we follow the convention where we assign the label num_classes instead of -1
+valid class labels range from {0,1,…num_classes-1}
+conv_l_to_lsnork:  converts l in our format to snorkel’s format</p>
+<p>input:
+l([batch_size, num_rules]) - rule label matrix
+m([batch_size, num_rules]) - rule coverage matrix</p>
+<p>output:
+lsnork([batch_size, num_rules])</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.convert_m_to_l">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">convert_m_to_l</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rule_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#convert_m_to_l"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.convert_m_to_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+converts m to l</p>
+<p>input:
+m([batch_size, num_rules]) - the rule coverage matrix where m_ij = 1 if jth rule covers ith instance
+rule_classes -
+num_classes(non_negative integer) - number of available classes</p>
+<p>output:
+l([batch_size, num_rules]) - labels assigned by the rules</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.convert_weights_to_m">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">convert_weights_to_m</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#convert_weights_to_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.convert_weights_to_m" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+converts weights to m</p>
+<p>input:
+weights([batch_size, num_rules]) - the weights matrix corresponding to rule network(w_network) in the algorithm</p>
+<p>output:
+m([batch_size, num_rules]) - the rule coverage matrix where m_ij = 1 if jth rule covers ith instance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.get_data">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+takes the pickle file and arranges it in a matrix list form so as to set the member variables accordingly
+expected order in pickle file is NUMPY arrays x, l, m, L, d, r, s, n, k
+x: [num_instances, num_features]
+l: [num_instances, num_rules]
+m: [num_instances, num_rules]
+L: [num_instances, 1]
+d: [num_instances, 1]
+r: [num_instances, num_rules]
+s: [num_instances, num_rules]
+n: [num_rules] Mask for s
+k: [num_rules] LF classes, range 0 to num_classes-1</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.get_rule_precision">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">get_rule_precision</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#get_rule_precision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.get_rule_precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+get the precision of the rules</p>
+<p>input:
+l([batch_size, num_rules]) - labels assigned by the rules
+L([batch_size, 1]) - L_i = 1 if the ith instance has already a label assigned to it in the dataset
+m([batch_size, num_rules]) - the rule coverage matrix where m_ij = 1 if jth rule covers ith instance</p>
+<p>output:
+micro_p -
+macro_p -
+comp -</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Implyloss.my_utils.merge_dict_a_into_b">
+<code class="sig-prename descclassname"><span class="pre">Implyloss.my_utils.</span></code><code class="sig-name descname"><span class="pre">merge_dict_a_into_b</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Implyloss/my_utils.html#merge_dict_a_into_b"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Implyloss.my_utils.merge_dict_a_into_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>func desc:
+set the dict values of b to that of a</p>
+<p>input:
+a, b : dicts</p>
+<p>output:
+void</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
