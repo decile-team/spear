@@ -1,0 +1,88 @@
+.. Edurevol documentation master file, created by
+   sphinx-quickstart on Mon Mar 22 20:44:02 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to SPEAR(DECILE) documentation!
+========================================
+
+.. toctree::
+   :maxdepth: 5
+   :caption: Contents:
+
+
+Labeling
+================================
+
+LF
+------
+.. automodule:: labeling.lf.core
+	:members: LabelingFunction, labeling_function
+
+Continuous scoring
+-------------------
+.. automodule:: labeling.continuous_scoring.core
+	:members: BaseContinuousScorer,continuous_scorer
+
+LFApply
+-------------
+.. automodule:: labeling.apply.core
+	:members: 
+
+LFSet
+------
+.. automodule:: labeling.lf_set.core
+	:members: LFSet
+
+LFAnalysis
+-------------
+.. automodule:: labeling.analysis.core
+	:members: LFAnalysis
+
+Noisy Labels
+---------------
+.. automodule:: labeling.noisy_labels.core
+	:members: NoisyLabels
+             
+
+CAGE
+==================
+
+.. automodule:: Cage_JL.core_cage
+	:members:
+
+Joint Learning(JL)
+==================
+
+.. automodule:: Cage_JL.core_jl
+	:members:
+
+
+Others
+======
+
+Feature-based Models
+---------------------
+
+.. automodule:: Cage_JL.models
+	:members:
+
+CAGE utils
+-----------
+
+   From here on, Graphical model imply CAGE algorithm
+
+   JL uses these utils too
+
+.. automodule:: Cage_JL.utils
+	:members:
+
+JL utils
+---------
+
+.. automodule:: Cage_JL.utils_jl
+	:members:
+
+
+Parth
+===================
