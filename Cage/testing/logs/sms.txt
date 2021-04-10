@@ -1,0 +1,200 @@
+Epoch: 0	accuracy_score: 0.8664529914529915
+Epoch: 0	average_metric: binary	f1_score: 0.48132780082987553
+Epoch: 1	accuracy_score: 0.8664529914529915
+Epoch: 1	average_metric: binary	f1_score: 0.4791666666666667
+Epoch: 2	accuracy_score: 0.8669871794871795
+Epoch: 2	average_metric: binary	f1_score: 0.48016701461377864
+Epoch: 3	accuracy_score: 0.8669871794871795
+Epoch: 3	average_metric: binary	f1_score: 0.48016701461377864
+Epoch: 4	accuracy_score: 0.8675213675213675
+Epoch: 4	average_metric: binary	f1_score: 0.48117154811715485
+Epoch: 5	accuracy_score: 0.8675213675213675
+Epoch: 5	average_metric: binary	f1_score: 0.48117154811715485
+Epoch: 6	accuracy_score: 0.8675213675213675
+Epoch: 6	average_metric: binary	f1_score: 0.48117154811715485
+Epoch: 7	accuracy_score: 0.8675213675213675
+Epoch: 7	average_metric: binary	f1_score: 0.48117154811715485
+Epoch: 8	accuracy_score: 0.8675213675213675
+Epoch: 8	average_metric: binary	f1_score: 0.48117154811715485
+Epoch: 9	accuracy_score: 0.8675213675213675
+Epoch: 9	average_metric: binary	f1_score: 0.48333333333333334
+Epoch: 10	accuracy_score: 0.8675213675213675
+Epoch: 10	average_metric: binary	f1_score: 0.48333333333333334
+Epoch: 11	accuracy_score: 0.8675213675213675
+Epoch: 11	average_metric: binary	f1_score: 0.48333333333333334
+Epoch: 12	accuracy_score: 0.8675213675213675
+Epoch: 12	average_metric: binary	f1_score: 0.48333333333333334
+Epoch: 13	accuracy_score: 0.8680555555555556
+Epoch: 13	average_metric: binary	f1_score: 0.48434237995824636
+Epoch: 14	accuracy_score: 0.8685897435897436
+Epoch: 14	average_metric: binary	f1_score: 0.48535564853556484
+Epoch: 15	accuracy_score: 0.8696581196581197
+Epoch: 15	average_metric: binary	f1_score: 0.48739495798319327
+Epoch: 16	accuracy_score: 0.8691239316239316
+Epoch: 16	average_metric: binary	f1_score: 0.4842105263157895
+Epoch: 17	accuracy_score: 0.8696581196581197
+Epoch: 17	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 18	accuracy_score: 0.8696581196581197
+Epoch: 18	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 19	accuracy_score: 0.8696581196581197
+Epoch: 19	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 20	accuracy_score: 0.8696581196581197
+Epoch: 20	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 21	accuracy_score: 0.8696581196581197
+Epoch: 21	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 22	accuracy_score: 0.8696581196581197
+Epoch: 22	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 23	accuracy_score: 0.8696581196581197
+Epoch: 23	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 24	accuracy_score: 0.8696581196581197
+Epoch: 24	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 25	accuracy_score: 0.8696581196581197
+Epoch: 25	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 26	accuracy_score: 0.8696581196581197
+Epoch: 26	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 27	accuracy_score: 0.8696581196581197
+Epoch: 27	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 28	accuracy_score: 0.8696581196581197
+Epoch: 28	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 29	accuracy_score: 0.8696581196581197
+Epoch: 29	average_metric: binary	f1_score: 0.4852320675105485
+Epoch: 30	accuracy_score: 0.8701923076923077
+Epoch: 30	average_metric: binary	f1_score: 0.48625792811839325
+Epoch: 31	accuracy_score: 0.8707264957264957
+Epoch: 31	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 32	accuracy_score: 0.8707264957264957
+Epoch: 32	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 33	accuracy_score: 0.8712606837606838
+Epoch: 33	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 34	accuracy_score: 0.8712606837606838
+Epoch: 34	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 35	accuracy_score: 0.8712606837606838
+Epoch: 35	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 36	accuracy_score: 0.8707264957264957
+Epoch: 36	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 37	accuracy_score: 0.8707264957264957
+Epoch: 37	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 38	accuracy_score: 0.8707264957264957
+Epoch: 38	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 39	accuracy_score: 0.8707264957264957
+Epoch: 39	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 40	accuracy_score: 0.8707264957264957
+Epoch: 40	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 41	accuracy_score: 0.8707264957264957
+Epoch: 41	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 42	accuracy_score: 0.8707264957264957
+Epoch: 42	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 43	accuracy_score: 0.8707264957264957
+Epoch: 43	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 44	accuracy_score: 0.8707264957264957
+Epoch: 44	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 45	accuracy_score: 0.8707264957264957
+Epoch: 45	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 46	accuracy_score: 0.8712606837606838
+Epoch: 46	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 47	accuracy_score: 0.8712606837606838
+Epoch: 47	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 48	accuracy_score: 0.8707264957264957
+Epoch: 48	average_metric: binary	f1_score: 0.48728813559322043
+Epoch: 49	accuracy_score: 0.8712606837606838
+Epoch: 49	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 50	accuracy_score: 0.8712606837606838
+Epoch: 50	average_metric: binary	f1_score: 0.48832271762208074
+Epoch: 51	accuracy_score: 0.8717948717948718
+Epoch: 51	average_metric: binary	f1_score: 0.48936170212765956
+Epoch: 52	accuracy_score: 0.8717948717948718
+Epoch: 52	average_metric: binary	f1_score: 0.48936170212765956
+Epoch: 53	accuracy_score: 0.8717948717948718
+Epoch: 53	average_metric: binary	f1_score: 0.48936170212765956
+Epoch: 54	accuracy_score: 0.8712606837606838
+Epoch: 54	average_metric: binary	f1_score: 0.48614072494669514
+Epoch: 55	accuracy_score: 0.8717948717948718
+Epoch: 55	average_metric: binary	f1_score: 0.48717948717948717
+Epoch: 56	accuracy_score: 0.8728632478632479
+Epoch: 56	average_metric: binary	f1_score: 0.4914529914529915
+Epoch: 57	accuracy_score: 0.8728632478632479
+Epoch: 57	average_metric: binary	f1_score: 0.4892703862660944
+Epoch: 58	accuracy_score: 0.8733974358974359
+Epoch: 58	average_metric: binary	f1_score: 0.49032258064516127
+Epoch: 59	accuracy_score: 0.8733974358974359
+Epoch: 59	average_metric: binary	f1_score: 0.49032258064516127
+Epoch: 60	accuracy_score: 0.874465811965812
+Epoch: 60	average_metric: binary	f1_score: 0.4902386117136659
+Epoch: 61	accuracy_score: 0.874465811965812
+Epoch: 61	average_metric: binary	f1_score: 0.4902386117136659
+Epoch: 62	accuracy_score: 0.8760683760683761
+Epoch: 62	average_metric: binary	f1_score: 0.49344978165938863
+Epoch: 63	accuracy_score: 0.8771367521367521
+Epoch: 63	average_metric: binary	f1_score: 0.4956140350877193
+Epoch: 64	accuracy_score: 0.8771367521367521
+Epoch: 64	average_metric: binary	f1_score: 0.4956140350877193
+Epoch: 65	accuracy_score: 0.8776709401709402
+Epoch: 65	average_metric: binary	f1_score: 0.4967032967032967
+Epoch: 66	accuracy_score: 0.8776709401709402
+Epoch: 66	average_metric: binary	f1_score: 0.4967032967032967
+Epoch: 67	accuracy_score: 0.8782051282051282
+Epoch: 67	average_metric: binary	f1_score: 0.4977973568281938
+Epoch: 68	accuracy_score: 0.8787393162393162
+Epoch: 68	average_metric: binary	f1_score: 0.501098901098901
+Epoch: 69	accuracy_score: 0.8787393162393162
+Epoch: 69	average_metric: binary	f1_score: 0.501098901098901
+Epoch: 70	accuracy_score: 0.8798076923076923
+Epoch: 70	average_metric: binary	f1_score: 0.5033112582781457
+Epoch: 71	accuracy_score: 0.8798076923076923
+Epoch: 71	average_metric: binary	f1_score: 0.5033112582781457
+Epoch: 72	accuracy_score: 0.8798076923076923
+Epoch: 72	average_metric: binary	f1_score: 0.5011086474501109
+Epoch: 73	accuracy_score: 0.8798076923076923
+Epoch: 73	average_metric: binary	f1_score: 0.5011086474501109
+Epoch: 74	accuracy_score: 0.8803418803418803
+Epoch: 74	average_metric: binary	f1_score: 0.5022222222222222
+Epoch: 75	accuracy_score: 0.8808760683760684
+Epoch: 75	average_metric: binary	f1_score: 0.5055432372505543
+Epoch: 76	accuracy_score: 0.8819444444444444
+Epoch: 76	average_metric: binary	f1_score: 0.5099778270509977
+Epoch: 77	accuracy_score: 0.8824786324786325
+Epoch: 77	average_metric: binary	f1_score: 0.5132743362831859
+Epoch: 78	accuracy_score: 0.8830128205128205
+Epoch: 78	average_metric: binary	f1_score: 0.5144124168514412
+Epoch: 79	accuracy_score: 0.8830128205128205
+Epoch: 79	average_metric: binary	f1_score: 0.5144124168514412
+Epoch: 80	accuracy_score: 0.8824786324786325
+Epoch: 80	average_metric: binary	f1_score: 0.5132743362831859
+Epoch: 81	accuracy_score: 0.8824786324786325
+Epoch: 81	average_metric: binary	f1_score: 0.5132743362831859
+Epoch: 82	accuracy_score: 0.8830128205128205
+Epoch: 82	average_metric: binary	f1_score: 0.5165562913907285
+Epoch: 83	accuracy_score: 0.8830128205128205
+Epoch: 83	average_metric: binary	f1_score: 0.5165562913907285
+Epoch: 84	accuracy_score: 0.8830128205128205
+Epoch: 84	average_metric: binary	f1_score: 0.5165562913907285
+Epoch: 85	accuracy_score: 0.8830128205128205
+Epoch: 85	average_metric: binary	f1_score: 0.5165562913907285
+Epoch: 86	accuracy_score: 0.8835470085470085
+Epoch: 86	average_metric: binary	f1_score: 0.5198237885462554
+Epoch: 87	accuracy_score: 0.8840811965811965
+Epoch: 87	average_metric: binary	f1_score: 0.5209713024282561
+Epoch: 88	accuracy_score: 0.8840811965811965
+Epoch: 88	average_metric: binary	f1_score: 0.5209713024282561
+Epoch: 89	accuracy_score: 0.8846153846153846
+Epoch: 89	average_metric: binary	f1_score: 0.5221238938053097
+Epoch: 90	accuracy_score: 0.8846153846153846
+Epoch: 90	average_metric: binary	f1_score: 0.5221238938053097
+Epoch: 91	accuracy_score: 0.8846153846153846
+Epoch: 91	average_metric: binary	f1_score: 0.5221238938053097
+Epoch: 92	accuracy_score: 0.8856837606837606
+Epoch: 92	average_metric: binary	f1_score: 0.5265486725663716
+Epoch: 93	accuracy_score: 0.8856837606837606
+Epoch: 93	average_metric: binary	f1_score: 0.5265486725663716
+Epoch: 94	accuracy_score: 0.8856837606837606
+Epoch: 94	average_metric: binary	f1_score: 0.5265486725663716
+Epoch: 95	accuracy_score: 0.8867521367521367
+Epoch: 95	average_metric: binary	f1_score: 0.5330396475770924
+Epoch: 96	accuracy_score: 0.8867521367521367
+Epoch: 96	average_metric: binary	f1_score: 0.5330396475770924
+Epoch: 97	accuracy_score: 0.8867521367521367
+Epoch: 97	average_metric: binary	f1_score: 0.5330396475770924
+Epoch: 98	accuracy_score: 0.8862179487179487
+Epoch: 98	average_metric: binary	f1_score: 0.5318681318681319
+Epoch: 99	accuracy_score: 0.8867521367521367
+Epoch: 99	average_metric: binary	f1_score: 0.5350877192982455
