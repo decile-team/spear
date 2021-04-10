@@ -1,10 +1,6 @@
-.. Edurevol documentation master file, created by
-   sphinx-quickstart on Mon Mar 22 20:44:02 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Welcome to SPEAR(DECILE) documentation!
-========================================
+SPEAR documentation!
+============================
 
 .. toctree::
    :maxdepth: 5
@@ -48,39 +44,41 @@ Noisy Labels
 CAGE
 ==================
 
-.. automodule:: Cage_JL.core_cage
+:cite:t:`2020:CAGE`
+
+.. automodule:: Cage.core
 	:members:
 
 Joint Learning(JL)
 ==================
 
-.. automodule:: Cage_JL.core_jl
+:cite:t:`2020:JL`
+
+.. automodule:: JL.core
 	:members:
 
 
 CAGE, JL utils
 ===============
 
-Feature-based Models
----------------------
-
-.. automodule:: Cage_JL.models
-	:members:
-
-CAGE utils
------------
+CAGE and JL utils
+------------------
 
    From here on, Graphical model imply CAGE algorithm
 
-   JL uses these utils too
+.. automodule:: utils
+	:members:
 
-.. automodule:: Cage_JL.utils
+Feature-based Models
+---------------------
+
+.. automodule:: JL.models
 	:members:
 
 JL utils
 ---------
 
-.. automodule:: Cage_JL.utils_jl
+.. automodule:: JL.utils_jl
 	:members:
 
 
@@ -94,3 +92,9 @@ Implyloss Utils
 ===================
 .. automodule:: Implyloss.my_utils
 	:members:
+
+
+Bibilography
+=============
+
+.. bibliography::
