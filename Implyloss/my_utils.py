@@ -1,4 +1,5 @@
 import pickle, os, json
+import numpy as np
 num_args = 9
 def get_data(path):
 	'''

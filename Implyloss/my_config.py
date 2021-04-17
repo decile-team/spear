@@ -129,6 +129,7 @@ def parse_args():
     
     return args
 
+print("Started Reading Flags")
 flags = parse_args()
 
 flags.mode = flags.run_mode
@@ -164,6 +165,7 @@ flags.num_classes = None_if_zero(flags.num_classes)
 flags.num_load_d = None_if_zero(flags.num_load_d)
 flags.num_load_U = None_if_zero(flags.num_load_U)
 flags.num_load_validation = None_if_zero(flags.num_load_validation)
+print("Ended Reading Flags")
 
 # Move d pickle to output directory.
 d_pickle_orig = os.path.join(flags.data_dir, flags.d_pickle_name)

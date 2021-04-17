@@ -38,8 +38,8 @@ if __name__ == '__main__':
     print("Print num of rules: ", num_rules)
     print("\n\n")
     rule_classes = data_feeder.rule_classes
-    w_network = networks.w_network_fully_connected #rule network
-    f_network = networks.f_network_fully_connected #classification network
+    w_network = my_networks.w_network_fully_connected #rule network
+    f_network = my_networks.f_network_fully_connected #classification network
     hls = HighLevelSupervisionNetwork(
             num_features,
             num_classes,

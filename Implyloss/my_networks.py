@@ -22,7 +22,7 @@ def create_initializer(initializer_range=0.02):
     Output:
     the truncated normal range 
     '''
-  return tf.truncated_normal_initializer(stddev=initializer_range)
+    return tf.truncated_normal_initializer(stddev=initializer_range)
 
 def w_network_fully_connected(w_var_scope, num_rules, w_dict, reuse=False, dropout_keep_prob=1.0):
     '''

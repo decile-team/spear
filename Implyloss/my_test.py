@@ -3,7 +3,7 @@ from my_data_types import test_w
 # from utils import merge_dict_a_into_b
 # import data_utils
 # import metrics_utils
-import my_utils
+from my_utils import *
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
@@ -64,7 +64,7 @@ class HLSTest():
             save_preds.append(p)
                 
 
-        data_utils.dump_labels_to_file(save_filename,
+        dump_labels_to_file(save_filename,
                 np.array(save_x),
                 np.array(save_l),
                 np.array(save_m),
@@ -127,7 +127,7 @@ class HLSTest():
                 pass
             acc, pred1, labels1, classifier_loss = sess.run([accuracy, pred, labels, classifier_loss], feed_dict=feed_dict)
             precision, recall, f1_score, support = precision_recall_fscore_support(labels1, pred1)
-            accuracy1 = metrics_utils.compute_accuracy(support, recall)
+            accuracy1 = compute_accuracy(support, recall)
 
             # save predictions to file
             self.maybe_save_predictions(save_filename, test_x, l, m, pred1, d)
@@ -205,7 +205,7 @@ class HLSTest():
 
             if save_filename:
                 # Dump pickles
-                data_utils.dump_labels_to_file(save_filename,
+                dump_labels_to_file(save_filename,
                         np.array(save_x),
                         np.array(save_l),
                         np.array(save_m),

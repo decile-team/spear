@@ -1,0 +1,378 @@
+Hello 2 1
+2021-04-17 21:38:29.715866: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2021-04-17 21:38:29.715907: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+WARNING:tensorflow:From /home/parth/.local/lib/python3.8/site-packages/tensorflow/python/compat/v2_compat.py:96: disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+Started Reading Flags
+
+checkpoint_load_mode = mru
+d_pickle_name = d_processed.p
+data_dir = /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC
+dropout_keep_prob = 0.8
+early_stopping_p = 5
+f_d_adam_lr = 0.0003
+f_d_batch_size = 16
+f_d_class_sampling_str = 10,10,10,10,10,10
+f_d_epochs = 100
+f_d_metrics_pickle_name = metrics_train_f_on_d.p
+f_d_primary_metric = accuracy
+f_d_U_adam_lr = 0.0003
+f_d_U_batch_size = 32
+f_d_U_epochs = 100
+f_d_U_metrics_pickle_name = metrics_train_f_on_d_U.p
+f_infer_out_pickle_name = infer_f.p
+f_layers_str = 512,512
+gamma = 0.1
+lamda = 0.1
+min_rule_coverage = 0
+network_dropout = True
+num_checkpoints = 1
+num_classes = 0
+num_load_d = 0
+num_load_U = 0
+num_load_validation = 0
+output_dir = /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7
+rule_classes_str = 
+run_mode = implication
+shuffle_batches = True
+test_w_batch_size = 1000
+U_pickle_name = U_processed.p
+use_joint_f_w = False
+validation_pickle_name = validation_processed.p
+w_infer_out_pickle_name = infer_w.p
+w_layers_str = 512,512
+
+Hi1
+Ended Reading Flags
+Loading from hoff  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/d_processed.p
+Loading from hoff  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/U_processed.p
+Rule classes:  [2, 1, 1, 4, 3, 2, 1, 3, 5, 4, 3, 2, 4, 1, 2, 5, 4, 1, 2, 4, 3, 1, 3, 2, 1, 1, 4, 4, 5, 1, 3, 5, 2, 1, 5, 1, 5, 5, 0, 5, 5, 1, 4, 2, 3, 2, 1, 3, 5, 1, 1, 3, 2, 1, 1, 5, 2, 3, 2, 5, 3, 3, 4, 5, 5, 4, 2, 0]
+length of covered U: 4637
+Size of d before oversampling:  68
+Size of U (covered) :  4637
+Size of d after oversampling:  680
+Size of d_U after combining:  5317
+Loading 68 elements from d
+num instances in d:  680
+Loading from hoff  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/validation_processed.p
+Setting value of d to 0 for test data
+test_w len:  476
+test_w len:  476
+Number of features:  1024
+Number of classes:  6
+Print num of rules to train:  68
+Print num of rules:  68
+
+
+
+[Errno 2] No such file or directory: '/home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d.p'
+Did not find prev best metric for run type f_d. Setting to zero.
+[Errno 2] No such file or directory: '/home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d_U.p'
+Did not find prev best metric for run type f_d_U. Setting to zero.
+/home/parth/.local/lib/python3.8/site-packages/tensorflow/python/keras/legacy_tf_layers/core.py:171: UserWarning: `tf.layers.dense` is deprecated and will be removed in a future version. Please use `tf.keras.layers.Dense` instead.
+  warnings.warn('`tf.layers.dense` is deprecated and '
+/home/parth/.local/lib/python3.8/site-packages/tensorflow/python/keras/engine/base_layer_v1.py:1719: UserWarning: `layer.apply` is deprecated and will be removed in a future version. Please use `layer.__call__` method instead.
+  warnings.warn('`layer.apply` is deprecated and '
+WARNING:tensorflow:From /home/parth/.local/lib/python3.8/site-packages/tensorflow/python/util/dispatch.py:201: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+WARNING:tensorflow:From /home/parth/.local/lib/python3.8/site-packages/tensorflow/python/util/dispatch.py:201: softmax_cross_entropy_with_logits (from tensorflow.python.ops.nn_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+
+Future major versions of TensorFlow will allow gradients to flow
+into the labels input on backprop by default.
+
+See `tf.nn.softmax_cross_entropy_with_logits_v2`.
+
+WARNING:tensorflow:From /home/parth/Desktop/SEM6/RnD/Data_Pgm_Subset_Slc/Implyloss/my_model.py:615: to_float (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.cast` instead.
+[
+    "<tf.Variable 'global_step:0' shape=() dtype=int64_ref>",
+    "<tf.Variable 'f_d_global_step:0' shape=() dtype=int32_ref>",
+    "<tf.Variable 'f_network/dense/kernel:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel:0' shape=(512, 6) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias:0' shape=(6,) dtype=float32_ref>",
+    "<tf.Variable 'beta1_power:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'beta2_power:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_Adam:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_Adam_1:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_Adam:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_Adam_1:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_Adam:0' shape=(512, 6) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_Adam_1:0' shape=(512, 6) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_Adam:0' shape=(6,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_Adam_1:0' shape=(6,) dtype=float32_ref>",
+    "<tf.Variable 'f_d_U_global_step:0' shape=() dtype=int32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/kernel:0' shape=(1092, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/kernel:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/kernel:0' shape=(512, 1) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/bias:0' shape=(1,) dtype=float32_ref>",
+    "<tf.Variable 'beta1_power_1:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'beta2_power_1:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_U_Adam:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_U_Adam_1:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_U_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_U_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_U_Adam:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_U_Adam_1:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_U_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_U_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_U_Adam:0' shape=(512, 6) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_U_Adam_1:0' shape=(512, 6) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_U_Adam:0' shape=(6,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_U_Adam_1:0' shape=(6,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/kernel/f_d_U_Adam:0' shape=(1092, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/kernel/f_d_U_Adam_1:0' shape=(1092, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/bias/f_d_U_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/bias/f_d_U_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/kernel/f_d_U_Adam:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/kernel/f_d_U_Adam_1:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/bias/f_d_U_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/bias/f_d_U_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/kernel/f_d_U_Adam:0' shape=(512, 1) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/kernel/f_d_U_Adam_1:0' shape=(512, 1) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/bias/f_d_U_Adam:0' shape=(1,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/bias/f_d_U_Adam_1:0' shape=(1,) dtype=float32_ref>"
+]
+2021-04-17 21:38:34.356926: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-04-17 21:38:34.357497: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-04-17 21:38:34.357754: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory
+2021-04-17 21:38:34.357810: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)
+2021-04-17 21:38:34.357869: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (parth-G3-3590): /proc/driver/nvidia/version does not exist
+2021-04-17 21:38:34.726639: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:196] None of the MLIR optimization passes are enabled (registered 0 passes)
+2021-04-17 21:38:34.767626: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 2599990000 Hz
+Run mode is implication
+begin Implication loss training
+num_instances:  5317
+batch_size:  32
+total_batch:  166
+remaining:  5
+total_batch:  166
+Optimization started for f_d_U with implication loss!
+Batch size: 32!
+Batches per epoch : 166!
+Number of epochs: 100!
+
+========== epoch : 0 ============
+
+cost: 0.3321279812918371
+
+patience: 0
+
+/home/parth/.local/lib/python3.8/site-packages/sklearn/metrics/classification.py:1436: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples.
+  precision = _prf_divide(tp_sum, pred_sum,
+
+metrics_dict:  {'f1_score_1': 0.6360655737704919, 'precision_1': 0.532967032967033, 'recall_1': 0.7886178861788617, 'support_1': 123, 'f1_score': array([0.000, 0.636, 0.383, 0.745, 0.682, 0.687]), 'precision': array([0.000, 0.533, 0.474, 0.809, 0.776, 0.622]), 'recall': array([0.000, 0.789, 0.321, 0.691, 0.608, 0.767]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.5221795137709655, 'avg_precision': 0.5355410288298268, 'avg_recall': 0.5293644907159775, 'accuracy': 0.62, 'epoch': 1.0, 'f_d_global_step': 166}
+
+Reporting f_d metrics to tensorboard
+
+dumped metrics dict to file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d_U.p
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-166
+
+Saved new best checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-166
+
+
+========== epoch : 1 ============
+
+cost: 0.09426537894430652
+
+patience: 0
+
+
+metrics_dict:  {'f1_score_1': 0.6861313868613139, 'precision_1': 0.6225165562913907, 'recall_1': 0.7642276422764228, 'support_1': 123, 'f1_score': array([0.500, 0.686, 0.512, 0.764, 0.750, 0.769]), 'precision': array([0.750, 0.623, 0.534, 0.764, 0.823, 0.786]), 'recall': array([0.375, 0.764, 0.491, 0.764, 0.689, 0.753]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.6634377377841985, 'avg_precision': 0.7130714055546005, 'avg_recall': 0.6394248802012751, 'accuracy': 0.684, 'epoch': 2.0, 'f_d_global_step': 332}
+
+Reporting f_d metrics to tensorboard
+
+dumped metrics dict to file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d_U.p
+
+WARNING:tensorflow:From /home/parth/.local/lib/python3.8/site-packages/tensorflow/python/training/saver.py:968: remove_checkpoint (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use standard file APIs to delete files with this prefix.
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-333
+
+Saved new best checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-332
+
+
+========== epoch : 2 ============
+
+cost: 0.04543826576737484
+
+patience: 0
+
+
+metrics_dict:  {'f1_score_1': 0.6999999999999998, 'precision_1': 0.5932203389830508, 'recall_1': 0.8536585365853658, 'support_1': 123, 'f1_score': array([0.500, 0.700, 0.509, 0.761, 0.791, 0.781]), 'precision': array([0.750, 0.593, 0.509, 0.862, 0.846, 0.909]), 'recall': array([0.375, 0.854, 0.509, 0.682, 0.743, 0.685]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.6738277996167241, 'avg_precision': 0.7449104385289363, 'avg_recall': 0.6412633399874462, 'accuracy': 0.69, 'epoch': 3.0, 'f_d_global_step': 498}
+
+Reporting f_d metrics to tensorboard
+
+dumped metrics dict to file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d_U.p
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-500
+
+Saved new best checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-498
+
+
+========== epoch : 3 ============
+
+cost: 0.0417349353290292
+
+patience: 0
+
+
+metrics_dict:  {'f1_score_1': 0.7247386759581881, 'precision_1': 0.6341463414634146, 'recall_1': 0.8455284552845529, 'support_1': 123, 'f1_score': array([0.714, 0.725, 0.505, 0.755, 0.815, 0.800]), 'precision': array([0.833, 0.634, 0.519, 0.860, 0.902, 0.779]), 'recall': array([0.625, 0.846, 0.491, 0.673, 0.743, 0.822]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.7189214003063911, 'avg_precision': 0.7546121398478657, 'avg_recall': 0.6999147013409459, 'accuracy': 0.706, 'epoch': 4.0, 'f_d_global_step': 664}
+
+Reporting f_d metrics to tensorboard
+
+dumped metrics dict to file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d_U.p
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-667
+
+Saved new best checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-664
+
+
+========== epoch : 4 ============
+
+cost: 0.03322339397876141
+
+patience: 0
+
+
+metrics_dict:  {'f1_score_1': 0.7191011235955055, 'precision_1': 0.6666666666666666, 'recall_1': 0.7804878048780488, 'support_1': 123, 'f1_score': array([0.714, 0.719, 0.537, 0.716, 0.845, 0.706]), 'precision': array([0.833, 0.667, 0.521, 0.955, 0.882, 0.619]), 'recall': array([0.625, 0.780, 0.554, 0.573, 0.811, 0.822]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.7061742068438726, 'avg_precision': 0.746077250019033, 'avg_recall': 0.6940858542011231, 'accuracy': 0.692, 'epoch': 5.0, 'f_d_global_step': 830}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.706 Current is: 0.692
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-834
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-664
+
+
+========== epoch : 5 ============
+
+cost: 0.026204972035610615
+
+patience: 1
+
+
+metrics_dict:  {'f1_score_1': 0.7364620938628158, 'precision_1': 0.6623376623376623, 'recall_1': 0.8292682926829268, 'support_1': 123, 'f1_score': array([0.824, 0.736, 0.510, 0.786, 0.841, 0.758]), 'precision': array([0.778, 0.662, 0.565, 0.895, 0.859, 0.693]), 'recall': array([0.875, 0.829, 0.464, 0.700, 0.824, 0.836]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.742442166401757, 'avg_precision': 0.7421697360647289, 'avg_recall': 0.7547491282748551, 'accuracy': 0.72, 'epoch': 6.0, 'f_d_global_step': 996}
+
+Reporting f_d metrics to tensorboard
+
+dumped metrics dict to file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/metrics_train_f_on_d_U.p
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-1001
+
+Saved new best checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-996
+
+
+========== epoch : 6 ============
+
+cost: 0.024982051679819636
+
+patience: 0
+
+
+metrics_dict:  {'f1_score_1': 0.7547169811320754, 'precision_1': 0.704225352112676, 'recall_1': 0.8130081300813008, 'support_1': 123, 'f1_score': array([0.824, 0.755, 0.565, 0.686, 0.839, 0.774]), 'precision': array([0.778, 0.704, 0.515, 0.952, 0.870, 0.732]), 'recall': array([0.875, 0.813, 0.625, 0.536, 0.811, 0.822]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.740360570184147, 'avg_precision': 0.7582657416556127, 'avg_recall': 0.7470167309124878, 'accuracy': 0.712, 'epoch': 7.0, 'f_d_global_step': 1162}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.72 Current is: 0.712
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-1168
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-996
+
+
+========== epoch : 7 ============
+
+cost: 0.016246841597498445
+
+patience: 1
+
+
+metrics_dict:  {'f1_score_1': 0.7155172413793104, 'precision_1': 0.7614678899082569, 'recall_1': 0.6747967479674797, 'support_1': 123, 'f1_score': array([0.824, 0.716, 0.583, 0.686, 0.836, 0.800]), 'precision': array([0.778, 0.761, 0.488, 0.952, 0.847, 0.756]), 'recall': array([0.875, 0.675, 0.723, 0.536, 0.824, 0.849]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.7405739026796213, 'avg_precision': 0.7636883602230982, 'avg_recall': 0.7471690104771461, 'accuracy': 0.706, 'epoch': 8.0, 'f_d_global_step': 1328}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.72 Current is: 0.706
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-1335
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-996
+
+
+========== epoch : 8 ============
+
+cost: 0.016883479531469372
+
+patience: 2
+
+
+metrics_dict:  {'f1_score_1': 0.7142857142857143, 'precision_1': 0.6976744186046512, 'recall_1': 0.7317073170731707, 'support_1': 123, 'f1_score': array([0.750, 0.714, 0.521, 0.718, 0.815, 0.663]), 'precision': array([0.750, 0.698, 0.533, 0.915, 0.946, 0.519]), 'recall': array([0.750, 0.732, 0.509, 0.591, 0.716, 0.918]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.6969694426180612, 'avg_precision': 0.7269476788524623, 'avg_recall': 0.7025949024675219, 'accuracy': 0.676, 'epoch': 9.0, 'f_d_global_step': 1494}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.72 Current is: 0.676
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-1502
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-996
+
+
+========== epoch : 9 ============
+
+cost: 0.03479356638451124
+
+patience: 3
+
+
+metrics_dict:  {'f1_score_1': 0.7222222222222223, 'precision_1': 0.7054263565891473, 'recall_1': 0.7398373983739838, 'support_1': 123, 'f1_score': array([0.842, 0.722, 0.568, 0.674, 0.832, 0.797]), 'precision': array([0.727, 0.705, 0.514, 0.935, 0.827, 0.741]), 'recall': array([1.000, 0.740, 0.634, 0.527, 0.838, 0.863]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.7394048682603884, 'avg_precision': 0.7417531409512845, 'avg_recall': 0.7669817055905429, 'accuracy': 0.706, 'epoch': 10.0, 'f_d_global_step': 1660}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.72 Current is: 0.706
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-1669
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-996
+
+
+========== epoch : 10 ============
+
+cost: 0.008470246815222598
+
+patience: 4
+
+
+metrics_dict:  {'f1_score_1': 0.7318840579710145, 'precision_1': 0.6601307189542484, 'recall_1': 0.8211382113821138, 'support_1': 123, 'f1_score': array([0.824, 0.732, 0.532, 0.642, 0.819, 0.795]), 'precision': array([0.778, 0.660, 0.504, 0.964, 0.813, 0.747]), 'recall': array([0.875, 0.821, 0.562, 0.482, 0.824, 0.849]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.7238578371601226, 'avg_precision': 0.7443110242514921, 'avg_recall': 0.7356826310029617, 'accuracy': 0.694, 'epoch': 11.0, 'f_d_global_step': 1826}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.72 Current is: 0.694
+
+Saved MRU checkpoint to path:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/hls-model-1836
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  /home/parth/Desktop/SEM6/RnD/Learning-From-Rules/data/TREC/outputs/implication_0.1_0.1_7/checkpoints/f_d_U/best.ckpt-996
+
+
+========== epoch : 11 ============
+
+cost: 0.027931373781183242
+
+patience: 5
+
+
+metrics_dict:  {'f1_score_1': 0.7228915662650603, 'precision_1': 0.7142857142857143, 'recall_1': 0.7317073170731707, 'support_1': 123, 'f1_score': array([0.762, 0.723, 0.547, 0.712, 0.841, 0.753]), 'precision': array([0.615, 0.714, 0.504, 0.940, 0.906, 0.660]), 'recall': array([1.000, 0.732, 0.598, 0.573, 0.784, 0.877]), 'support': array([  8, 123, 112, 110,  74,  73]), 'avg_f1_score': 0.7228533995125338, 'avg_precision': 0.7232953416770411, 'avg_recall': 0.760524164677606, 'accuracy': 0.7, 'epoch': 12.0, 'f_d_global_step': 1992}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 0.72 Current is: 0.7
+bye! stopping early!......
+Optimization Finished for f_d_U!
+ Implication loss training end

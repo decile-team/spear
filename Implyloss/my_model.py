@@ -52,8 +52,8 @@ class HighLevelSupervisionNetwork:
 		'''
 		
 		# Modules for testing/training
-		self.train = HLSTrain(self, config)
-		self.test = HLSTest(self, config)
+		# self.train = HLSTrain(self, config)
+		# self.test = HLSTest(self, config)
 
 		self.raw_d_x = raw_d_x
 		self.raw_d_L = raw_d_L
@@ -82,6 +82,8 @@ class HighLevelSupervisionNetwork:
 		self.dropout_train_dict = {self.dropout_keep_prob: config.dropout_keep_prob}
 		self.dropout_test_dict = {self.dropout_keep_prob: 1.0}
 		
+		self.train = HLSTrain(self, config)
+		self.test = HLSTest(self, config)
 		
 		self.make_f_d_train_ops()
 		self.make_f_d_U_train_ops()
