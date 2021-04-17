@@ -1,3 +1,7 @@
+'''
+The common utils to CAGE and JL algorithms are in this file. Don't change the name or location of this file.
+'''
+
 import pickle
 import numpy as np 
 import torch
@@ -65,6 +69,7 @@ def phi(theta, l):
 	Args:
 		theta: [n_classes, n_lfs], the parameters
 		l: [n_lfs]
+	
 	Return:
 		[n_classes, n_lfs], element wise product of input tensors(each row of theta dot product with l)
 	'''
@@ -79,6 +84,7 @@ def calculate_normalizer(theta, k, n_classes):
 		theta: [n_classes, n_lfs], the parameters
 		k: [n_lfs], labels corresponding to LFs
 		n_classes: num of classes/labels
+	
 	Return:
 		a real value, representing the normaliser
 	'''
@@ -89,37 +95,39 @@ def calculate_normalizer(theta, k, n_classes):
 	return z
 
 
-def probability_l_y(theta, l, k, n_classes):
+def probability_l_y(theta, m, k, n_classes):
 	'''
 		Graphical model utils: Used to find probability involving the term psi_theta(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all LFs
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
-		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
+		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
+	
 	Return:
 		[n_instances, n_classes], the psi_theta value for each instance, for each class(true label y)
 	'''
-	probability = torch.zeros((l.shape[0], n_classes))
+	probability = torch.zeros((m.shape[0], n_classes))
 	z = calculate_normalizer(theta, k, n_classes)
 	for y in range(n_classes):
-		probability[:, y] = torch.exp(phi(theta[y], l).sum(1)) / z
+		probability[:, y] = torch.exp(phi(theta[y], m).sum(1)) / z
 
 	return probability.double()
 
 
-def probability_s_given_y_l(pi, s, y, l, k, continuous_mask, qc):
+def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 	'''
 		Graphical model utils: Used to find probability involving the term psi_pi(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all continuous LFs
 
 	Args:
 		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF
 		y: a value in [0, n_classes-1], representing true label, for which psi_pi is calculated
-		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
+		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+	
 	Return:
 		[n_instances], the psi_pi value for each instance, for the given label(true label y)
 	'''
@@ -128,53 +136,55 @@ def probability_s_given_y_l(pi, s, y, l, k, continuous_mask, qc):
 	params = torch.exp(pi)
 	probability = 1
 	for i in range(k.shape[0]):
-		m = Beta(r[i] * params[i], params[i] * (1 - r[i]))
-		probability *= torch.exp(m.log_prob(s[:, i].double())) * l[:, i].double() * continuous_mask[i] \
-		+ (1 - l[:, i]).double() + (1 - continuous_mask[i])
+		temp = Beta(r[i] * params[i], params[i] * (1 - r[i]))
+		probability *= torch.exp(temp.log_prob(s[:, i].double())) * m[:, i].double() * continuous_mask[i] \
+		+ (1 - m[:, i]).double() + (1 - continuous_mask[i])
 	return probability
 
 
-def probability(theta, pi, l, s, k, n_classes, continuous_mask, qc):
+def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
 		Graphical model utils: Used to find probability of given instances for all possible true labels(y's). Eq(1) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
 		pi: [n_classes, n_lfs], the parameters
-		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
+		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+	
 	Return:
 		[n_instances, n_classes], the probability for an instance being a particular class
 	'''
-	p_l_y = probability_l_y(theta, l, k, n_classes)
+	p_l_y = probability_l_y(theta, m, k, n_classes)
 	p_s = torch.ones(s.shape[0], n_classes).double()
 	for y in range(n_classes):
-		p_s[:, y] = probability_s_given_y_l(pi[y], s, y, l, k, continuous_mask, qc)
+		p_s[:, y] = probability_s_given_y_l(pi[y], s, y, m, k, continuous_mask, qc)
 	return p_l_y * p_s
 
 
-def log_likelihood_loss(theta, pi, l, s, k, n_classes, continuous_mask, qc):
+def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
 		Graphical model utils: negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
 		pi: [n_classes, n_lfs], the parameters
-		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
+		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+	
 	Return:
 		a real value, summation over (the log of probability for an instance, marginalised over y(true labels))
 	'''
 	eps = 1e-8
-	return - torch.log(probability(theta, pi, l, s, k, n_classes, continuous_mask, qc).sum(1) + eps).sum() / s.shape[0]
+	return - torch.log(probability(theta, pi, m, s, k, n_classes, continuous_mask, qc).sum(1) + eps).sum() / s.shape[0]
 
 
 def precision_loss(theta, k, n_classes, a): 
@@ -186,6 +196,7 @@ def precision_loss(theta, k, n_classes, a):
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
 		a: [n_lfs], a[i] is the quality guide for ith LF. Value(s) must be between 0 and 1
+	
 	Return:
 		a real value, negative of regularizer term
 	'''
@@ -205,20 +216,21 @@ def precision_loss(theta, k, n_classes, a):
 	loss = a * torch.log(correct_prob).double() + (1 - a) * torch.log(1 - correct_prob).double()
 	return -loss.sum()
 
-def predict_gm(theta, pi, l, s, k, n_classes, continuous_mask, qc):
+def predict_gm(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
 		Graphical model utils: Used to predict the labels after the training is done
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
 		pi: [n_classes, n_lfs], the parameters
-		l: [n_instances, n_lfs], l[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
+		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+	
 	Return:
-		[n_instances], the predicted class for an instance
+		numpy.ndarray of shape (n_instances,), the predicted class for an instance
 	'''
-	return np.argmax(probability(theta, pi, l, s, k, n_classes, continuous_mask, qc).detach().numpy(), 1)
+	return np.argmax(probability(theta, pi, m, s, k, n_classes, continuous_mask, qc).detach().numpy(), 1)
