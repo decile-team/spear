@@ -1,3 +1,4 @@
+CAGE log:
 Epoch: 0	accuracy_score: 0.8664529914529915
 Epoch: 0	average_metric: binary	f1_score: 0.48132780082987553
 Epoch: 1	accuracy_score: 0.8664529914529915

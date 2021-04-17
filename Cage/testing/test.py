@@ -15,20 +15,20 @@ Goal:
 if __name__ == "__main__":
 
 	#sms data
-	# n_classes = 2
-	# n_lfs = 11
-	# train_file = "pickled_data/sms_train.pkl"
-	# test_file = "pickled_data/sms_test.pkl"
-	# log_file = "logs/sms.txt"
+	n_classes = 2
+	n_lfs = 11
+	train_file = "pickled_data/sms_train.pkl"
+	test_file = "pickled_data/sms_test.pkl"
+	log_file = "logs/sms.txt"
 
 	#spouse data
-	n_classes = 2
-	n_lfs = 10
-	train_file = "pickled_data/spouse_train.pkl"
-	test_file = "pickled_data/spouse_test.pkl"
-	log_file = "logs/spouse.txt"
+	# n_classes = 2
+	# n_lfs = 10
+	# train_file = "pickled_data/spouse_train.pkl"
+	# test_file = "pickled_data/spouse_test.pkl"
+	# log_file = "logs/spouse.txt"
 
 	a = (np.ones(n_lfs)) * 0.9  # Quality  Guide all set to 0.9
 
-	cage = Cage(n_classes, train_file, a, 0.85)
-	cage.fit(test_file, log_file)
+	cage = Cage(n_classes, train_file)
+	cage.fit(test_file, log_file, a, 0.85)
