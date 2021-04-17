@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Implyloss.my_pr_utils &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>Implyloss.my_pr_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Implyloss.my_pr_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="exp_term_for_constraints"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.exp_term_for_constraints">[docs]</a><span class="k">def</span> <span class="nf">exp_term_for_constraints</span><span class="p">(</span><span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the exponential term for the constraints</span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required exponential term</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">rule_classes_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">rule_classes</span><span class="p">))</span>
+	<span class="c1">#rule_classes_tensor = tf.reshape(rule_classes_tensor,[1,rule_classes])</span>
+	<span class="n">rule_classes_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">rule_classes_tensor</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+	<span class="n">class_types_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_classes</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>	
+	<span class="c1">#[num_classes,num_rules]</span>
+	<span class="n">class_rule_constraint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">class_types_tensor</span><span class="p">,</span><span class="n">rule_classes_tensor</span><span class="p">))</span> <span class="o">-</span> <span class="mf">1.0</span>
+	<span class="n">class_rule_constraint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">C</span><span class="o">*</span><span class="n">class_rule_constraint</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">class_rule_constraint</span></div>
+
+
+<div class="viewcode-block" id="pr_product_term"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.pr_product_term">[docs]</a><span class="k">def</span> <span class="nf">pr_product_term</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the probability product term for the constraints</span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	weights ([batch_size, num_rules]) - the w_network weights</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required product term</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="c1"># weights: [batch_size, num_rules]</span>
+	<span class="n">class_rule_constraint</span> <span class="o">=</span> <span class="n">exp_term_for_constraints</span><span class="p">(</span><span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+	<span class="c1">#class_rule_constraint = tf.Print(class_rule_constraint,[tf.shape(class_rule_constraint)],message=&quot;class_rule_constraint&quot;)</span>
+	<span class="c1">#[num_classes,1,num_rules]</span>
+	<span class="n">class_rule_constraint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">class_rule_constraint</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="c1">#[1,batch_size,num_rules]</span>
+	<span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 	 
+	<span class="c1"># [num_classes,batch_size,num_rules]</span>
+	<span class="n">t1</span> <span class="o">=</span> <span class="n">class_rule_constraint</span> <span class="o">*</span> <span class="n">weights</span>
+	<span class="c1"># [1, batch_size, num_rules]</span>
+	<span class="n">t2</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">weights</span>
+	<span class="c1">#[num_classes,batch_size,num_rules]</span>
+	<span class="n">t</span> <span class="o">=</span> <span class="n">t1</span><span class="o">+</span><span class="n">t2</span>
+	<span class="c1">#t = tf.Print(t, [t,tf.shape(t)],message=&quot;t and shape of t&quot;)</span>
+	<span class="n">product_term</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="c1">#[batch_size, num_classes]</span>
+	<span class="n">product_term</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">product_term</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">product_term</span></div>
+
+
+<div class="viewcode-block" id="get_q_y_from_p"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.get_q_y_from_p">[docs]</a><span class="k">def</span> <span class="nf">get_q_y_from_p</span><span class="p">(</span><span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the q_y term from the p (f_network) distribution </span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	f_probs ([batch_size, num_classes])</span>
+<span class="sd">	weights ([batch_size, num_rules]) - the w_network weights</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required q_y term</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="c1"># f_probs: [batch_size, num_classes]</span>
+	<span class="c1"># weights: [batch_size, num_rules]</span>
+	<span class="n">psi</span> <span class="o">=</span> <span class="mf">1e-20</span>
+	<span class="n">product_term</span> <span class="o">=</span> <span class="n">pr_product_term</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="n">f_probs</span> <span class="o">*</span> <span class="n">product_term</span>
+	<span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">/</span><span class="p">(</span><span class="n">normalizer</span> <span class="o">+</span> <span class="n">psi</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="get_q_r_from_p"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.get_q_r_from_p">[docs]</a><span class="k">def</span> <span class="nf">get_q_r_from_p</span><span class="p">(</span><span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the q_r term from the p (f_network) distribution </span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	f_probs ([batch_size, num_classes])</span>
+<span class="sd">	weights ([batch_size, num_rules]) - the w_network weights</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required q_r term</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="c1"># f_probs: [batch_size, num_classes]</span>
+	<span class="c1"># weights: [batch_size, num_rules]</span>
+	<span class="n">psi</span> <span class="o">=</span> <span class="mf">1e-20</span>
+	<span class="c1">#[batch_size, num_classes]</span>
+	<span class="n">pr_product_t</span> <span class="o">=</span> <span class="n">pr_product_term</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+	<span class="c1">#[batch_size, 1, num_classes] </span>
+	<span class="n">product_term</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">pr_product_t</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="c1">#[num_rules, num_classes]</span>
+	<span class="n">class_rule_constraint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_term_for_constraints</span><span class="p">(</span><span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">))</span>
+	<span class="c1">#[1, num_rules, num_classes]</span>
+	<span class="n">class_rule_constraint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">class_rule_constraint</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	<span class="c1">#[batch_size, num_rules, 1]</span>
+	<span class="n">w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+	<span class="c1">#[batch_size, num_rules, num_classes]</span>
+	<span class="n">divisior</span> <span class="o">=</span> <span class="n">w</span><span class="o">*</span><span class="n">class_rule_constraint</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">w</span><span class="p">)</span>
+	<span class="n">product_term</span> <span class="o">=</span> <span class="n">product_term</span> <span class="o">/</span> <span class="p">(</span><span class="n">divisior</span> <span class="o">+</span> <span class="n">psi</span><span class="p">)</span>
+	<span class="c1">#[batch_size, 1, num_classes]</span>
+	<span class="n">f_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">f_probs</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="c1">#[batch_size, num_rules, num_classes]</span>
+	<span class="n">product_term</span> <span class="o">=</span> <span class="n">product_term</span> <span class="o">*</span> <span class="n">f_probs</span> <span class="o">*</span> <span class="n">class_rule_constraint</span>
+	<span class="c1">#[batch_size, num_rules]</span>
+	<span class="n">sum_over_y_term</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">product_term</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">prob_q_r_eq_1</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">*</span> <span class="n">sum_over_y_term</span>
+
+
+	<span class="n">prob_q_r_eq_0</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">f_probs</span> <span class="o">*</span> <span class="n">product_term</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">prob_q_r_eq_0</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weights</span><span class="p">)</span> <span class="o">*</span> <span class="n">prob_q_r_eq_0</span>
+
+	<span class="n">prob_q_r_eq_1</span> <span class="o">=</span> <span class="n">prob_q_r_eq_1</span> <span class="o">/</span> <span class="p">(</span><span class="n">prob_q_r_eq_0</span> <span class="o">+</span> <span class="n">prob_q_r_eq_1</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">prob_q_r_eq_1</span></div>
+
+
+<div class="viewcode-block" id="theta_term_in_pr_loss"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.theta_term_in_pr_loss">[docs]</a><span class="k">def</span> <span class="nf">theta_term_in_pr_loss</span><span class="p">(</span><span class="n">f_logits</span><span class="p">,</span> <span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the theta term in the pr loss </span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	f_logits ([batch_size, num_classes])</span>
+<span class="sd">	f_probs ([batch_size, num_classes])</span>
+<span class="sd">	weights ([batch_size, num_rules]) - the w_network weights</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C</span>
+<span class="sd">	d ([batch_size,1])</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required theta term (third term in equation 14) -  used to supervise f (classification) network from instances in U</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="c1">#[batch_size, num_classes]</span>
+	<span class="n">q_y</span> <span class="o">=</span> <span class="n">get_q_y_from_p</span><span class="p">(</span><span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+	<span class="n">cross_ent_q_p</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="n">q_y</span><span class="p">,</span><span class="n">logits</span><span class="o">=</span><span class="n">f_logits</span><span class="p">)</span>
+	<span class="n">cross_ent_q_p</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">d</span><span class="p">)</span> <span class="o">*</span> <span class="n">cross_ent_q_p</span> <span class="c1">#defined only for instances in U, so mask by (1-d)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">cross_ent_q_p</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="phi_term_in_pr_loss"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.phi_term_in_pr_loss">[docs]</a><span class="k">def</span> <span class="nf">phi_term_in_pr_loss</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">w_logits</span><span class="p">,</span> <span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the phi term in the pr loss</span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	m ([batch_size, num_rules]) - mij = 1 if ith example is associated with jth rule </span>
+<span class="sd">	w_logits ([batch_size, num_rules])</span>
+<span class="sd">	f_probs ([batch_size, num_classes])</span>
+<span class="sd">	weights ([batch_size, num_rules]) - the w_network weights</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C</span>
+<span class="sd">	d ([batch_size,1])</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required phi term (fourth term in equation 14) - used to superwise w (rule) network from instances in U</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="c1">#w_logits: [batch_size, num_rules]</span>
+	<span class="c1">#m: [batch_size, num_rules]</span>
+	<span class="n">psi</span> <span class="o">=</span> <span class="mf">1e-20</span>
+	<span class="n">q_r_1</span> <span class="o">=</span> <span class="n">get_q_r_from_p</span><span class="p">(</span><span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+	<span class="c1">#[batch_size, num_rules]</span>
+	<span class="n">cross_ent_q_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sigmoid_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="n">q_r_1</span><span class="p">,</span> <span class="n">logits</span><span class="o">=</span><span class="n">w_logits</span><span class="p">)</span>
+	<span class="n">cross_ent_q_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_ent_q_w</span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="c1">#normalizer_cross_ent_q_w = tf.reduce_sum(m,axis=-1)</span>
+	<span class="c1">#cross_ent_q_w = cross_ent_q_w / (normalizer_cross_ent_q_w + psi)</span>
+	<span class="n">cross_ent_q_w</span> <span class="o">=</span> <span class="n">cross_ent_q_w</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">d</span><span class="p">)</span>
+	<span class="n">cross_ent_q_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">cross_ent_q_w</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">cross_ent_q_w</span></div>
+
+<div class="viewcode-block" id="pr_loss"><a class="viewcode-back" href="../../index.html#Implyloss.my_pr_utils.pr_loss">[docs]</a><span class="k">def</span> <span class="nf">pr_loss</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">f_logits</span><span class="p">,</span> <span class="n">w_logits</span><span class="p">,</span> <span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Compute the  pr loss </span>
+
+<span class="sd">	Input:</span>
+<span class="sd">	m ([batch_size, num_rules]) - mij = 1 if ith example is associated with jth rule </span>
+<span class="sd">	f_logits </span>
+<span class="sd">	w_logits ([batch_size, num_rules]) - logit before sigmoid activation in w network</span>
+<span class="sd">	f_probs ([batch_size, num_classes]) - output of f network</span>
+<span class="sd">	weights ([batch_size, num_rules]) - the sigmoid output from w network</span>
+<span class="sd">	rule_classes ([num_rules,1]) - a list of classes associated with the rules</span>
+<span class="sd">	num_classes (int)</span>
+<span class="sd">	C - lamda in equation 10 (hyperparameter)</span>
+<span class="sd">	d ([batch_size,1]) - if ith instance is from &quot;d&quot; set (labelled data) d[i] = 1, else if ith instance is from &quot;U&quot; set, d[i] = 0</span>
+
+<span class="sd">	Output:</span>
+<span class="sd">	the required phi term</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="c1">#theta_term : (third term in equation 14) (used to supervise f (classification) network from instances in U )</span>
+	<span class="c1">#phi term : (fourth term in equation 14)  (used to superwise w (rule) network from instances in U )</span>
+
+	<span class="c1"># m : rule_firing matrix: [batch_size, num_rules]</span>
+	<span class="c1"># w_logits: logit before sigmoid activation in w network: [batch_size, num_rules]</span>
+	<span class="c1"># weights: sigmoid output from w network: [batch_size, num_rules]</span>
+	<span class="c1"># f_probs: output of f network: [batch_size, num_classes]</span>
+	<span class="c1"># C: \lamda in equation 10 (hyperparameter)</span>
+	<span class="c1"># d : [batch_size], d[i] = 0 if ith instance is from &quot;U&quot; set, 1 if ith instance is from &quot;d&quot; set (labeled data)</span>
+
+	<span class="n">theta_term</span> <span class="o">=</span> <span class="n">theta_term_in_pr_loss</span><span class="p">(</span><span class="n">f_logits</span><span class="p">,</span> <span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+	<span class="n">cross_ent_q_w</span> <span class="o">=</span> <span class="n">phi_term_in_pr_loss</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">w_logits</span><span class="p">,</span> <span class="n">f_probs</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rule_classes</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">theta_term</span> <span class="o">+</span> <span class="n">cross_ent_q_w</span></div>
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

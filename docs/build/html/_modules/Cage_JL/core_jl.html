@@ -1,0 +1,721 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Cage_JL.core_jl &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>Cage_JL.core_jl</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Cage_JL.core_jl</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">TensorDataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">utils_jl</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Joint_Learning"><a class="viewcode-back" href="../../index.html#Cage_JL.core_jl.Joint_Learning">[docs]</a><span class="k">class</span> <span class="nc">Joint_Learning</span><span class="p">:</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Joint_Learning class:</span>
+<span class="sd">		[Note: from here on, feature model is short for feature-based classification model and graphical model(gm) imply CAGE algorithm]</span>
+<span class="sd">	</span>
+<span class="sd">	Args:</span>
+<span class="sd">		n_classes: Number of classes/labels, type is integer</span>
+<span class="sd">		path_L: Path to pickle file of labelled instances</span>
+<span class="sd">		path_U: Path to pickle file of unlabelled instances</span>
+<span class="sd">		path_V: Path to pickle file of validation instances</span>
+<span class="sd">		path_T: Path to pickle file of test instances</span>
+<span class="sd">		loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else</span>
+<span class="sd">		is_qt: True if quality guide is available. False if quality guide is intended to be found from validation instances</span>
+<span class="sd">		is_qc: True if quality index is available. False if quality index is intended to be found from validation instances</span>
+<span class="sd">		batch_size: Batch size, type should be integer</span>
+<span class="sd">		lr_feature: Learning rate for feature model, type is integer or float</span>
+<span class="sd">		lr_gm: Learning rate for graphical model(cage), type is integer or float</span>
+<span class="sd">		use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score</span>
+<span class="sd">		feature_model: The model intended to be used for features, allowed values are &#39;lr&#39; or &#39;nn&#39; string, default is &#39;nn&#39;</span>
+<span class="sd">		metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is &#39;macro&#39;</span>
+<span class="sd">		qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1</span>
+<span class="sd">		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1</span>
+<span class="sd">		n_hidden: Number of hidden layer nodes if feature model is &#39;nn&#39;, type is integer, default is 512</span>
+<span class="sd">		n_epochs: Number of epochs in each run, type is integer, default is 100</span>
+<span class="sd">		n_runs: Number of runs ,type is integer, default is 10</span>
+<span class="sd">		start_len: A parameter used in validation, type is integer, default is 5</span>
+<span class="sd">		stop_len: A parameter used in validation, type is integer, default is 10</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">path_L</span><span class="p">,</span> <span class="n">path_U</span><span class="p">,</span> <span class="n">path_V</span><span class="p">,</span> <span class="n">path_T</span> <span class="p">,</span> <span class="n">loss_func_mask</span><span class="p">,</span> <span class="n">is_qt</span><span class="p">,</span> <span class="n">is_qc</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">lr_feature</span><span class="p">,</span> <span class="n">lr_gm</span><span class="p">,</span>\
+	 <span class="n">use_accuracy_score</span><span class="p">,</span> <span class="n">feature_model</span> <span class="o">=</span> <span class="s1">&#39;nn&#39;</span><span class="p">,</span> <span class="n">metric_avg</span> <span class="o">=</span> <span class="s1">&#39;macro&#39;</span><span class="p">,</span> <span class="n">qt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">qc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n_hidden</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span> <span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">n_runs</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">start_len</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">stop_len</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">path_L</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">path_V</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">path_V</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">path_T</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">metric_avg</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span>
+		<span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_L</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_U</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_V</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_T</span><span class="p">)</span>
+		<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">loss_func_mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span>
+		<span class="k">assert</span> <span class="n">feature_model</span> <span class="o">==</span> <span class="s1">&#39;lr&#39;</span> <span class="ow">or</span> <span class="n">feature_model</span> <span class="o">==</span> <span class="s1">&#39;nn&#39;</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">is_qt</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">is_qc</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">use_accuracy_score</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">lr_feature</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">lr_feature</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">lr_gm</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">lr_gm</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+
+		<span class="k">if</span> <span class="n">n_lfs</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">qt</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">qt</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">qt</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+		<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">qt</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">qt</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span> <span class="n">qt</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">))</span>
+		<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">qt</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">qt</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">qt</span> <span class="o">==</span> <span class="mi">1</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid type for qt in Joint_Learning class&quot;</span><span class="p">)</span>
+			<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">n_lfs</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_lfs</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">qc</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">qc</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+		<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">qc</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span> <span class="n">qc</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">))</span>
+		<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">qc</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">qc</span> <span class="o">==</span> <span class="mi">1</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid type for qc in Joint_Learning class&quot;</span><span class="p">)</span>
+			<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_hidden</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_hidden</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_runs</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_runs</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">start_len</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">start_len</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">stop_len</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">stop_len</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+
+		<span class="n">torch</span><span class="o">.</span><span class="n">set_default_dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span> <span class="o">=</span> <span class="n">loss_func_mask</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">feature_model</span> <span class="o">=</span> <span class="n">feature_model</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">n_hidden</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_hidden</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">lr_feature</span> <span class="o">=</span> <span class="n">lr_feature</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">lr_gm</span> <span class="o">=</span> <span class="n">lr_gm</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span> <span class="o">=</span> <span class="n">use_accuracy_score</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span> <span class="o">=</span> <span class="n">metric_avg</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">n_runs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_runs</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">start_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_len</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">stop_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stop_len</span><span class="p">)</span>
+
+		<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_len</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_len</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+			<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span> <span class="k">as</span> <span class="n">score</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">f1_score</span> <span class="k">as</span> <span class="n">score</span>
+		<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">precision_score</span> <span class="k">as</span> <span class="n">prec_score</span>
+		<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">recall_score</span> <span class="k">as</span> <span class="n">recall_score</span>
+
+		<span class="n">data_L</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">path_L</span><span class="p">)</span>
+		<span class="n">data_U</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">path_U</span><span class="p">)</span>
+		<span class="n">data_V</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">path_V</span><span class="p">)</span>
+		<span class="n">data_T</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">path_T</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">x_sup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_L</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">y_sup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_L</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">l_sup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_L</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_sup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_L</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+		<span class="n">excluding</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">temp_index</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="k">for</span> <span class="n">temp</span> <span class="ow">in</span> <span class="n">data_U</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">temp</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">))</span> <span class="p">):</span>
+				<span class="n">excluding</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index_temp</span><span class="p">)</span>
+			<span class="n">index_temp</span><span class="o">+=</span><span class="mi">1</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">x_unsup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">data_U</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">excluding</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">y_unsup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">data_U</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">excluding</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">l_unsup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">data_U</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">excluding</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">data_U</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">excluding</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">x_valid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_V</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">y_valid</span> <span class="o">=</span> <span class="n">data_V</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">l_valid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_V</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_V</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">x_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_T</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">data_T</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">l_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_T</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_T</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_L</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">()</span> <span class="c1"># LF&#39;s classes</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data_L</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="c1"># Mask for s/continuous_mask</span>
+
+		<span class="c1">#[Note: </span>
+		<span class="c1">#1. Loss function number, Calculated over, Loss function:</span>
+		<span class="c1">#		1, L, Cross Entropy(prob_from_feature_model, true_labels)</span>
+		<span class="c1">#		2, U, Entropy(prob_from_feature_model)</span>
+		<span class="c1">#		3, U, Cross Entropy(prob_from_feature_model, prob_from_graphical_model)</span>
+		<span class="c1">#		4, L, Negative Log Likelihood</span>
+		<span class="c1">#		5, U, Negative Log Likelihood(marginalised over true labels)</span>
+		<span class="c1">#		6, L and U, KL Divergence(prob_feature_model, prob_graphical_model)</span>
+		<span class="c1">#		7, Quality guide</span>
+		<span class="c1">#</span>
+		<span class="c1">#2. each pickle file should follow the standard convention for data storage]</span>
+		<span class="c1">#</span>
+		<span class="c1">#3. shapes of x,y,l,s:</span>
+		<span class="c1">#	x: [num_instances, num_features], feature matrix</span>
+		<span class="c1">#	y: [num_instances, 1], true labels, if available</span>
+		<span class="c1">#	l: [num_instances, num_rules], 1 if LF is triggered, 0 else</span>
+		<span class="c1">#	s: [num_instances, num_rules], continuous score</span>
+		<span class="c1">#]</span>
+
+		<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features</span> \
+		 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features</span>
+
+		<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>\
+		 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_sup</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_sup</span><span class="o">.</span><span class="n">shape</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span>
+		<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>\
+		 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_unsup</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span><span class="o">.</span><span class="n">shape</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span>
+		<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>\
+		 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_valid</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span><span class="o">.</span><span class="n">shape</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span>
+		<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>\
+		 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_test</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_test</span><span class="o">.</span><span class="n">shape</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span>
+
+		<span class="k">if</span> <span class="n">is_qt</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">qt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">qt</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="k">if</span> <span class="n">qt</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">qt</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="k">else</span> \
+			<span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="o">*</span> <span class="n">qt</span><span class="p">)</span> <span class="k">if</span> <span class="n">qt</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">))</span> 
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">prec_lfs</span><span class="o">=</span><span class="p">[]</span>
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">):</span>
+				<span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+				<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_valid</span><span class="p">)):</span>
+					<span class="k">if</span> <span class="n">y_valid</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">l_valid</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+						<span class="n">correct</span><span class="o">+=</span><span class="mi">1</span>
+				<span class="n">prec_lfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">correct</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">y_valid</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">qt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">prec_lfs</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">is_qg</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">qc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">qt</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="k">if</span> <span class="n">qc</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="k">else</span> <span class="p">(</span><span class="n">qc</span> <span class="k">if</span> <span class="n">qc</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.85</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">qc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">s_valid</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">))</span>
+
+		<span class="c1"># clip s</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_sup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_sup</span> <span class="o">&gt;</span> <span class="mf">0.999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.999</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_sup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_sup</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span> <span class="o">&gt;</span> <span class="mf">0.999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.999</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span> <span class="o">&gt;</span> <span class="mf">0.999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.999</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_test</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_test</span> <span class="o">&gt;</span> <span class="mf">0.999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.999</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s_test</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_test</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">l</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">l_sup</span><span class="p">,</span> <span class="n">l_unsup</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">s_sup</span><span class="p">,</span> <span class="n">s_unsup</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">x_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x_sup</span><span class="p">,</span> <span class="n">x_unsup</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">y_sup</span><span class="p">,</span> <span class="n">y_unsup</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">supervised_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">l_sup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">l_unsup</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">))</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">))</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_model</span> <span class="o">==</span> <span class="s1">&#39;lr&#39;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_model</span> <span class="o">==</span><span class="s1">&#39;nn&#39;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span> <span class="o">=</span> <span class="n">DeepNet</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_hidden</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Joint_Learning.fit"><a class="viewcode-back" href="../../index.html#Cage_JL.core_jl.Joint_Learning.fit">[docs]</a>	<span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_gm</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Args:</span>
+<span class="sd">			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False</span>
+<span class="sd">			path: Path to log file</span>
+<span class="sd">		Return: </span>
+<span class="sd">			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances,), first one is through graphical model, other one through feature model.</span>
+<span class="sd">			Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+
+		<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">return_gm</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span>
+
+		<span class="n">file</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;a+&quot;</span><span class="p">)</span>
+
+		<span class="n">use_cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+		<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">use_cuda</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+		<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">True</span>
+
+		<span class="n">final_score_gm</span><span class="p">,</span> <span class="n">final_score_lr</span><span class="p">,</span> <span class="n">final_score_gm_val</span><span class="p">,</span> <span class="n">final_score_lr_val</span> <span class="o">=</span> <span class="p">[],[],[],[]</span>
+		<span class="n">final_score_lr_prec</span><span class="p">,</span> <span class="n">final_score_lr_recall</span><span class="p">,</span> <span class="n">final_score_gm_prec</span><span class="p">,</span> <span class="n">final_score_gm_recall</span> <span class="o">=</span> <span class="p">[],[],[],[]</span>
+		<span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_runs</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">))</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+			<span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span><span class="p">))</span><span class="o">.</span><span class="n">double</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1</span>
+			<span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+			<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">([{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()},</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">]}],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+			<span class="n">optimizer_lr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_feature</span><span class="p">)</span>
+			<span class="n">optimizer_gm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">],</span> <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_gm</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">supervised_criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+			<span class="n">dataset</span> <span class="o">=</span> <span class="n">TensorDataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervised_mask</span><span class="p">)</span>
+
+			<span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">pin_memory</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+			<span class="n">best_score_lr</span><span class="p">,</span><span class="n">best_score_gm</span><span class="p">,</span><span class="n">best_epoch_lr</span><span class="p">,</span><span class="n">best_epoch_gm</span><span class="p">,</span><span class="n">best_score_lr_val</span><span class="p">,</span> <span class="n">best_score_gm_val</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+			<span class="n">best_score_lr_prec</span><span class="p">,</span><span class="n">best_score_lr_recall</span> <span class="p">,</span><span class="n">best_score_gm_prec</span><span class="p">,</span><span class="n">best_score_gm_recall</span><span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+
+			<span class="n">stop_early_lr</span><span class="p">,</span> <span class="n">stop_early_gm</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+			<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span><span class="p">):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+				<span class="k">for</span> <span class="n">batch_ndx</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+					<span class="n">optimizer_lr</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+					<span class="n">optimizer_gm</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+					<span class="n">unsup</span> <span class="o">=</span> <span class="p">[]</span>
+					<span class="n">sup</span> <span class="o">=</span> <span class="p">[]</span>
+					<span class="n">supervised_indices</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+					<span class="c1"># unsupervised_indices = indices  # Uncomment for entropy</span>
+					<span class="n">unsupervised_indices</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">sample</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+					<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+						<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">supervised_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+							<span class="n">loss_1</span> <span class="o">=</span> <span class="n">supervised_criterion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">]),</span> <span class="n">sample</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">])</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">loss_1</span> <span class="o">=</span> <span class="mi">0</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">loss_1</span><span class="o">=</span><span class="mi">0</span>
+
+					<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+						<span class="n">unsupervised_lr_probability</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">]))</span>
+						<span class="n">loss_2</span> <span class="o">=</span> <span class="n">entropy</span><span class="p">(</span><span class="n">unsupervised_lr_probability</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">loss_2</span><span class="o">=</span><span class="mi">0</span>
+
+					<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+						<span class="n">y_pred_unsupervised</span> <span class="o">=</span> <span class="n">predict_gm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+						<span class="n">loss_3</span> <span class="o">=</span> <span class="n">supervised_criterion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">y_pred_unsupervised</span><span class="p">))</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">loss_3</span> <span class="o">=</span> <span class="mi">0</span>
+
+					<span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">supervised_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+						<span class="n">loss_4</span> <span class="o">=</span> <span class="n">log_likelihood_loss_supervised</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">loss_4</span> <span class="o">=</span> <span class="mi">0</span>
+
+					<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">4</span><span class="p">]):</span>
+						<span class="n">loss_5</span> <span class="o">=</span> <span class="n">log_likelihood_loss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">loss_5</span> <span class="o">=</span><span class="mi">0</span>
+
+					<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">5</span><span class="p">]):</span>
+						<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">supervised_indices</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+							<span class="n">supervised_indices</span> <span class="o">=</span> <span class="n">supervised_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+							<span class="n">probs_graphical</span> <span class="o">=</span> <span class="n">probability</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">sample</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">]]),</span>\
+							<span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">sample</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span><span class="n">sample</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">supervised_indices</span><span class="p">]]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">probs_graphical</span> <span class="o">=</span> <span class="n">probability</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="n">sample</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span><span class="n">sample</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">unsupervised_indices</span><span class="p">],</span>\
+								<span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+						<span class="n">probs_graphical</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs_graphical</span><span class="o">.</span><span class="n">t</span><span class="p">()</span> <span class="o">/</span> <span class="n">probs_graphical</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">t</span><span class="p">()</span>
+						<span class="n">probs_lr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+						<span class="n">loss_6</span> <span class="o">=</span> <span class="n">kl_divergence</span><span class="p">(</span><span class="n">probs_lr</span><span class="p">,</span> <span class="n">probs_graphical</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">loss_6</span><span class="o">=</span> <span class="mi">0</span>
+
+					<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_func_mask</span><span class="p">[</span><span class="mi">6</span><span class="p">]):</span>
+						<span class="n">prec_loss</span> <span class="o">=</span> <span class="n">precision_loss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qt</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">prec_loss</span> <span class="o">=</span><span class="mi">0</span>
+
+					<span class="n">loss</span> <span class="o">=</span> <span class="n">loss_1</span> <span class="o">+</span> <span class="n">loss_2</span> <span class="o">+</span> <span class="n">loss_3</span> <span class="o">+</span> <span class="n">loss_4</span> <span class="o">+</span> <span class="n">loss_6</span> <span class="o">+</span> <span class="n">loss_5</span> <span class="o">+</span> <span class="n">prec_loss</span>
+					<span class="k">if</span> <span class="n">loss</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+						<span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+						<span class="n">optimizer_gm</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+						<span class="n">optimizer_lr</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+				<span class="c1">#gm Test</span>
+				<span class="n">y_pred</span> <span class="o">=</span> <span class="n">predict_gm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+					<span class="n">gm_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">gm_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+				<span class="n">gm_prec</span> <span class="o">=</span> <span class="n">prec_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+				<span class="n">gm_recall</span> <span class="o">=</span> <span class="n">recall_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+
+				<span class="c1">#gm Validation</span>
+				<span class="n">y_pred</span> <span class="o">=</span> <span class="n">predict_gm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+					<span class="n">gm_valid_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_valid</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">gm_valid_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_valid</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+
+				<span class="c1">#LR Test</span>
+				<span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">))</span>
+				<span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+					<span class="n">lr_acc</span> <span class="o">=</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">lr_acc</span> <span class="o">=</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+				<span class="n">lr_prec</span> <span class="o">=</span> <span class="n">prec_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+				<span class="n">lr_recall</span> <span class="o">=</span> <span class="n">recall_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+
+				<span class="c1">#LR Validation</span>
+				<span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_valid</span><span class="p">))</span>
+				<span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+					<span class="n">lr_valid_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_valid</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">lr_valid_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_valid</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+
+				<span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+					<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Run: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">Epoch: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">gm_valid_acc: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">lr_valid_acc: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">gm_valid_acc</span><span class="p">,</span> <span class="n">lr_valid_acc</span><span class="p">))</span>
+					<span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+						<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Run: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">Epoch: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">gm_test_acc: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">lr_test_acc: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">gm_acc</span><span class="p">,</span> <span class="n">lr_acc</span><span class="p">))</span>
+
+				<span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_len</span> <span class="ow">and</span> <span class="n">gm_valid_acc</span> <span class="o">&gt;=</span> <span class="n">best_score_gm_val</span> <span class="ow">and</span> <span class="n">gm_valid_acc</span> <span class="o">&gt;=</span> <span class="n">best_score_lr_val</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">gm_valid_acc</span> <span class="o">==</span> <span class="n">best_score_gm_val</span> <span class="ow">or</span> <span class="n">gm_valid_acc</span> <span class="o">==</span> <span class="n">best_score_lr_val</span><span class="p">:</span>
+						<span class="k">if</span> <span class="n">best_score_gm</span> <span class="o">&lt;</span> <span class="n">gm_acc</span> <span class="ow">or</span> <span class="n">best_score_lr</span> <span class="o">&lt;</span> <span class="n">lr_acc</span><span class="p">:</span>
+							<span class="n">best_epoch_lr</span> <span class="o">=</span> <span class="n">epoch</span>
+							<span class="n">best_score_lr_val</span> <span class="o">=</span> <span class="n">lr_valid_acc</span>
+							<span class="n">best_score_lr</span> <span class="o">=</span> <span class="n">lr_acc</span>
+
+							<span class="n">best_epoch_gm</span> <span class="o">=</span> <span class="n">epoch</span>
+							<span class="n">best_score_gm_val</span> <span class="o">=</span> <span class="n">gm_valid_acc</span>
+							<span class="n">best_score_gm</span> <span class="o">=</span> <span class="n">gm_acc</span>
+
+							<span class="n">best_score_lr_prec</span> <span class="o">=</span> <span class="n">lr_prec</span>
+							<span class="n">best_score_lr_recall</span>  <span class="o">=</span> <span class="n">lr_recall</span>
+							<span class="n">best_score_gm_prec</span> <span class="o">=</span> <span class="n">gm_prec</span>
+							<span class="n">best_score_gm_recall</span>  <span class="o">=</span> <span class="n">gm_recall</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">best_epoch_lr</span> <span class="o">=</span> <span class="n">epoch</span>
+						<span class="n">best_score_lr_val</span> <span class="o">=</span> <span class="n">lr_valid_acc</span>
+						<span class="n">best_score_lr</span> <span class="o">=</span> <span class="n">lr_acc</span>
+
+						<span class="n">best_epoch_gm</span> <span class="o">=</span> <span class="n">epoch</span>
+						<span class="n">best_score_gm_val</span> <span class="o">=</span> <span class="n">gm_valid_acc</span>
+						<span class="n">best_score_gm</span> <span class="o">=</span> <span class="n">gm_acc</span>
+
+						<span class="n">best_score_lr_prec</span> <span class="o">=</span> <span class="n">lr_prec</span>
+						<span class="n">best_score_lr_recall</span>  <span class="o">=</span> <span class="n">lr_recall</span>
+						<span class="n">best_score_gm_prec</span> <span class="o">=</span> <span class="n">gm_prec</span>
+						<span class="n">best_score_gm_recall</span>  <span class="o">=</span> <span class="n">gm_recall</span>
+						<span class="n">stop_early_lr</span> <span class="o">=</span> <span class="p">[]</span>
+						<span class="n">stop_early_gm</span> <span class="o">=</span> <span class="p">[]</span>
+
+				<span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_len</span> <span class="ow">and</span> <span class="n">lr_valid_acc</span> <span class="o">&gt;=</span> <span class="n">best_score_lr_val</span> <span class="ow">and</span> <span class="n">lr_valid_acc</span> <span class="o">&gt;=</span> <span class="n">best_score_gm_val</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">lr_valid_acc</span> <span class="o">==</span> <span class="n">best_score_lr_val</span> <span class="ow">or</span> <span class="n">lr_valid_acc</span> <span class="o">==</span> <span class="n">best_score_gm_val</span><span class="p">:</span>
+						<span class="k">if</span> <span class="n">best_score_lr</span> <span class="o">&lt;</span> <span class="n">lr_acc</span> <span class="ow">or</span> <span class="n">best_score_gm</span> <span class="o">&lt;</span> <span class="n">gm_acc</span><span class="p">:</span>
+							
+							<span class="n">best_epoch_lr</span> <span class="o">=</span> <span class="n">epoch</span>
+							<span class="n">best_score_lr_val</span> <span class="o">=</span> <span class="n">lr_valid_acc</span>
+							<span class="n">best_score_lr</span> <span class="o">=</span> <span class="n">lr_acc</span>
+
+							<span class="n">best_epoch_gm</span> <span class="o">=</span> <span class="n">epoch</span>
+							<span class="n">best_score_gm_val</span> <span class="o">=</span> <span class="n">gm_valid_acc</span>
+							<span class="n">best_score_gm</span> <span class="o">=</span> <span class="n">gm_acc</span>
+
+							<span class="n">best_score_lr_prec</span> <span class="o">=</span> <span class="n">lr_prec</span>
+							<span class="n">best_score_lr_recall</span>  <span class="o">=</span> <span class="n">lr_recall</span>
+							<span class="n">best_score_gm_prec</span> <span class="o">=</span> <span class="n">gm_prec</span>
+							<span class="n">best_score_gm_recall</span>  <span class="o">=</span> <span class="n">gm_recall</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">best_epoch_lr</span> <span class="o">=</span> <span class="n">epoch</span>
+						<span class="n">best_score_lr_val</span> <span class="o">=</span> <span class="n">lr_valid_acc</span>
+						<span class="n">best_score_lr</span> <span class="o">=</span> <span class="n">lr_acc</span>
+
+						<span class="n">best_epoch_gm</span> <span class="o">=</span> <span class="n">epoch</span>
+						<span class="n">best_score_gm_val</span> <span class="o">=</span> <span class="n">gm_valid_acc</span>
+						<span class="n">best_score_gm</span> <span class="o">=</span> <span class="n">gm_acc</span>
+						<span class="n">best_score_lr_prec</span> <span class="o">=</span> <span class="n">lr_prec</span>
+
+						<span class="n">best_score_lr_recall</span>  <span class="o">=</span> <span class="n">lr_recall</span>
+						<span class="n">best_score_gm_prec</span> <span class="o">=</span> <span class="n">gm_prec</span>
+						<span class="n">best_score_gm_recall</span>  <span class="o">=</span> <span class="n">gm_recall</span>
+						<span class="n">stop_early_lr</span> <span class="o">=</span> <span class="p">[]</span>
+						<span class="n">stop_early_gm</span> <span class="o">=</span> <span class="p">[]</span>
+
+				<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stop_early_lr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_len</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stop_early_gm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_len</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">best_score_lr_val</span> <span class="o">&gt;=</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">stop_early_lr</span><span class="p">)</span> <span class="ow">or</span> \
+				<span class="nb">all</span><span class="p">(</span><span class="n">best_score_gm_val</span> <span class="o">&gt;=</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">stop_early_gm</span><span class="p">)):</span>
+					<span class="c1">#print(&#39;Early Stopping at&#39;, best_epoch_gm, best_score_gm, best_score_lr)</span>
+					<span class="c1">#print(&#39;Validation score Early Stopping at&#39;, best_epoch_gm, best_score_lr_val, best_score_gm_val)</span>
+					<span class="k">break</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">stop_early_lr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lr_valid_acc</span><span class="p">)</span>
+					<span class="n">stop_early_gm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gm_valid_acc</span><span class="p">)</span>
+
+				<span class="c1">#epoch for loop ended</span>
+
+			<span class="c1"># print(&#39;Best Epoch LR&#39;, best_epoch_lr)</span>
+			<span class="c1"># print(&#39;Best Epoch GM&#39;, best_epoch_gm)</span>
+			<span class="c1"># print(&quot;Run \t&quot;, run, &quot;Epoch, GM, LR \t&quot;, best_score_gm, best_score_lr)</span>
+			<span class="c1"># print(&quot;Run \t&quot;, run, &quot;GM Val, LR Val \t&quot;, best_score_gm_val, best_score_lr_val)</span>
+
+			<span class="n">final_score_gm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_gm</span><span class="p">)</span>
+			<span class="n">final_score_gm_prec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_gm_prec</span><span class="p">)</span>
+			<span class="n">final_score_gm_recall</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_gm_recall</span><span class="p">)</span>
+			<span class="n">final_score_gm_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_gm_val</span><span class="p">)</span>
+			<span class="n">final_score_lr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_lr</span><span class="p">)</span>
+			<span class="n">final_score_lr_prec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_lr_prec</span><span class="p">)</span>
+			<span class="n">final_score_lr_recall</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_lr_recall</span><span class="p">)</span>
+			<span class="n">final_score_lr_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_score_lr_val</span><span class="p">)</span>
+
+		<span class="c1">#run for loop ended</span>
+
+		<span class="n">y_pred</span> <span class="o">=</span> <span class="n">predict_gm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+			<span class="n">gm_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">gm_acc</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+
+		<span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">))</span>
+		<span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_accuracy_score</span><span class="p">:</span>
+			<span class="n">lr_acc</span> <span class="o">=</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">lr_acc</span> <span class="o">=</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_avg</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Training is done. gm_test_acc: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">lr_test_acc: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gm_acc</span><span class="p">,</span> <span class="n">lr_acc</span><span class="p">))</span>
+			<span class="c1"># print(&quot;===================================================&quot;)</span>
+			<span class="c1"># print(&quot;TEST Averaged scores are for LR&quot;, np.mean(final_score_lr))</span>
+			<span class="c1"># print(&quot;TEST Precision average scores are for LR&quot;, np.mean(final_score_lr_prec))</span>
+			<span class="c1"># print(&quot;TEST Recall average scores are for LR&quot;, np.mean(final_score_lr_recall))</span>
+			<span class="c1"># print(&quot;===================================================&quot;)</span>
+			<span class="c1"># print(&quot;TEST Averaged scores are for GM&quot;,  np.mean(final_score_gm))</span>
+			<span class="c1"># print(&quot;TEST Precision average scores are for GM&quot;, np.mean(final_score_gm_prec))</span>
+			<span class="c1"># print(&quot;TEST Recall average scores are for GM&quot;, np.mean(final_score_gm_recall))</span>
+			<span class="c1"># print(&quot;===================================================&quot;)</span>
+			<span class="c1"># print(&quot;VALIDATION Averaged scores are for GM,LR&quot;, np.mean(final_score_gm_val), np.mean(final_score_lr_val))</span>
+			<span class="c1"># print(&quot;TEST STD  are for GM,LR&quot;, np.std(final_score_gm), np.std(final_score_lr))</span>
+			<span class="c1"># print(&quot;VALIDATION STD  are for GM,LR&quot;, np.std(final_score_gm_val), np.std(final_score_lr_val))</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">return_gm</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">predict_gm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_unsup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_unsup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">),</span>\
+			 <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_unsup</span><span class="p">)))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_unsup</span><span class="p">)))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Joint_Learning.predict_cage"><a class="viewcode-back" href="../../index.html#Cage_JL.core_jl.Joint_Learning.predict_cage">[docs]</a>	<span class="k">def</span> <span class="nf">predict_cage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_test</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			path_test: Path to the pickle file containing test data set</span>
+<span class="sd">		Return:</span>
+<span class="sd">			numpy.ndarray of shape (num_instances,) which are predicted labels</span>
+<span class="sd">			[Note: no aggregration/algorithm-running will be done using the current input]</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">path_test</span><span class="p">)</span>
+		<span class="n">s_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+		<span class="n">s_test</span><span class="p">[</span><span class="n">s_test</span> <span class="o">&gt;</span> <span class="mf">0.999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.999</span>
+		<span class="n">s_test</span><span class="p">[</span><span class="n">s_test</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_lfs</span>
+		<span class="n">m_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">())</span>
+
+		<span class="k">return</span> <span class="n">predict_gm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">m_test</span><span class="p">,</span> <span class="n">s_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Joint_Learning.predict_feature_model"><a class="viewcode-back" href="../../index.html#Cage_JL.core_jl.Joint_Learning.predict_feature_model">[docs]</a>	<span class="k">def</span> <span class="nf">predict_feature_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_test</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">			Used to find the predicted labels based on the trained parameters of feature model</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			path_test: Path to the pickle file containing test data set</span>
+<span class="sd">		Return:</span>
+<span class="sd">			numpy.ndarray of shape (num_instances,) which are predicted labels</span>
+<span class="sd">			[Note: no aggregration/algorithm-running will be done using the current input]</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">path_test</span><span class="p">)</span>
+		<span class="n">x_test</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">assert</span> <span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_model</span><span class="p">(</span><span class="n">x_test</span><span class="p">)))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

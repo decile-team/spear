@@ -1,0 +1,562 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>labeling.analysis.core &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>labeling.analysis.core</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for labeling.analysis.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sparse</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+
+<span class="kn">from</span> <span class="nn">labeling.lf</span> <span class="kn">import</span> <span class="n">LabelingFunction</span>
+<span class="kn">from</span> <span class="nn">labeling.utils</span> <span class="kn">import</span> <span class="n">plot_df_bar</span>
+
+<div class="viewcode-block" id="LFAnalysis"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis">[docs]</a><span class="k">class</span> <span class="nc">LFAnalysis</span><span class="p">:</span>   
+    <span class="sd">&quot;&quot;&quot;Run analysis on LFs using label matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            L (np.ndarray): Label matrix where L_{i,j} is the label given by the jth LF to the ith x instance</span>
+<span class="sd">            lfs (Optional[List[LabelingFunction]], optional): Labeling functions used to generate `&#39;L``. Defaults to None.</span>
+<span class="sd">            abstain (int, optional): label associated with abstain. Defaults to -1.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError:  If number of LFs and number of LF matrix columns differ    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">L</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lfs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LabelingFunction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">abstain</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">L</span>
+        <span class="c1"># self._L_sparse = sparse.csr_matrix(L + 1)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lf_names</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span> <span class="o">=</span> <span class="n">abstain</span>
+        <span class="k">if</span> <span class="n">lfs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lfs</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Number of LFs (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">lfs</span><span class="p">)</span><span class="si">}</span><span class="s2">) and number of &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;LF matrix columns (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">) are different&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lf_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">lf</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">lfs</span><span class="p">]</span>
+    
+
+    <span class="k">def</span> <span class="nf">_covered_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get indicator vector z where z_i = 1 if x_i is labeled by at least one LF.&quot;&quot;&quot;</span>
+        <span class="c1"># return np.ravel(np.where(self._L_sparse.sum(axis=1) != 0, 1, 0))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">L</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    
+    <span class="k">def</span> <span class="nf">_overlapped_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get indicator vector z where z_i = 1 if x_i is labeled by more than one LF.&quot;&quot;&quot;</span>
+        <span class="c1"># return np.where(np.ravel((self._L_sparse != 0).sum(axis=1)) &gt; 1, 1, 0)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    
+    <span class="k">def</span> <span class="nf">_conflicted_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get indicator vector z where z_i = 1 if x_i is labeled differently by two LFs.&quot;&quot;&quot;</span>
+        <span class="c1"># m = sparse.diags(np.ravel(self._L_sparse.max(axis=1).todense()))</span>
+        <span class="c1"># return np.ravel(</span>
+        <span class="c1">#     np.max(m @ (self._L_sparse != 0) != self._L_sparse, axis=1)</span>
+        <span class="c1">#     .astype(int)</span>
+        <span class="c1">#     .todense()</span>
+        <span class="c1"># )</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">L1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">,</span><span class="n">rep</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">L1</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">L1</span> <span class="o">!=</span> <span class="n">rep</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">L1</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    
+<div class="viewcode-block" id="LFAnalysis.label_coverage"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.label_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">label_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute the fraction of data points with at least one label.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Fraction of data points with labels</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).label_coverage()</span>
+<span class="sd">            0.8</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covered_data_points</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    
+
+<div class="viewcode-block" id="LFAnalysis.label_overlap"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.label_overlap">[docs]</a>    <span class="k">def</span> <span class="nf">label_overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute the fraction of data points with at least two (non-abstain) labels.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Fraction of data points with overlapping labels</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).label_overlap()</span>
+<span class="sd">            0.6  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overlapped_data_points</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    
+
+<div class="viewcode-block" id="LFAnalysis.label_conflict"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.label_conflict">[docs]</a>    <span class="k">def</span> <span class="nf">label_conflict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute the fraction of data points with conflicting (non-abstain) labels.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Fraction of data points with conflicting labels</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).label_conflict()</span>
+<span class="sd">            0.2</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conflicted_data_points</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="LFAnalysis.lf_polarities"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.lf_polarities">[docs]</a>    <span class="k">def</span> <span class="nf">lf_polarities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Infer the polarities of each LF based on evidence in a label matrix.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[List[int]]: Unique output labels for each LF</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).lf_polarities()</span>
+<span class="sd">            [[0, 1], [0], [0]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">polarities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">pol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">pol</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span>
+            <span class="n">pol</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pol</span><span class="p">))</span>
+            <span class="n">polarities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">polarities</span></div>
+        <span class="c1"># return [</span>
+        <span class="c1">#     sorted(list(set(self.L[:, i])))#.remove(self._abstain)</span>
+        <span class="c1">#     for i in range(self.L.shape[1])</span>
+        <span class="c1"># ]</span>
+    
+
+<div class="viewcode-block" id="LFAnalysis.lf_coverages"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.lf_coverages">[docs]</a>    <span class="k">def</span> <span class="nf">lf_coverages</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute frac. of examples each LF labels.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Fraction of labeled examples for each LF</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).lf_coverages()</span>
+<span class="sd">            array([0.4, 0.8, 0.4])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    
+
+<div class="viewcode-block" id="LFAnalysis.lf_overlaps"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.lf_overlaps">[docs]</a>    <span class="k">def</span> <span class="nf">lf_overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize_by_coverage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute frac. of examples each LF labels that are labeled by another LF.</span>
+<span class="sd">        An overlapping example is one that at least one other LF returns a</span>
+<span class="sd">        (non-abstain) label for.</span>
+<span class="sd">        Note that the maximum possible overlap fraction for an LF is the LF&#39;s</span>
+<span class="sd">        coverage, unless ``normalize_by_coverage=True``, in which case it is 1</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            normalize_by_coverage (bool, optional): Normalize by coverage of the LF,</span>
+<span class="sd">                                                    so that it returns the percent of LF labels that have overlaps.</span>
+<span class="sd">                                                    Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Fraction of overlapping examples for each LF</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).lf_overlaps()</span>
+<span class="sd">            array([0.4, 0.6, 0.4])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).lf_overlaps(normalize_by_coverage=True)</span>
+<span class="sd">            array([1.  , 0.75, 1.  ])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># overlaps = (</span>
+        <span class="c1">#     (self._L_sparse != 0).T</span>
+        <span class="c1">#     @ self._overlapped_data_points()</span>
+        <span class="c1">#     / self._L_sparse.shape[0]</span>
+        <span class="c1"># )</span>
+        <span class="c1"># if normalize_by_coverage:</span>
+        <span class="c1">#     overlaps /= self.lf_coverages()</span>
+        <span class="c1"># return np.nan_to_num(overlaps)</span>
+
+        <span class="n">overlaps</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<div class="viewcode-block" id="LFAnalysis.lf_conflicts"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.lf_conflicts">[docs]</a>            <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overlapped_data_points</span><span class="p">()</span>
+            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalize_by_coverage</span><span class="p">:</span>
+            <span class="n">overlaps</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_coverages</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">overlaps</span><span class="p">)</span></div>
+    
+
+    <span class="k">def</span> <span class="nf">lf_conflicts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize_by_overlaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute frac. of examples each LF labels and labeled differently by another LF.</span>
+<span class="sd">        A conflicting example is one that at least one other LF returns a</span>
+<span class="sd">        different (non-abstain) label for.</span>
+<span class="sd">        Note that the maximum possible conflict fraction for an LF is the LF&#39;s</span>
+<span class="sd">        overlaps fraction, unless ``normalize_by_overlaps=True``, in which case it is 1.</span>
+<span class="sd">        Parameters</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            normalize_by_overlaps (bool, optional): Normalize by overlaps of the LF, so that it returns the percent of LF</span>
+<span class="sd">                                                    overlaps that have conflicts.</span>
+<span class="sd">                                                    Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Fraction of conflicting examples for each LF</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; L = np.array([</span>
+<span class="sd">            ...     [-1, 0, 0],</span>
+<span class="sd">            ...     [-1, -1, -1],</span>
+<span class="sd">            ...     [1, 0, -1],</span>
+<span class="sd">            ...     [-1, 0, -1],</span>
+<span class="sd">            ...     [0, 0, 0],</span>
+<span class="sd">            ... ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).lf_conflicts()</span>
+<span class="sd">            array([0.2, 0.2, 0. ])</span>
+<span class="sd">            &gt;&gt;&gt; LFAnalysis(L).lf_conflicts(normalize_by_overlaps=True)</span>
+<span class="sd">            array([0.5       , 0.33333333, 0.        ])</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="c1"># conflicts = (</span>
+        <span class="c1">#     (self._L_sparse != 0).T</span>
+        <span class="c1">#     @ self._conflicted_data_points()</span>
+        <span class="c1">#     / self._L_sparse.shape[0]</span>
+        <span class="c1"># )</span>
+        <span class="c1"># if normalize_by_overlaps:</span>
+        <span class="c1">#     conflicts /= self.lf_overlaps()</span>
+        <span class="c1"># return np.nan_to_num(conflicts)</span>
+        <span class="n">conflicts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<div class="viewcode-block" id="LFAnalysis.lf_empirical_accuracies"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.lf_empirical_accuracies">[docs]</a>            <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conflicted_data_points</span><span class="p">()</span>
+            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalize_by_overlaps</span><span class="p">:</span>
+            <span class="n">conflicts</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_overlaps</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">conflicts</span><span class="p">)</span></div>
+    
+
+    <span class="k">def</span> <span class="nf">lf_empirical_accuracies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute empirical accuracy against a set of labels Y for each LF.</span>
+<span class="sd">        Usually, Y represents development set labels.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            Y (np.ndarray): [n] np.ndarray of gold labels</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Empirical accuracies for each LF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">Y</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstain</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
+    
+
+    <span class="c1"># def lf_empirical_probs(self, Y: np.ndarray, k: int) -&gt; np.ndarray:</span>
+    <span class="c1">#     &quot;&quot;&quot;Estimate conditional probability tables for each LF.</span>
+    <span class="c1">#     Computes conditional probability tables, P(L | Y), for each LF using</span>
+    <span class="c1">#     the provided true labels Y.</span>
+
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         Y (np.ndarray):  The n-dim array of true labels</span>
+    <span class="c1">#         k (int): The cardinality i.e. number of classes</span>
+
+    <span class="c1">#     Returns:</span>
+    <span class="c1">#         np.ndarray: An m x (k+1) x k np.ndarray representing the m (k+1) x k conditional probability</span>
+    <span class="c1">#         tables P_i, where P_i[l,y] represents P(LF_i = l | Y = y) empirically calculated</span>
+    <span class="c1">#     &quot;&quot;&quot;        </span>
+    <span class="c1">#     n, m = self.L.shape</span>
+
+    <span class="c1">#     Y = Y#to_int_label_array(Y)</span>
+
+    <span class="c1">#     # Compute empirical conditional probabilities</span>
+    <span class="c1">#     # Note: Can do this more efficiently...</span>
+    <span class="c1">#     P = np.zeros((m, k + 1, k))</span>
+    <span class="c1">#     for y in range(k):</span>
+    <span class="c1">#         is_y = np.where(Y == y, 1, 0)</span>
+    <span class="c1">#         for j, l in product(range(m), range(-1, k)):</span>
+    <span class="c1">#             P[j, l + 1, y] = np.where(self.L[:, j] == l, 1, 0) @ is_y / is_y.sum()</span>
+    <span class="c1">#     return P</span>
+    
+
+<div class="viewcode-block" id="LFAnalysis.lf_summary"><a class="viewcode-back" href="../../../index.html#labeling.analysis.core.LFAnalysis.lf_summary">[docs]</a>    <span class="k">def</span> <span class="nf">lf_summary</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a pandas DataFrame with the various per-LF statistics.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            Y (Optional[np.ndarray], optional): [n] np.ndarray of gold labels.</span>
+<span class="sd">                                                If provided, the empirical accuracy for each LF will be calculated.</span>
+<span class="sd">                                                Defaults to None.</span>
+<span class="sd">            plot (Optional[bool], optional): If set to true a bar graph is plotted. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame: Summary statistics for each LF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">lf_names</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+        <span class="n">d</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lf_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lf_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lf_names</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lf_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+
+        <span class="c1"># Default LF stats</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Polarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lf_polarities</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Coverage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lf_coverages</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Overlaps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lf_overlaps</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Conflicts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lf_conflicts</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">Y</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">])))</span>
+            <span class="p">)</span>
+            <span class="n">confusions</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">labels</span><span class="p">)[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">corrects</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="n">confusions</span><span class="p">]</span>
+            <span class="n">incorrects</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">conf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="n">correct</span> <span class="k">for</span> <span class="n">conf</span><span class="p">,</span> <span class="n">correct</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">confusions</span><span class="p">,</span> <span class="n">corrects</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">accs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_empirical_accuracies</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">corrects</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Incorrect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">incorrects</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Emp. Acc.&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">accs</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+        
+        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">lf_names</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">plot</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">plot_df_bar</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span><span class="s2">&quot;seperate&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data_frame</span></div></div>
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

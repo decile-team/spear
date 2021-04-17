@@ -1,0 +1,457 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Implyloss.my_data_feeder_utils &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>Implyloss.my_data_feeder_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Implyloss.my_data_feeder_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1">#from .config import flags as config</span>
+
+<span class="kn">from</span> <span class="nn">my_data_types</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1">#reduce_x_features = config.w_network == &#39;textcnn&#39;</span>
+<span class="n">reduce_x_features</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">seq_len</span> <span class="o">=</span> <span class="mi">25</span>
+
+
+<div class="viewcode-block" id="load_data"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.load_data">[docs]</a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">num_load</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    load the data from the given file</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    fname - filename</span>
+<span class="sd">    num_load (default - None)</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    the structured F_d_U_Data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading from hoff &#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="n">len_x</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_x</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_x</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_x</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_x</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_x</span>
+
+        <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">reduce_x_features</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">seq_len</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">75</span><span class="p">:(</span><span class="n">seq_len</span> <span class="o">+</span> <span class="mi">75</span><span class="p">)],</span>
+                <span class="n">x</span><span class="p">[:,</span> <span class="mi">150</span><span class="p">:(</span><span class="mi">150</span> <span class="o">+</span> <span class="n">seq_len</span><span class="p">)]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_load</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_load</span> <span class="o">&lt;</span> <span class="n">len_x</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">num_load</span><span class="p">]</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="n">num_load</span><span class="p">]</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="p">[:</span><span class="n">num_load</span><span class="p">]</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">L</span><span class="p">[:</span><span class="n">num_load</span><span class="p">]</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="p">[:</span><span class="n">num_load</span><span class="p">]</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:</span><span class="n">num_load</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">F_d_U_Data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_rule_classes"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.get_rule_classes">[docs]</a><span class="k">def</span> <span class="nf">get_rule_classes</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    get the different rule_classes </span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    l ([batch_size, num_rules])</span>
+<span class="sd">    num_classes (int) - the number of available classes </span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    rule_classes ([num_rules,1]) - the list of valid classes labelled by rules (say class 2 by r0, class 1 by r1, class 4 by r2 =&gt; [2,1,4])</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">num_rules</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">rule_classes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_rules</span><span class="p">):</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:,</span> <span class="n">rule</span><span class="p">]</span>
+        <span class="n">rule_class</span> <span class="o">=</span> <span class="n">num_classes</span>
+        <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lbl</span> <span class="o">!=</span> <span class="n">num_classes</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">lbl</span> <span class="o">&lt;</span> <span class="n">num_classes</span>
+                <span class="k">if</span> <span class="n">rule_class</span> <span class="o">!=</span> <span class="n">num_classes</span><span class="p">:</span>
+                    <span class="c1">#print(&#39;rule is: &#39;, rule, &#39;Rule class is: &#39;, rule_class, &#39;newly found label is: &#39;, lbl, &#39;num_classes is: &#39;, num_classes)</span>
+                    <span class="k">assert</span><span class="p">(</span><span class="n">lbl</span> <span class="o">==</span> <span class="n">rule_class</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rule_class</span> <span class="o">=</span> <span class="n">lbl</span>
+
+        <span class="k">if</span> <span class="n">rule_class</span> <span class="o">==</span> <span class="n">num_classes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No valid label found for rule: &#39;</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span>
+            <span class="c1"># ok if a rule is just a label (i.e. it does not fire at all)</span>
+            <span class="c1"># input(&#39;Press a key to continue&#39;)</span>
+        <span class="n">rule_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule_class</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rule_classes</span></div>
+
+
+<div class="viewcode-block" id="extract_rules_satisfying_min_coverage"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.extract_rules_satisfying_min_coverage">[docs]</a><span class="k">def</span> <span class="nf">extract_rules_satisfying_min_coverage</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">min_coverage</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    extract the rules that satisfy the specified minimum coverage</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    m ([batch_size, num_rules]) - mij specifies whether ith example is associated with the jth rule</span>
+<span class="sd">    min_coverage</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    satisfying_rules - list of satisfying rules</span>
+<span class="sd">    not_satisfying_rules - list of not satisfying rules</span>
+<span class="sd">    rule_map_new_to_old</span>
+<span class="sd">    rule_map_old_to_new </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">num_rules</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">coverage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">satisfying_threshold</span> <span class="o">=</span> <span class="n">coverage</span> <span class="o">&gt;=</span> <span class="n">min_coverage</span>
+    <span class="n">not_satisfying_threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">satisfying_threshold</span><span class="p">)</span>
+    <span class="n">all_rules</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_rules</span><span class="p">)</span>
+    <span class="n">satisfying_rules</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">satisfying_threshold</span><span class="p">,</span> <span class="n">all_rules</span><span class="p">)</span>
+    <span class="n">not_satisfying_rules</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">not_satisfying_threshold</span><span class="p">,</span> <span class="n">all_rules</span><span class="p">)</span>
+
+    <span class="c1"># Assert that the extraction is stable</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">satisfying_rules</span><span class="p">)</span> <span class="o">==</span> <span class="n">satisfying_rules</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">not_satisfying_rules</span><span class="p">)</span> <span class="o">==</span> <span class="n">not_satisfying_rules</span><span class="p">)</span>
+
+    <span class="n">rule_map_new_to_old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">satisfying_rules</span><span class="p">,</span>
+            <span class="n">not_satisfying_rules</span><span class="p">])</span>
+    <span class="n">rule_map_old_to_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_rules</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">all_rules</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">new</span><span class="p">,</span> <span class="n">old</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rule_map_new_to_old</span><span class="p">):</span>
+        <span class="n">rule_map_old_to_new</span><span class="p">[</span><span class="n">old</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span>
+
+    <span class="k">return</span> <span class="n">satisfying_rules</span><span class="p">,</span> <span class="n">not_satisfying_rules</span><span class="p">,</span> <span class="n">rule_map_new_to_old</span><span class="p">,</span> <span class="n">rule_map_old_to_new</span></div>
+
+
+<div class="viewcode-block" id="remap_2d_array"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.remap_2d_array">[docs]</a><span class="k">def</span> <span class="nf">remap_2d_array</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">map_old_to_new</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    remap those columns of 2D array that are present in map_old_to_new</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    arr ([batch_size, num_rules])</span>
+<span class="sd">    map_old_to_new</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    modified array</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">map_old_to_new</span><span class="p">))</span>
+    <span class="n">arr</span><span class="p">[:,</span> <span class="n">old</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[:,</span> <span class="n">map_old_to_new</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+
+<div class="viewcode-block" id="remap_1d_array"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.remap_1d_array">[docs]</a><span class="k">def</span> <span class="nf">remap_1d_array</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">map_old_to_new</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    remap those positions of 1D array that are present in map_old_to_new</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    arr ([batch_size, num_rules])</span>
+<span class="sd">    map_old_to_new</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    modified array</span>
+<span class="sd">    </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">map_old_to_new</span><span class="p">))</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">old</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">map_old_to_new</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+
+<div class="viewcode-block" id="modify_d_or_U_using_rule_map"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.modify_d_or_U_using_rule_map">[docs]</a><span class="k">def</span> <span class="nf">modify_d_or_U_using_rule_map</span><span class="p">(</span><span class="n">raw_U_or_d</span><span class="p">,</span> <span class="n">rule_map_old_to_new</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    Modify d or U using the rule map</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    raw_U_or_d - the raw data (labelled(d) or unlabelled(U))</span>
+<span class="sd">    rule_map_old_to_new - the rule map</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    the modified raw_U_or_d</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">remap_2d_array</span><span class="p">(</span><span class="n">raw_U_or_d</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="n">rule_map_old_to_new</span><span class="p">)</span>
+    <span class="n">remap_2d_array</span><span class="p">(</span><span class="n">raw_U_or_d</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">rule_map_old_to_new</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="shuffle_F_d_U_Data"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.shuffle_F_d_U_Data">[docs]</a><span class="k">def</span> <span class="nf">shuffle_F_d_U_Data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    shuffle the input data along the 0th axis i.e. among the different instances </span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    data</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    the structured and shuffled F_d_U_Data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">F_d_U_Data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="oversample_f_d"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.oversample_f_d">[docs]</a><span class="k">def</span> <span class="nf">oversample_f_d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sampling_dist</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    Oversample the labelled data using the arguments provided</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    x ([batch_size, num_features]) - the data</span>
+<span class="sd">    labels</span>
+<span class="sd">    samping_dist</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">x_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">L_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#print(&#39;Sampling distribution: &#39;, sampling_dist)</span>
+    <span class="c1">#print(&#39;labels: &#39;, labels[0:4])</span>
+    <span class="k">for</span> <span class="n">xx</span><span class="p">,</span> <span class="n">L</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampling_dist</span><span class="p">[</span><span class="n">L</span><span class="p">]):</span>
+            <span class="n">x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xx</span><span class="p">))</span>
+            <span class="n">L_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">L</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_list</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">L_list</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="oversample_d"><a class="viewcode-back" href="../../index.html#Implyloss.my_data_feeder_utils.oversample_d">[docs]</a><span class="k">def</span> <span class="nf">oversample_d</span><span class="p">(</span><span class="n">raw_d</span><span class="p">,</span> <span class="n">sampling_dist</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Func Desc:</span>
+<span class="sd">    performs oversampling on the raw labelled data using the given distribution</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    raw_d - raw labelled data</span>
+<span class="sd">    sampling_dist - the given sampling dist</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">    F_d_U_Data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">x_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">l_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">m_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">L_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">d_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">r_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#print(&#39;Sampling distribution: &#39;, sampling_dist)</span>
+    <span class="c1">#print(&#39;labels: &#39;, raw_d.L[0:4])</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">raw_d</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">raw_d</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="n">raw_d</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">raw_d</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">raw_d</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">raw_d</span><span class="o">.</span><span class="n">r</span><span class="p">):</span>
+        <span class="n">L1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampling_dist</span><span class="p">[</span><span class="n">L1</span><span class="p">]):</span>
+            <span class="n">x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">l_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
+            <span class="n">m_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+            <span class="n">L_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">L</span><span class="p">))</span>
+            <span class="n">d_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+            <span class="n">r_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">F_d_U_Data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_list</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_list</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m_list</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">L_list</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d_list</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">r_list</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

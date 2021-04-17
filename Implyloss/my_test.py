@@ -10,11 +10,44 @@ from sklearn.metrics import precision_recall_fscore_support
 # from analyze_w_predictions import analyze_w_predictions
 
 class HLSTest():
+    '''
+    Class Desc:
+    This Class is designed to test the HLS model and its accuracy and precision obtained on the validation and test datasets
+    '''
     def __init__(self, hls, config):
+        '''
+        Func Desc:
+        Initializes the class member variables using the arguments provided
+
+        Input:
+        self
+        hls - the hls model
+        config
+
+        Sets:
+        hls
+        config
+        '''
         self.hls = hls
         self.config = config
 
     def maybe_save_predictions(self, save_filename, x, l, m, preds, d):
+        '''
+        Func Desc:
+        Saves the predictions obtained from the model if required
+
+        Input:
+        self
+        save_filename - the filename where the predictions have to be saved if required
+        x ([batch_size, num_features])
+        l ([batch_size, num_rules])
+        m ([batch_size, num_rules])
+        preds
+        d ([batch_size,1]) - d[i] = 1 if the ith data instance is from the labelled dataset
+
+        Output:
+
+        '''
         if save_filename is None:
             return
 
@@ -39,6 +72,25 @@ class HLSTest():
                 np.array(save_d))
 
     def test_f(self, datafeeder, log_output=False, data_type='test_f', save_filename=None, use_joint_f_w=False):
+        '''
+        Func Desc:
+        tests the f_network (classification network)
+
+        Input:
+        self
+        datafeeder - the datafeeder object
+        log_output (default - False)
+        data_type (fixed to test_f) - the type of the data that we want to test
+        save_filename (default - None) - the file where we can possibly store the test results
+        use_join_f_w (default - None)
+
+        Output:
+        precision
+        recall
+        f1_score
+        support
+
+        '''
         sess = self.hls.sess
         with sess.as_default():
             # Test model
@@ -94,6 +146,21 @@ class HLSTest():
     #
     # data_type is either test_w or covered_U
     def test_w(self, datafeeder, log_output=False, data_type=test_w, save_filename=None):
+        '''
+        Func Desc:
+        tests the w_network (rule network)
+
+        Input:
+        self
+        datafeeder - the datafeeder object
+        log_output (default - False)
+        data_type (fixed to test_w) - the type of the data that we want to test
+        save_filename (default - None) - the file where we can possibly store the test results
+
+        Analyzes:
+        the obtained w_predictions
+        
+        '''
         sess = self.hls.sess
         total_preds = []
         total_true_labels = []

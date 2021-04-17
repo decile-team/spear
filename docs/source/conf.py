@@ -15,12 +15,12 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 master_doc = 'index'
-autodoc_mock_imports = ["torch", "sklearn", "utils_jl", "models", "my_utils", "tensorflow"]
+autodoc_mock_imports = ["torch", "sklearn", "utils", "utils_jl", "models", "my_checkmate", "my_checkpoints","my_config", "my_data_feeder_utils", "my_data_types",  "my_gen_cross_entropy_utils", "my_pr_utils", "my_test", "my_train", "my_utils"]
 # -- Project information -----------------------------------------------------
 
 project = 'SPEAR(DECILE)'
-copyright = '2021, Ganesh Ramakrishnan, Ayush Maheshwari, Guttu Sai Abhishek, Harshad Ingole, Parth Laturia, Vineeth Dorna'
-author = 'Ganesh Ramakrishnan, Ayush Maheshwari, Guttu Sai Abhishek, Harshad Ingole, Parth Laturia, Vineeth Dorna'
+copyright = '2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna'
+author = 'Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
@@ -41,11 +41,9 @@ extensions = [
     'sphinx.ext.viewcode',
     #'numpydoc'
     'sphinxcontrib.napoleon',
-    'sphinxcontrib.bibtex'
+    # 'sphinxcontrib.bibtex'
 # 'rinoh.frontend.sphinx'
 ]
-
-bibtex_bibfiles = ['refs.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

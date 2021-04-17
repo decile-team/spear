@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-logdir=logs/TREC
+logdir=logs/my_TREC
 mkdir -p $logdir # logs are dumped here
 
 # Keep any one group of flags (4 consecutive lines) active at any time and run the corresponding experiment
@@ -29,7 +29,7 @@ do
       do
          for Q in "${model_id[@]}"
          do
-            nohup ./TREC.sh "$MODE"_"$GAMMA"_"$LAMDA"_"$Q" $mode $EPOCHS $LR $CKPT_LOAD_MODE \
+            nohup ./my_TREC.sh "$MODE"_"$GAMMA"_"$LAMDA"_"$Q" $mode $EPOCHS $LR $CKPT_LOAD_MODE \
             $DROPOUT_KEEP_PROB $D_PICKLE_NAME $VALID_PICKLE_NAME \
             $U_pickle_name $GAMMA $LAMDA $USE_JOINT_f_w > $logdir/"$MODE"_"$GAMMA"_"$LAMDA"_"$Q".txt &
          done

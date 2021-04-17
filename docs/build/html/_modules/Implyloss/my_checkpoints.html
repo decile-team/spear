@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Implyloss.my_checkpoints &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>Implyloss.my_checkpoints</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Implyloss.my_checkpoints</h1><div class="highlight"><pre>
+<span></span><span class="c1"># import tensorflow as tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow.compat.v1</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">disable_v2_behavior</span><span class="p">()</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">my_checkmate</span> <span class="kn">import</span> <span class="n">BestCheckpointSaver</span><span class="p">,</span> <span class="n">get_best_checkpoint</span>
+<span class="kn">from</span> <span class="nn">my_data_types</span> <span class="kn">import</span> <span class="n">train_modes</span>
+<span class="kn">from</span> <span class="nn">my_config</span> <span class="kn">import</span> <span class="n">flags</span> <span class="k">as</span> <span class="n">config</span>
+
+<span class="c1"># Keeps only the most recently saved checkpoint</span>
+<span class="c1">#</span>
+<span class="c1"># max_to_keep is deliberatly set to 1 in order to provide for the case when more recent checkpoint</span>
+<span class="c1"># has a smaller global_step. tf.train.Saver() orders by global_step.</span>
+
+<span class="k">class</span> <span class="nc">MRUCheckpoint</span><span class="p">():</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Initializes the class variables</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		path - file path</span>
+<span class="sd">		session </span>
+<span class="sd">		variables</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">path</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ckpt_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;checkpoint&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="s1">&#39;hls-model&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="n">session</span>
+		<span class="c1"># max_to_keep</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		saves the obtained checkpoint</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		global step (Default - none)</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_prefix</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved MRU checkpoint to path: &#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+		
+	<span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Restores the last checkpoint</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">last_checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="s1">&#39;checkpoint&#39;</span><span class="p">)</span>
+		<span class="c1">#if self.saver.last_checkpoints:</span>
+		<span class="c1">#    last_checkpoint = self.saver.last_checkpoints[0]</span>
+		<span class="c1">#    print(&#39;All saved checkpoints: &#39;, self.saver.last_checkpoints)</span>
+		<span class="c1">#else:</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">last_checkpoint</span><span class="p">:</span>
+			<span class="n">last_checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_prefix</span>
+
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Restoring checkpoint from path: &#39;</span><span class="p">,</span> <span class="n">last_checkpoint</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">,</span> <span class="n">last_checkpoint</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">restore_if_checkpoint_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		checks if there exists any checkpoint for the file </span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+
+<span class="sd">		Output:</span>
+<span class="sd">		Boolean (True or False)</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_file</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="test_mru_checkpoints"><a class="viewcode-back" href="../../index.html#Implyloss.my_checkpoints.test_mru_checkpoints">[docs]</a><span class="k">def</span> <span class="nf">test_mru_checkpoints</span><span class="p">(</span><span class="n">num_to_keep</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	Runs different sessions while changing the checkpoint number that is currently being worked with and tests the same</span>
+<span class="sd">	</span>
+<span class="sd">	Input:</span>
+<span class="sd">	num_to_keep(int) - a limit on the size of the global step for checkpoint traversal</span>
+
+<span class="sd">	Output:</span>
+
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mru_global_step_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">num_to_keep</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+	<span class="n">inc</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span>
+
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span>
+	<span class="n">ckpt_path</span> <span class="o">=</span> <span class="s1">&#39;/tmp/checkpoints_</span><span class="si">%.6f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+	<span class="n">ckpt</span> <span class="o">=</span> <span class="n">MRUCheckpoint</span><span class="p">(</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables</span><span class="p">())</span>
+	<span class="n">ckpt</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span>
+
+	<span class="n">ckpt</span><span class="o">.</span><span class="n">restore_if_checkpoint_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span>
+
+	<span class="n">assgn_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">assgn_op</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
+	<span class="n">ckpt</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span>
+
+	<span class="n">ckpt</span><span class="o">.</span><span class="n">restore_if_checkpoint_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span></div>
+
+<div class="viewcode-block" id="test_checkpoint"><a class="viewcode-back" href="../../index.html#Implyloss.my_checkpoints.test_checkpoint">[docs]</a><span class="k">def</span> <span class="nf">test_checkpoint</span><span class="p">():</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	tests whether the checkpoints stored are as expected</span>
+
+<span class="sd">	Input:</span>
+
+<span class="sd">	Output:</span>
+
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">v</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+	<span class="n">v1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span>
+	<span class="n">ckpt</span> <span class="o">=</span> <span class="n">MRUCheckpoint</span><span class="p">(</span><span class="s1">&#39;/tmp/checkpoints&#39;</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables</span><span class="p">())</span>
+	<span class="n">ckpt</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+	<span class="n">sess1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span>
+	<span class="n">ckpt1</span> <span class="o">=</span> <span class="n">MRUCheckpoint</span><span class="p">(</span><span class="s1">&#39;/tmp/checkpoints&#39;</span><span class="p">,</span> <span class="n">sess1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables</span><span class="p">())</span>
+	<span class="n">ckpt1</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span>
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">14</span>
+
+	<span class="n">ckpt2</span> <span class="o">=</span> <span class="n">MRUCheckpoint</span><span class="p">(</span><span class="s1">&#39;/tmp/bad-ckpt-path&#39;</span><span class="p">,</span> <span class="n">sess1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables</span><span class="p">())</span>
+	<span class="n">restored</span> <span class="o">=</span> <span class="n">ckpt2</span><span class="o">.</span><span class="n">restore_if_checkpoint_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">restored</span> <span class="o">==</span> <span class="kc">False</span>
+
+	<span class="n">restored</span> <span class="o">=</span> <span class="n">ckpt1</span><span class="o">.</span><span class="n">restore_if_checkpoint_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">restored</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span></div>
+
+<span class="k">class</span> <span class="nc">BestCheckpoint</span><span class="p">():</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">num_checkpoints</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">global_step</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Initializes the class member variables to find the Best checkpoint so far</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		path</span>
+<span class="sd">		prefix</span>
+<span class="sd">		session</span>
+<span class="sd">		num_checkpoints</span>
+<span class="sd">		variables</span>
+<span class="sd">		global_step</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+		<span class="c1">#self.ckpt_file = os.path.join(self.ckpt_path, &#39;checkpoint&#39;)</span>
+		<span class="c1">#self.checkpoint_prefix = os.path.join(self.ckpt_path, prefix)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="n">session</span>
+		<span class="c1"># max_to_keep is None. Number of checkpoints is handled separately by BestCheckpointSaver</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_relative_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt_saver</span> <span class="o">=</span> <span class="n">BestCheckpointSaver</span><span class="p">(</span>
+			<span class="n">save_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">,</span>
+			<span class="n">num_to_keep</span><span class="o">=</span><span class="n">num_checkpoints</span><span class="p">,</span>
+			<span class="n">maximize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+			<span class="n">saver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">saver</span>
+			<span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">global_step</span> <span class="o">=</span> <span class="n">global_step</span>
+
+	<span class="k">def</span> <span class="nf">save_if_best</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		save if the current checkpoint is the best so far</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		metric</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">saved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt_saver</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_step</span><span class="p">)</span>
+		<span class="n">path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="s1">&#39;checkpoint&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">saved</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved new best checkpoint to path: &#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file: &#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+		
+	<span class="k">def</span> <span class="nf">restore_best_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Restore the best checkpoint so far</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">best_ckpt_file</span> <span class="o">=</span> <span class="n">get_best_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="n">select_maximum_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Restoring best checkpoint from path: &#39;</span><span class="p">,</span> <span class="n">best_ckpt_file</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">,</span> <span class="n">best_ckpt_file</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">restore_best_checkpoint_if_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Restore the best checkpoint so far only if it exists</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">restore_best_checkpoint</span><span class="p">()</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+			<span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="test_best_ckpt"><a class="viewcode-back" href="../../index.html#Implyloss.my_checkpoints.test_best_ckpt">[docs]</a><span class="k">def</span> <span class="nf">test_best_ckpt</span><span class="p">():</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	test for the best checkpoint so far</span>
+
+<span class="sd">	Input:</span>
+
+<span class="sd">	Output:</span>
+
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;global_step&#39;</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+	<span class="n">inc_global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="n">sess1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	<span class="n">sess2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+
+	<span class="c1"># We&#39;ll save using sess1 and restore in sess2</span>
+	<span class="n">best_checkpoint_dir</span> <span class="o">=</span> <span class="s1">&#39;/tmp/best_ckpt_</span><span class="si">%.6f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+	<span class="n">best1</span> <span class="o">=</span> <span class="n">BestCheckpoint</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="s1">&#39;foo-bar&#39;</span><span class="p">,</span> <span class="n">sess1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">(),</span> <span class="n">global_step</span><span class="p">)</span>
+	<span class="n">best2</span> <span class="o">=</span> <span class="n">BestCheckpoint</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="s1">&#39;foo-bar&#39;</span><span class="p">,</span> <span class="n">sess2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">(),</span> <span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">restored</span> <span class="o">=</span> <span class="n">best2</span><span class="o">.</span><span class="n">restore_best_checkpoint_if_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="ow">not</span> <span class="n">restored</span>
+
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1">## 51</span>
+	<span class="n">best1</span><span class="o">.</span><span class="n">save_if_best</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+	<span class="k">assert</span> <span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">50</span>
+	<span class="n">restored</span> <span class="o">=</span> <span class="n">best2</span><span class="o">.</span><span class="n">restore_best_checkpoint_if_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">restored</span>
+	<span class="k">assert</span> <span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">51</span>
+
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1">## 52</span>
+	<span class="n">best1</span><span class="o">.</span><span class="n">save_if_best</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 52</span>
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 53</span>
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 54</span>
+	<span class="k">assert</span> <span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">54</span>
+	<span class="n">restored</span> <span class="o">=</span> <span class="n">best2</span><span class="o">.</span><span class="n">restore_best_checkpoint_if_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">restored</span>
+	<span class="k">assert</span> <span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">51</span>
+
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1">## 53</span>
+	<span class="n">best1</span><span class="o">.</span><span class="n">save_if_best</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+	<span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1">## 54</span>
+	<span class="n">best1</span><span class="o">.</span><span class="n">save_if_best</span><span class="p">(</span><span class="mf">0.15</span><span class="p">)</span>
+
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 52</span>
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 53</span>
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 54</span>
+	<span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step</span><span class="p">)</span> <span class="c1"># 55</span>
+	<span class="k">assert</span> <span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">55</span>
+	<span class="n">restored</span> <span class="o">=</span> <span class="n">best2</span><span class="o">.</span><span class="n">restore_best_checkpoint_if_exists</span><span class="p">()</span>
+	<span class="k">assert</span> <span class="n">restored</span>
+	<span class="k">assert</span> <span class="n">sess2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">53</span></div>
+
+<div class="viewcode-block" id="test_checkmate"><a class="viewcode-back" href="../../index.html#Implyloss.my_checkpoints.test_checkmate">[docs]</a><span class="k">def</span> <span class="nf">test_checkmate</span><span class="p">():</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Func Desc:</span>
+<span class="sd">	test whether the checkmate model is working fine</span>
+
+<span class="sd">	Input:</span>
+
+<span class="sd">	Output:</span>
+
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;checkmate_global_step&#39;</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+	<span class="n">inc_global_step_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	<span class="n">sess1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+	
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+	<span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">(),</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+	<span class="n">best_checkpoint_dir</span> <span class="o">=</span> <span class="s1">&#39;/tmp/best_ckpt_</span><span class="si">%.6f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+	<span class="n">best_ckpt_saver</span> <span class="o">=</span> <span class="n">BestCheckpointSaver</span><span class="p">(</span>
+			<span class="n">save_dir</span><span class="o">=</span><span class="n">best_checkpoint_dir</span><span class="p">,</span>
+			<span class="n">num_to_keep</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+			<span class="n">maximize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+			<span class="n">saver</span><span class="o">=</span><span class="n">saver</span>
+			<span class="p">)</span>
+
+	<span class="n">accuracy</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="c1"># 12</span>
+	<span class="n">best_ckpt_saver</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">accuracy</span> <span class="o">=</span> <span class="mf">0.2</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step_op</span><span class="p">)</span> <span class="c1"># 13</span>
+	<span class="n">best_ckpt_saver</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">accuracy</span> <span class="o">=</span> <span class="mf">0.05</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step_op</span><span class="p">)</span> <span class="c1"># 14</span>
+	<span class="n">best_ckpt_saver</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">get_best_checkpoint</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="n">select_maximum_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Best ckpt path: &#39;</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess1</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span>
+	
+	<span class="n">accuracy</span> <span class="o">=</span> <span class="mf">0.12</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step_op</span><span class="p">)</span> <span class="c1"># 15</span>
+	<span class="n">best_ckpt_saver</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">get_best_checkpoint</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="n">select_maximum_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Best ckpt path: &#39;</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess1</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span>
+
+	<span class="n">accuracy</span> <span class="o">=</span> <span class="mf">0.45</span>
+	<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inc_global_step_op</span><span class="p">)</span> <span class="c1"># 16</span>
+	<span class="n">best_ckpt_saver</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_step</span><span class="p">)</span>
+
+	<span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">get_best_checkpoint</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="n">select_maximum_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Best ckpt path: &#39;</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess1</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">16</span>
+
+	<span class="c1"># Now select lowest value</span>
+	<span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">get_best_checkpoint</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="n">select_maximum_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Best ckpt path: &#39;</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess1</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+	<span class="k">assert</span> <span class="n">sess1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">global_step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">15</span></div>
+
+<span class="c1"># Loading of checkpoints happens only once - at the end of HLSModel initialization.</span>
+<span class="c1">#</span>
+<span class="c1"># Saving of checkpoints happens during training. We have only one MRU checkpoint saver </span>
+<span class="c1"># We have one best checkpoint saver per train mode type</span>
+<span class="k">class</span> <span class="nc">CheckpointsFactory</span><span class="p">:</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_steps</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Initializes the class with the arguments</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		sess </span>
+<span class="sd">		global_steps</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">best_savers</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">initialize_savers</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">global_steps</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">get_best_saver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_mode</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		get the best saved checkpoints</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		Train_mode - the mode of training</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_savers</span><span class="p">[</span><span class="n">train_mode</span><span class="p">]</span>
+
+	<span class="k">def</span> <span class="nf">initialize_savers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">global_steps</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Initialize the required savers</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		sess</span>
+<span class="sd">		global_steps</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">train_modes</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">init_saver</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">global_steps</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">init_saver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">global_steps</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Func Desc:</span>
+<span class="sd">		Initialize the required savers with the given mode</span>
+
+<span class="sd">		Input:</span>
+<span class="sd">		self</span>
+<span class="sd">		sess</span>
+<span class="sd">		mode</span>
+<span class="sd">		global_steps</span>
+
+<span class="sd">		Output:</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">ckpt_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">checkpoint_dir</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">best_savers</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">BestCheckpoint</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span>
+				<span class="n">config</span><span class="o">.</span><span class="n">num_checkpoints</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables</span><span class="p">(),</span> <span class="n">global_steps</span><span class="p">[</span><span class="n">mode</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="n">test_best_ckpt</span><span class="p">()</span>
+	<span class="n">test_checkmate</span><span class="p">()</span>
+	<span class="n">test_checkpoint</span><span class="p">()</span>
+	<span class="n">test_mru_checkpoints</span><span class="p">(</span><span class="n">num_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">test_mru_checkpoints</span><span class="p">(</span><span class="n">num_to_keep</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -130,18 +130,58 @@ def merge_dict_a_into_b(a, b):
 		b[key] = a[key]
 
 def print_tf_global_variables():
+	'''
+	Func Desc:
+	prints all the global variables
+
+	Input:
+
+	Output:
+
+	'''
 	# import tensorflow as tf
 	import tensorflow.compat.v1 as tf
 	tf.disable_v2_behavior()
 	print(json.dumps([str(foo) for foo in tf.global_variables()], indent=4))
 
 def print_var_list(var_list):
+	'''
+	Func Desc:
+	Prints the given variable list
+
+	Input:
+	var_list
+
+	Output:
+
+	'''
 	print(json.dumps([str(foo) for foo in var_list], indent=4))
 
 def pretty_print(data_structure):
+	'''
+	Func Desc:
+	prints the given data structure in the desired format
+
+	Input:
+	data_structure
+
+	Output:
+
+	'''
 	print(json.dumps(data_structure, indent=4))
 
 def get_list_or_None(s, dtype=int):
+	'''
+	Func Desc:
+	Returns the list of types of the variables in the string s
+
+	Input:
+	s - string
+	dtype function (default - int)
+
+	Output:
+	None or list
+	'''
 	if s.strip() == '':
 		return None
 	else:
@@ -149,6 +189,16 @@ def get_list_or_None(s, dtype=int):
 		return [dtype(x) for x in lst]
 
 def get_list(s):
+	'''
+	Func Desc:
+	returns the output of get_list_or_None as a list
+
+	Input:
+	s - list
+
+	Output:
+	lst - list
+	'''
 	lst = get_list_or_None(s)
 	if lst is None:
 		return []
@@ -156,12 +206,32 @@ def get_list(s):
 		return lst
 
 def None_if_zero(n):
+	'''
+	Func Desc:
+	the max(0,n) function with none id n<=0
+
+	Input:
+	n - integer
+
+	Output:
+	if n>0 then n else None
+	'''
 	if n <= 0:
 		return None
 	else:
 		return n
 
 def boolean(s):
+	'''
+	Func Desc:
+	returns the expected boolean value for the given string
+
+	Input:
+	s - string
+
+	Output:
+	boolean or error
+	'''
 	if s == 'True':
 		return True
 	if s == 'False':
@@ -169,6 +239,16 @@ def boolean(s):
 	raise ValueError('Invalid boolean value: %s' % s)
 
 def set_to_list_of_values_if_None_or_empty(lst, val, num_vals):
+	'''
+	Func Desc:
+	returns lst if it is not empty else returns a same length list but with all its entries equal to val
+	lst - list
+	val - value 
+	num_vals (integer) - length of the list lst
+
+	Output:
+	lst or same length val list
+	'''
 	if not lst:
 		return [val] * num_vals
 	else:
@@ -214,6 +294,24 @@ def compute_accuracy(support, recall):
 
 # from data_utils
 def dump_labels_to_file(save_filename, x, l, m, L, d, weights=None, f_d_U_probs=None, rule_classes=None):
+	'''
+	Func Desc:
+	dumps the given data into a pickle file
+
+	Input:
+	save_filename - the name of the pickle file in which the arguments/data is required to be saved
+	x ([batch_size x num_features])
+	l ([batch_size x num_rules])
+	m ([batch_size x num_rules])
+	L ([batch_size x 1])
+	d ([batch_size x 1])
+	weights (default - None)
+	f_d_U_probs (default - None)
+	rule_classes  (default - None)
+
+	Output:
+
+	'''
 	save_file = open(save_filename, 'wb')
 	pickle.dump(x, save_file)
 	pickle.dump(l, save_file)
@@ -233,6 +331,22 @@ def dump_labels_to_file(save_filename, x, l, m, L, d, weights=None, f_d_U_probs=
 	save_file.close()
 
 def load_from_pickle_with_per_class_sampling_factor(fname, per_class_sampling_factor):
+	'''
+	Func Desc:
+	load the data from the given pickle file with per class sampling factor
+
+	Input:
+	fname - name of the pickle file from which data need to be loaded
+	per_class_sampling_factor 
+
+	Output:
+	the required matrices
+	x1 ([batch_size x num_features])
+	l1 ([batch_size x num_rules])
+	m1 ([batch_size x num_rules])
+	L1 ([batch_size x 1])
+	d1 ([batch_size x 1])
+	'''
 	with open(fname, 'rb') as f:
 		x = pickle.load(f)
 		l = pickle.load(f)
@@ -263,7 +377,20 @@ def load_from_pickle_with_per_class_sampling_factor(fname, per_class_sampling_fa
 
 
 def combine_d_covered_U_pickles(d_name, infer_U_name, out_name, d_sampling_factor, U_sampling_factor):
-	
+	'''
+	Func Desc:
+	combine the labelled and unlabelled data, merge the corresponding parameters together and store them in new file
+
+	Input:
+	d_name - the pickle file storing labelled data
+	infer_U_name - the pickle file storing unlabelled data
+	out_name - the name of the file where merged output needs to be stored
+	d_sampling_factor - the per_class_sampling_factor for labelled data
+	U_sampling_factor - the per_class_sampling_factor for unlabelled data
+
+	Output:
+
+	'''
 	#d_sampling_factor = np.array(d_sampling_factor)
 	#U_sampling_factor = np.array(U_sampling_factor)
 
@@ -284,4 +411,32 @@ def combine_d_covered_U_pickles(d_name, infer_U_name, out_name, d_sampling_facto
 		pickle.dump(m, out_file)
 		pickle.dump(L, out_file)
 		pickle.dump(d, out_file)
+
+# from learn2reweight_utils
+def updated_theta_copy(grads, variables, lr, mode):
+	'''
+	Func Desc:
+	updates the theta (parameters) using rhe given learning rate, grads and variables
+
+	Input:
+	grads - gradients
+	variables
+	lr - learning rate
+	mode 
+
+	Output:
+	vals - list of the updated gradients 
+	'''
+	vals = []
+	if mode == 1:
+		for g,v in zip(grads,variables):
+			vals.append(v+lr*g)
+	elif mode == -1:
+		for g,v in zip(grads,variables):
+			vals.append(v-lr*g)
+	else:
+		print("invalid mode error!")
+		print(exit(1))
+
+	return vals
 
