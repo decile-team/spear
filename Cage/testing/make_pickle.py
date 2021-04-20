@@ -12,26 +12,26 @@ if __name__ == "__main__":
 
 
 	#sms:
-	# n_classes = 2
-	# n_lfs = 11
-	# save_train_file = "pickled_data/sms_train.pkl"
-	# save_test_file = "pickled_data/sms_test.pkl"
-	# train_file = "Data/sms/train_L_S_smooth.npy"
-	# test_file = "Data/sms/test_L_S_smooth.npy"
-	# k_file = "Data/sms/k.npy"
-	# true_labels_file = "Data/sms/true_labels_sms.npy"
-	#continuous_mask = np.ones(n_lfs)  # All labeling functions are continuous
+	n_classes = 2
+	n_lfs = 11
+	save_train_file = "pickled_data/sms_train.pkl"
+	save_test_file = "pickled_data/sms_test.pkl"
+	train_file = "Data/sms/train_L_S_smooth.npy"
+	test_file = "Data/sms/test_L_S_smooth.npy"
+	k_file = "Data/sms/k.npy"
+	true_labels_file = "Data/sms/true_labels_sms.npy"
+	continuous_mask = np.ones(n_lfs)  # All labeling functions are continuous
 
 	#spouse:
-	n_classes = 2
-	n_lfs = 10
-	save_train_file = "pickled_data/spouse_train.pkl"
-	save_test_file = "pickled_data/spouse_test.pkl"
-	train_file = "Data/spouse/train_L_S_smooth.npy"
-	test_file = "Data/spouse/test_L_S_smooth.npy"
-	k_file = "Data/spouse/k.npy" #label for each LF
-	true_labels_file = "Data/spouse/true_labels_test.npy"
-	continuous_mask =np.array([0, 0, 1, 1, 0, 1, 1, 1, 1, 1])
+	# n_classes = 2
+	# n_lfs = 10
+	# save_train_file = "pickled_data/spouse_train.pkl"
+	# save_test_file = "pickled_data/spouse_test.pkl"
+	# train_file = "Data/spouse/train_L_S_smooth.npy"
+	# test_file = "Data/spouse/test_L_S_smooth.npy"
+	# k_file = "Data/spouse/k.npy" #label for each LF
+	# true_labels_file = "Data/spouse/true_labels_test.npy"
+	# continuous_mask =np.array([0, 0, 1, 1, 0, 1, 1, 1, 1, 1])
 
 #---------------------------------------------------------------------#
 

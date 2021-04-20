@@ -19,45 +19,16 @@ class Cage:
 	Args:
 		n_classes: Number of classes/labels, type is integer
 		path: Path to pickle file of input data
-		qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
-		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-		metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']
-		n_epochs:Number of epochs, default is 100
-		lr: Learning rate for torch.optim, default is 0.01
 
 	'''
-	def __init__(self, n_classes, path, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
+	def __init__(self, n_classes, path):
 		assert type(n_classes) == np.int or type(n_classes) == np.float
 		assert type(path) == str
 		assert os.path.exists(path)
-		for temp in metric_avg:
-			assert temp in ['micro', 'macro', 'samples','weighted', 'binary'] or metric_avg is None
-		assert type(n_epochs) == np.int or type(n_epochs) == np.float
-		assert type(lr) == np.int or type(lr) == np.float
-
-		if type(qt) == float:
-			assert qt >= 0 and qt <= 1
-		elif type(qt) == np.ndarray:
-			assert np.all(np.logical_and(qt>=0, qt<=1))
-		elif type(qt) == np.int:
-			assert qt == 0 or qt == 1
-		else:
-			print("core_cage: Invalid type for qt in Cage class")
-			exit(1)
-
-		if type(qc) == float:
-			assert qc >= 0 and qc <= 1
-		elif type(qc) == np.ndarray:
-			assert np.all(np.logical_and(qc>=0, qc<=1))
-		elif type(qc) == np.int:
-			assert qc == 0 or qc == 1
-		else:
-			print("core_cage: Invalid type for qc in Cage class")
-			exit(1)
 
 		data = get_data(path)
 
-		self.l = torch.abs(torch.tensor(data[2]).long())
+		self.m = torch.abs(torch.tensor(data[2]).long())
 		self.s = torch.tensor(data[6]).double() # continuous score
 		self.n = torch.tensor(data[7]).double() # Mask for s/continuous_mask
 		self.k = torch.tensor(data[8]).long() # LF's classes
@@ -65,15 +36,9 @@ class Cage:
 		self.s[self.s < 0.001] = 0.001 # clip s
 
 		self.n_classes = int(n_classes)
-		self.metric_avg = list(set(metric_avg))
-		self.n_epochs = int(n_epochs)
-		self.lr = lr
-		self.n_lfs = self.l.shape[1]
+		self.n_lfs = self.m.shape[1]
 
 		self.n_instances, self.n_features = data[0].shape
-
-		self.qt = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
-		self.qc = torch.tensor(qt).double() if type(qc) == np.ndarray else qc
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
 		(self.pi).requires_grad = True
@@ -81,23 +46,44 @@ class Cage:
 		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
 		(self.theta).requires_grad = True
 
-	def fit(self, path_test = None, path_log = None):
+	def fit(self, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
 		'''
 		Args:
-			path_test: Path to the pickle file containing test data set
-			path_log: Path to log file, default value is None. No log is producede if path is None
+			path_test: Path to the pickle file containing test data
+			path_log: Path to log file, default value is None. No log is producede if path_test is None
+			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
+			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
+			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']
+			n_epochs:Number of epochs, default is 100
+			lr: Learning rate for torch.optim, default is 0.01
+
 		Return:
 			numpy.ndarray of shape (num_instances,) which are aggregated/predicted labels
 		'''
-		use_cuda = torch.cuda.is_available()
-		device = torch.device("cuda:0" if use_cuda else "cpu")
-		torch.backends.cudnn.benchmark = True
+		assert (type(qt) == np.float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
+		 or (type(qt) == np.int and (qt == 0 or qt == 1))
+
+		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == np.int and (qc == 0 or qc == 1))
+
+		for temp in metric_avg:
+			assert temp in ['micro', 'macro', 'samples','weighted', 'binary'] or metric_avg is None
+		assert type(n_epochs) == np.int or type(n_epochs) == np.float
+		assert type(lr) == np.int or type(lr) == np.float
+
+
+		self.qt = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
+		self.qc = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+		self.metric_avg = list(set(metric_avg))
+		self.n_epochs = int(n_epochs)
+		self.lr = lr
 
 		optimizer = optim.Adam([self.theta, self.pi], lr=self.lr, weight_decay=0)
 
 		file = None
 		if path_test != None and path_log != None:
-			file = open(path_log, "w+")
+			file = open(path_log, "a+")
+			file.write("CAGE log:\n")
 
 		y_true_test = None
 		s_test, m_test = None, None
@@ -110,12 +96,12 @@ class Cage:
 
 		for epoch in range(self.n_epochs):
 			optimizer.zero_grad()
-			loss = log_likelihood_loss(self.theta, self.pi, self.l, self.s, self.k, self.n_classes, self.n, self.qc)
+			loss = log_likelihood_loss(self.theta, self.pi, self.m, self.s, self.k, self.n_classes, self.n, self.qc)
 			prec_loss = precision_loss(self.theta, self.k, self.n_classes, self.qt)
 			loss += prec_loss
 
 			if path_test != None and path_log != None:
-				y_pred = self.predict_specific(s_test, m_test)
+				y_pred = self.predict_specific(m_test, s_test)
 				file.write("Epoch: {}\taccuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
 				for temp in self.metric_avg:
 					file.write("Epoch: {}\taverage_metric: {}\tf1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
@@ -126,15 +112,16 @@ class Cage:
 		if path_test != None and path_log != None:
 			file.close()
 
-		return predict_gm(self.theta, self.pi, self.l, self.s, self.k, self.n_classes, self.n, self.qc)
+		return predict_gm(self.theta, self.pi, self.m, self.s, self.k, self.n_classes, self.n, self.qc)
 
-	def predict_specific(self, s_test, m_test):
+	def predict_specific(self, m_test, s_test):
 		'''
 			Used to predict labels based on s_test and m_test
 
 		Args:
-			s_test: numpy arrays of shape (num_instances, num_rules), s_test[i][j] is the continuous score of jth LF on ith instance
 			m_test: numpy arrays of shape (num_instances, num_rules), m_test[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
+			s_test: numpy arrays of shape (num_instances, num_rules), s_test[i][j] is the continuous score of jth LF on ith instance
+		
 		Return:
 			numpy.ndarray of shape (num_instances,) which are predicted labels
 			[Note: no aggregration/algorithm-running will be done using the current input]
@@ -150,15 +137,17 @@ class Cage:
 
 	def predict(self, path_test):
 		'''
-			Used to predict labels based a pickle file with path path_test
+			Used to predict labels based on a pickle file with path path_test
 
 		Args:
 			path_test: Path to the pickle file containing test data set
+		
 		Return:
 			numpy.ndarray of shape (num_instances,) which are predicted labels
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		data = get_data(path_test)
+		assert self.n_features == data[0].shape[1]
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001

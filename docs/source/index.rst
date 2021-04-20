@@ -1,9 +1,10 @@
-.. Edurevol documentation master file, created by
-   sphinx-quickstart on Mon Mar 22 20:44:02 2021.
+.. SPEAR(DECILE) documentation master file, created by
+   sphinx-quickstart on Sat Apr 17 15:41:01 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SPEAR(DECILE) documentation!
+
+SPEAR(DECILE) documentation!
 ========================================
 
 .. toctree::
@@ -48,40 +49,47 @@ Noisy Labels
 CAGE
 ==================
 
-.. automodule:: Cage_JL.core_cage
+:cite:t:`2020:CAGE`
+
+.. automodule:: Cage.core
 	:members:
 
 Joint Learning(JL)
 ==================
 
-.. automodule:: Cage_JL.core_jl
+:cite:t:`2020:JL`
+
+	From here on, Feature model(fm) imply Feature based classification model
+
+
+.. automodule:: JL.core
 	:members:
 
 
 CAGE, JL utils
 ===============
 
+CAGE and JL utils
+------------------
+
+   From here on, Graphical model(gm) imply CAGE algorithm and Feature model(fm) imply Feature based classification model
+
+.. automodule:: utils
+	:members:
+
 Feature-based Models
 ---------------------
 
-.. automodule:: Cage_JL.models
-	:members:
-
-CAGE utils
------------
-
-   From here on, Graphical model imply CAGE algorithm
-
-   JL uses these utils too
-
-.. automodule:: Cage_JL.utils
+.. automodule:: JL.models
 	:members:
 
 JL utils
 ---------
 
-.. automodule:: Cage_JL.utils_jl
+.. automodule:: JL.utils_jl
 	:members:
+
+
 
 IMPLYLOSS
 ============
@@ -142,3 +150,9 @@ Implyloss Utils
 ---------------------------
 .. automodule:: Implyloss.my_utils
 	:members:
+
+
+Bibilography
+=============
+
+.. bibliography::
