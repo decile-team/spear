@@ -34,19 +34,20 @@ declare -a model_id=(1 2 3 4 5) # (5 independent models were trained and numbers
 # declare -a lamda_arr=(0.6)
 # declare -a model_id=(1 2 3 4 5 6 7 8 9 10)
 
-# # USE THIS FOR L2R
+# USE THIS FOR L2R
 # declare -a arr=("learn2reweight") # L2R in Table2 Column2 (Question)
 # declare -a gamma_arr=(0.1) # not actually used
 # declare -a lamda_arr=(0.01) # meta-learning rate
-# declare -a model_id=(1 2 3 4 5 6 7 8 9 10)
+# declare -a model_id=(1 2 3 4 5)
+
 
 # USE THIS FOR Only-L
 # declare -a arr=("f_d") # Only-L in Table2 Column2 (Question) 
 # declare -a gamma_arr=(0.1) # not actully used
 # declare -a lamda_arr=(0.1) # not actully used
-# declare -a model_id=(1 2 3 4 5 6 7 8 9 10)
+# declare -a model_id=(1 2 3 4 5)
 
-EPOCHS=10
+EPOCHS=3
 LR=0.0001 #not used while testing
 DROPOUT_KEEP_PROB=1.0
 VALID_PICKLE_NAME=test_processed.p #used test pickle while testing

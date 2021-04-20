@@ -436,7 +436,7 @@ class HighLevelSupervisionNetwork:
 
 			
 			# 4. update theta
-			theta_hat = learn2reweight_utils.updated_theta_copy(
+			theta_hat = updated_theta_copy(
 													grads=grads_thetas,
 													variables=thetas,
 													lr=self.config.lamda,

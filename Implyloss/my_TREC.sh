@@ -48,5 +48,5 @@ python3 -u my_main.py \
   --U_pickle_name=$U_PICKLE_NAME \
   --gamma=$GAMMA \
   --lamda=$LAMDA \
-  --early_stopping_p=5 \
+  --early_stopping_p=20 \
   --use_joint_f_w=$USE_JOINT_f_w
