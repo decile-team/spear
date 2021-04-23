@@ -18,7 +18,7 @@ class Cage:
 
 	Args:
 		n_classes: Number of classes/labels, type is integer
-		path: Path to pickle file of input data
+		path: Path to pickle file of input data in standard format
 
 	'''
 	def __init__(self, n_classes, path):
@@ -49,7 +49,7 @@ class Cage:
 	def fit(self, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
 		'''
 		Args:
-			path_test: Path to the pickle file containing test data
+			path_test: Path to the pickle file containing test data in standard format
 			path_log: Path to log file, default value is None. No log is producede if path_test is None
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
@@ -140,7 +140,7 @@ class Cage:
 			Used to predict labels based on a pickle file with path path_test
 
 		Args:
-			path_test: Path to the pickle file containing test data set
+			path_test: Path to the pickle file containing test data set in standard format
 		
 		Return:
 			numpy.ndarray of shape (num_instances,) which are predicted labels

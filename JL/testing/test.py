@@ -2,6 +2,7 @@ import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from core import *
+from subset_selection import *
 
 if __name__ == '__main__':
 	n_classes = 2
@@ -16,6 +17,7 @@ if __name__ == '__main__':
 	lr_gm = 0.01
 	path_log = 'logs/yt_unsup.txt'
 
-
 	jl = JL(n_classes, file_L, file_U, file_V, file_T, True)
-	jl.fit(mask, batch_size, lr_feature, lr_gm, path_log, False, 100, -1, 7, True, True, 0.9, 0.85, 0, 'lr', 'macro')
+	fm, gm = jl.fit(mask, batch_size, lr_feature, lr_gm, path_log, True, 100, -1, 7, True, True, 0.9, 0.85, 0, 'lr', 'macro')
+	print(fm.shape)
+	print(gm.shape)

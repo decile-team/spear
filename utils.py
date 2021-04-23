@@ -10,7 +10,7 @@ from torch.distributions.beta import Beta
 
 def get_data(path):
 	'''
-		expected order in pickle file is NUMPY ndarrays x, l, m, L, d, r, s, n, k
+		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k
 			x: (num_instances, num_features), x[i][j] is jth feature of ith instance
 			
 			l: (num_instances, num_rules), l[i][j] is the prediction of jth LF(range: 0 to num_classes-1) on ith instance. l[i][j] = num_classes imply Abstain

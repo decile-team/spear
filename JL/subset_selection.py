@@ -3,7 +3,6 @@ import numpy as np
 import torch
 from sklearn.metrics.pairwise import euclidean_distances
 from utils_jl import find_indices, get_similarity_kernel
-#need to import utils if utils_jl is imported?
 
 def rand_subset(n_all, n_instances):
 	'''
@@ -21,17 +20,19 @@ def rand_subset(n_all, n_instances):
 	assert np.int(n_all) > np.int(n_instances)
 	return np.random.choice(int(n_all), int(n_instances), replace = False)
 
-def unsup_subet(x_train, n_unsup):
+def unsup_subset(x_train, n_unsup):
 	'''
 		A function for unsupervised subset selection
 	Args:
-		x_train: A numpy.ndarray of shape(n_instances, n_features).All the data, intended to be used for training
-		n_unsup: number of instances to be found during unsupervised subset selection
+		x_train: A torch.Tensor of shape [n_instances, n_features].All the data, intended to be used for training
+		n_unsup: number of instances to be found during unsupervised subset selection, type is integer
 	
 	Return:
 		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,x_train.shape[0])), the result of subset selection
 	'''
-	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = n_unsup)
+	assert x_train.shape[0] > int(n_unsup)
+	assert type(x_train) == torch.Tensor
+	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
 	x_sub = fl.fit_transform(x_train)
 	indices = find_indices(x_train, x_sub)
 	return indices
@@ -41,7 +42,7 @@ def sup_subset(path_train, n_sup, n_classes, qc = 0.85):
 		A function for supervised subset selection
 	
 	Args:
-		path_train: path to the pickle file containing all the training data
+		path_train: path to the pickle file containing all the training data in standard format
 		n_sup: number of instances to be found during supervised subset selection
 		n_classes: number of classes of the training data
 		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
@@ -59,6 +60,8 @@ def sup_subset(path_train, n_sup, n_classes, qc = 0.85):
 	continuous_mask = data[7]
 	qc_temp = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 	params = torch.ones((n_classes, n_lfs)).double() # initialisation of gm parameters, refer section 3.4 in the JL paper
+
+	assert m.shape[0] > int(n_sup)
 
 	y_train_pred = predict_gm(params, params, m, s, k, n_classes, continuous_mask, qc_temp)
 	kernel = get_similarity_kernel(y_train_pred)

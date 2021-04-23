@@ -1,0 +1,103 @@
+JL log:
+JL log:
+JL log:
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.84	fm_valid_score: 0.83
+accuracy_score: Epoch: 0	gm_test_score: 0.828	fm_test_score: 0.816
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.91
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 3	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 4	gm_valid_score: 0.84	fm_valid_score: 0.9
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.84	fm_valid_score: 0.83
+accuracy_score: Epoch: 0	gm_test_score: 0.82	fm_test_score: 0.812
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.9
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 3	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 4	gm_valid_score: 0.84	fm_valid_score: 0.95
+accuracy_score: Epoch: 5	gm_valid_score: 0.84	fm_valid_score: 0.95
+accuracy_score: Epoch: 6	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 7	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 8	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 9	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 10	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 10	gm_test_score: 0.852	fm_test_score: 0.936
+accuracy_score: Epoch: 11	gm_valid_score: 0.85	fm_valid_score: 0.94
+accuracy_score: Epoch: 12	gm_valid_score: 0.86	fm_valid_score: 0.94
+Training is done. gm_test_acc: 0.852	fm_test_acc: 0.944
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 0	gm_test_score: 0.812	fm_test_score: 0.916
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 3	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 4	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 5	gm_valid_score: 0.83	fm_valid_score: 0.94
+accuracy_score: Epoch: 6	gm_valid_score: 0.83	fm_valid_score: 0.93
+accuracy_score: Epoch: 7	gm_valid_score: 0.83	fm_valid_score: 0.92
+accuracy_score: Epoch: 8	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 9	gm_valid_score: 0.85	fm_valid_score: 0.94
+accuracy_score: Epoch: 10	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 10	gm_test_score: 0.844	fm_test_score: 0.936
+Training is done. gm_test_acc: 0.844	fm_test_acc: 0.936
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.84	fm_valid_score: 0.91
+accuracy_score: Epoch: 0	gm_test_score: 0.808	fm_test_score: 0.916
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 3	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 4	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 5	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 6	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 7	gm_valid_score: 0.83	fm_valid_score: 0.92
+accuracy_score: Epoch: 8	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 9	gm_valid_score: 0.86	fm_valid_score: 0.93
+accuracy_score: Epoch: 10	gm_valid_score: 0.86	fm_valid_score: 0.93
+accuracy_score: Epoch: 10	gm_test_score: 0.852	fm_test_score: 0.936
+Training is done. gm_test_acc: 0.852	fm_test_acc: 0.936
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.81	fm_valid_score: 0.82
+accuracy_score: Epoch: 0	gm_test_score: 0.788	fm_test_score: 0.836
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.85
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 3	gm_valid_score: 0.84	fm_valid_score: 0.92
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.84	fm_valid_score: 0.8
+accuracy_score: Epoch: 0	gm_test_score: 0.816	fm_test_score: 0.812
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 3	gm_valid_score: 0.83	fm_valid_score: 0.95
+accuracy_score: Epoch: 4	gm_valid_score: 0.84	fm_valid_score: 0.94
+accuracy_score: Epoch: 5	gm_valid_score: 0.83	fm_valid_score: 0.93
+accuracy_score: Epoch: 6	gm_valid_score: 0.84	fm_valid_score: 0.93
+accuracy_score: Epoch: 7	gm_valid_score: 0.85	fm_valid_score: 0.93
+accuracy_score: Epoch: 8	gm_valid_score: 0.85	fm_valid_score: 0.93
+accuracy_score: Epoch: 9	gm_valid_score: 0.86	fm_valid_score: 0.93
+accuracy_score: Epoch: 10	gm_valid_score: 0.86	fm_valid_score: 0.93
+accuracy_score: Epoch: 10	gm_test_score: 0.852	fm_test_score: 0.94
+accuracy_score: Epoch: 11	gm_valid_score: 0.86	fm_valid_score: 0.94
+Training is done. gm_test_acc: 0.852	fm_test_acc: 0.944
+JL log:
+JL log:
+accuracy_score: Epoch: 0	gm_valid_score: 0.81	fm_valid_score: 0.81
+accuracy_score: Epoch: 0	gm_test_score: 0.784	fm_test_score: 0.852
+accuracy_score: Epoch: 1	gm_valid_score: 0.84	fm_valid_score: 0.91
+accuracy_score: Epoch: 2	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 3	gm_valid_score: 0.84	fm_valid_score: 0.92
+accuracy_score: Epoch: 4	gm_valid_score: 0.84	fm_valid_score: 0.91
+accuracy_score: Epoch: 5	gm_valid_score: 0.84	fm_valid_score: 0.91
+accuracy_score: Epoch: 6	gm_valid_score: 0.83	fm_valid_score: 0.91
+accuracy_score: Epoch: 7	gm_valid_score: 0.85	fm_valid_score: 0.91
+accuracy_score: Epoch: 8	gm_valid_score: 0.84	fm_valid_score: 0.91
+accuracy_score: Epoch: 9	gm_valid_score: 0.86	fm_valid_score: 0.93
+accuracy_score: Epoch: 10	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 10	gm_test_score: 0.844	fm_test_score: 0.936
+accuracy_score: Epoch: 11	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 12	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 13	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 14	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 15	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 16	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 17	gm_valid_score: 0.86	fm_valid_score: 0.94
+accuracy_score: Epoch: 18	gm_valid_score: 0.86	fm_valid_score: 0.94
+Training is done. gm_test_acc: 0.852	fm_test_acc: 0.94

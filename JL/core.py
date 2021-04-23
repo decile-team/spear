@@ -3,6 +3,11 @@ from torch import optim
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
 import sklearn
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score as prec_score
+from sklearn.metrics import recall_score as recall_score
+
 import os
 import sys
 from os import path
@@ -12,6 +17,8 @@ from utils import *
 from utils_jl import *
 from models import *
 
+##todo: need to remove below import (imported only for testing)
+from subset_selection import *
 
 class JL:
 	'''
@@ -38,13 +45,9 @@ class JL:
 		self.use_accuracy_score = use_accuracy_score
 
 		if self.use_accuracy_score:
-			from sklearn.metrics import accuracy_score as score
 			self.score_used = "accuracy_score"
 		else:
-			from sklearn.metrics import f1_score as score
 			self.score_used = "f1_score"
-		from sklearn.metrics import precision_score as prec_score
-		from sklearn.metrics import recall_score as recall_score
 
 		data_L = get_data(path_L)
 		data_U = get_data(path_U)
@@ -77,6 +80,11 @@ class JL:
 		self.y_test = data_T[3]
 		self.l_test = torch.tensor(data_T[2]).long()
 		self.s_test = torch.tensor(data_T[6]).double()
+
+		self.y_unsup = (self.y_unsup).view(-1)
+		self.y_sup = (self.y_sup).view(-1)
+		(self.y_valid).resize((self.y_valid).size,)
+		(self.y_test).resize((self.y_test).size,)
 
 		self.n_features = self.x_sup.shape[1]
 		self.k = torch.tensor(data_L[8]).long() # LF's classes
@@ -131,8 +139,13 @@ class JL:
 		self.x_train = torch.cat([self.x_sup, self.x_unsup])
 		self.y_train = torch.cat([self.y_sup, self.y_unsup])
 		self.supervised_mask = torch.cat([torch.ones(self.l_sup.shape[0]), torch.zeros(self.l_unsup.shape[0])])
-		##unsup subset selection - to be removed
-		
+
+		##adding subsetselection here for testing. todo: has to be removed.
+		#indices = rand_subset(self.x_train.shape[0], len(self.x_sup))
+		indices = unsup_subset(self.x_train, len(self.x_sup))
+
+		supervised_mask = torch.zeros(self.x_train.shape[0])
+		supervised_mask[indices] = 1
 		##
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
@@ -160,7 +173,7 @@ class JL:
 			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
 
 		Return:
-			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances,), first one is through graphical model, other one through feature model.
+			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances,), first one is through feature model, other one through graphical model.
 			Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model
 		'''
 
@@ -222,7 +235,7 @@ class JL:
 			file = open(path_log, "a+")
 			file.write("JL log:\n")
 
-#Algo starting
+		#Algo starting
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
 		(self.pi).requires_grad = True
@@ -238,7 +251,7 @@ class JL:
 		loader = DataLoader(dataset, batch_size = self.batch_size, shuffle = True, pin_memory = True)
 
 		best_score_fm, best_score_gm, best_epoch_fm, best_epoch_gm, best_score_fm_val, best_score_gm_val = 0,0,0,0,0,0
-		best_score_fm_prec,best_score_fm_recall ,best_score_gm_prec,best_score_gm_recall= 0,0,0,0
+		best_score_fm_prec, best_score_fm_recall, best_score_gm_prec, best_score_gm_recall= 0,0,0,0
 
 		gm_acc, fm_acc = -1, -1
 
@@ -249,12 +262,10 @@ class JL:
 			
 			self.feature_model.train()
 
-			for batch_ndx, sample in enumerate(loader):
+			for _, sample in enumerate(loader):
 				optimizer_fm.zero_grad()
 				optimizer_gm.zero_grad()
 
-				unsup = []
-				sup = []
 				supervised_indices = sample[4].nonzero().view(-1)
 				unsupervised_indices = (1-sample[4]).nonzero().squeeze()
 
@@ -316,26 +327,26 @@ class JL:
 			#gm Test
 			y_pred = predict_gm(self.theta, self.pi, self.l_test, self.s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
-				gm_acc = score(self.y_test, y_pred)
+				gm_acc = accuracy_score(self.y_test, y_pred)
 			else:
-				gm_acc = score(self.y_test, y_pred, average = self.metric_avg)
+				gm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
 			gm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
 			gm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#gm Validation
 			y_pred = predict_gm(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
-				gm_valid_acc = score(self.y_valid, y_pred)
+				gm_valid_acc = accuracy_score(self.y_valid, y_pred)
 			else:
-				gm_valid_acc = score(self.y_valid, y_pred, average = self.metric_avg)
+				gm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
 
 			#fm Test
 			probs = torch.nn.Softmax()(self.feature_model(self.x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
-				fm_acc =score(self.y_test, y_pred)
+				fm_acc = accuracy_score(self.y_test, y_pred)
 			else:
-				fm_acc =score(self.y_test, y_pred, average = self.metric_avg)
+				fm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
 			fm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
 			fm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
@@ -343,9 +354,9 @@ class JL:
 			probs = torch.nn.Softmax()(self.feature_model(self.x_valid))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
-				fm_valid_acc = score(self.y_valid, y_pred)
+				fm_valid_acc = accuracy_score(self.y_valid, y_pred)
 			else:
-				fm_valid_acc = score(self.y_valid, y_pred, average = self.metric_avg)
+				fm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
 
 			if path_log != None:
 				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(self.score_used, epoch, gm_valid_acc, fm_valid_acc))
@@ -426,17 +437,17 @@ class JL:
 			#epoch for loop ended
 
 		if self.stopped_early:
-			print('Early Stopping: best_epoch: {}\tbest_gm_score:{}\tbest_feature_model_score:{}\n',\
-			 best_epoch_gm, best_score_gm, best_score_fm)
-			print('Validation scores at Early Stopping: best_epoch: {}\tbest_gm_val_score:{}\tbest_feature_model_val_score:{}\n',\
-			 best_epoch_gm, best_score_gm_val, best_score_fm_val)
+			print('early stopping: best_epoch: {}\tbest_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
+				best_epoch_gm, best_score_gm, best_score_fm))
+			print('early stopping: best_epoch: {}\tbest_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
+				best_epoch_gm, best_score_gm_val, best_score_fm_val))
 		else:
-			print('best_epoch: {}\tbest_gm_score:{}\tbest_feature_model_score:{}\n',\
-			 best_epoch_gm, best_score_gm, best_score_fm)
-			print('Validation scores: best_epoch: {}\tbest_gm_val_score:{}\tbest_feature_model_val_score:{}\n',\
-			 best_epoch_gm, best_score_gm_val, best_score_fm_val)
+			print('best_epoch: {}\tbest_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
+				best_epoch_gm, best_score_gm, best_score_fm))
+			print('best_epoch: {}\tbest_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
+				best_epoch_gm, best_score_gm_val, best_score_fm_val))
 
-# Algo ended
+		# Algo ended
 
 		print("Training is done. gm_test_acc: {}\tfm_test_acc: {}\n".format(gm_acc, fm_acc))
 		if path_log != None:
@@ -444,8 +455,8 @@ class JL:
 			file.close()
 
 		if return_gm:
-			return predict_gm(self.theta, self.pi, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc),\
-			 np.argmax((torch.nn.Softmax()(self.feature_model(self.x_unsup))).detach().numpy(), 1)
+			return np.argmax((torch.nn.Softmax()(self.feature_model(self.x_unsup))).detach().numpy(), 1), \
+				predict_gm(self.theta, self.pi, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
 		else:
 			return np.argmax((torch.nn.Softmax()(self.feature_model(self.x_unsup))).detach().numpy(), 1)
 
@@ -467,7 +478,7 @@ class JL:
 		assert (data[2]).shape[1] == self.n_lfs
 		m_test = torch.abs(torch.tensor(data[2]).long())
 
-		return predict_gm(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, self.qc)
+		return predict_gm(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 
 	def predict_feature_model(self, path_test):
 		'''
