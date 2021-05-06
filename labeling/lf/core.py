@@ -1,7 +1,17 @@
 from typing import Any, Callable, List, Mapping, Optional
-from labeling.types import DataPoint
+from labeling.mtypes import DataPoint
 from labeling.preprocess import BasePreprocessor
 from labeling.continuous_scoring import BaseContinuousScorer
+
+class AbstainClass:
+    def __init__(
+        self,
+        name: str = "Abstain"
+    ) -> None:
+        self.name = name
+
+ABSTAIN = AbstainClass()
+
 class LabelingFunction:
     """Base class for labeling function
 
@@ -17,7 +27,7 @@ class LabelingFunction:
         self,
         name: str,
         f: Callable[..., int],                              
-        label: int = None,
+        label: int,
         resources: Optional[Mapping[str, Any]] = None,
         pre: Optional[List[BasePreprocessor]] = None,
         cont_scorer: Optional[BaseContinuousScorer] = None,
@@ -55,24 +65,24 @@ class LabelingFunction:
                 raise ValueError("Preprocessor should not return None")
         return x
 
-    def __call__(self, x: DataPoint) -> (int, float):
+    def __call__(self, x: DataPoint):                                                                           # -> (Enum, float)
         """Applies core labeling function and continuous scorer on datapoint and returns label and confidence
 
         Args:
             x (DataPoint): Datapoint 
 
         Returns:
-            (int, float): Label and confidence for the datapoint
+            (Enum, float): Label enum object and confidence for the datapoint
 
         """
         x = self._preprocess_data_point(x)
-        if self._cont_scorer is None:
-            cs = -1.0
-            return self._f(x,**self._resources), cs 
-        else:
-            cs = self._cont_scorer(x,**self._resources)
+        if self._is_cont:
+            cs = self._cont_scorer(x,**self._resources)     # continuous score
             dic = {"continuous_score": cs}
-            return self._f(x,**self._resources, **dic), cs                                   
+            return self._f(x,**self._resources, **dic), cs
+        else:
+            cs = -1.0
+            return self._f(x,**self._resources), cs                                   
         
     def __repr__(self) -> str:
         """Represents class object as string

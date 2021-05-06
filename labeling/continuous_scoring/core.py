@@ -1,5 +1,5 @@
 from typing import Any, Callable, List, Mapping, Optional
-from labeling.types import DataPoint
+from labeling.mtypes import DataPoint
 
 
 class BaseContinuousScorer:

@@ -4,6 +4,9 @@ from labeling.preprocess import *
 from labeling.continuous_scoring import *
 from labeling.noisy_labels import *
 from labeling.lf_set import *
+
+from preprocessor import *
+
 import numpy as np
 
 pre_resources={"r0":1.0}
@@ -69,11 +72,9 @@ else:
 
 
 f=open("testdata_pickle","rb")
-loaded=[]
-for i in range(9):
-    loaded+=[pickle.load(f)]
+noisy_data = pickle.load(f)
 
-if np.allclose(Lc, loaded[1]) and np.allclose(Sc, loaded[6]):
+if np.allclose(Lc, noisy_data["l"]) and np.allclose(Sc, noisy_data["s"]):
     print("works fine")
 else:
     print("something went wrong")

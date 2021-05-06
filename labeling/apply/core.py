@@ -4,10 +4,11 @@ from typing import DefaultDict, Dict, List, Set, NamedTuple, Tuple, Union
 import numpy as np
 from tqdm import tqdm
 
-from labeling.lf import LabelingFunction
-from labeling.types import DataPoint, DataPoints
+from labeling.lf import *
+from labeling.mtypes import DataPoint, DataPoints
 from labeling.utils.data_operators import check_unique_names
 from labeling.lf_set import *
+import enum
 
 RowData = List[Tuple[int, int, int, float]]     # index of datapoint, index of lf, label, confidence
 
@@ -54,15 +55,19 @@ class BaseLFApplier:
         # self._lf_set = lf_set
         self._lfs = lf_set.get_lfs()
         self._lf_names = [lf.name for lf in lf_set.get_lfs()]
+        # self._enum = enum
         check_unique_names(self._lf_names)
 
     def _numpy_from_row_data(self, labels: List[RowData]) -> np.ndarray:
-        L = np.zeros((len(labels), len(self._lfs)), dtype=int) - 1
+        E = np.empty((len(labels), len(self._lfs)), dtype=object)
+        E.fill(ABSTAIN)
+        # L = np.zeros((len(labels), len(self._lfs)), dtype=int) - 1
         S = np.zeros((len(labels), len(self._lfs)), dtype=float) - 1.0
         # NB: this check will short-circuit, so ok for large L
         if any(map(len, labels)):
-            row, col, lab, conf = zip(*chain.from_iterable(labels))
-            L[row, col] = lab
+            row, col, enm, conf = zip(*chain.from_iterable(labels))
+            E[row, col] = enm
+            # L[row, col] = lab
             S[row, col] = conf
 
         if self._use_recarray:                                        # always false
@@ -74,7 +79,7 @@ class BaseLFApplier:
 
             return recarray
         else:
-            return L,S
+            return E,S
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}, LFs: {self._lf_names}"
@@ -92,13 +97,14 @@ def apply_lfs_to_data_point(
         f_caller (_FunctionCaller): A ``_FunctionCaller`` to record failed LF executions
 
     Returns:
-        RowData: A list of (data point index, LF index, label) tuples
+        RowData: A list of (data point index, LF index, label enum, confidence) tuples
     """
     labels = []
     for j, lf in enumerate(lfs):
         y, z = f_caller(lf, x)
-        if y >= 0:
-            labels.append((index, j, y, z))
+        if (y==ABSTAIN):
+            continue
+        labels.append((index, j, y, z))
     return labels
 
 

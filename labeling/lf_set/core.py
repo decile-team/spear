@@ -1,6 +1,5 @@
 from typing import Any, Callable, List, Set, Mapping, Optional
-from labeling.types import DataPoint, DataPoints
-from labeling.apply import *
+from labeling.mtypes import DataPoint, DataPoints
 from labeling.lf import *
 import warnings
 
@@ -71,10 +70,10 @@ class LFSet:              # LFSet
             lf (LabelingFunction): LF to remove from this set
 
         Raises:
-            ValueError: If LF not already in LFset
+            Warning: If LF not already in LFset
         """
         if lf in self._lfs:
             self._lfs.remove(lf)
         else:
-            raise ValueError("Trying to remove an LF not in this LF set!")
+            warnings.warn("Trying to remove an LF not in this LF set!")
     
