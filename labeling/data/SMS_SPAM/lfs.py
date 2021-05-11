@@ -8,10 +8,15 @@ from con_scorer import word_similarity
 
 import numpy as np
 import re
+import enum
 
-SPAM = 1
-HAM = 0
-ABSTAIN = 2
+class ClassLabels(enum.Enum):
+    SPAM = 1
+    HAM = 0
+
+# SPAM = 1
+# HAM = 0
+# ABSTAIN = 2
 THRESHOLD = 0.8
 
 trigWord1 = {"free","credit","cheap","apply","buy","attention","shop","sex","soon","now","spam"}
@@ -23,128 +28,126 @@ firstAndSecondPersonWords = {"I","i","u","you","ur","your","our","we","us","your
 thirdPersonWords = {"He","he","She","she","they","They","Them","them","their","Their"}
 
 
-
-@labeling_function(resources=dict(keywords=trigWord1),pre=[convert_to_lower],label=SPAM)
+@labeling_function(resources=dict(keywords=trigWord1),pre=[convert_to_lower],label=ClassLabels.SPAM.value)
 def LF1(c,**kwargs):    
     if len(kwargs["keywords"].intersection(c.split())) > 0:
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
-
-@labeling_function(resources=dict(keywords=trigWord2),pre=[convert_to_lower],label=SPAM)
+@labeling_function(resources=dict(keywords=trigWord2),pre=[convert_to_lower],label=ClassLabels.SPAM.value)
 def LF2(c,**kwargs):
     if len(kwargs["keywords"].intersection(c.split())) > 0:
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
-@labeling_function(resources=dict(keywords=trigWord3),pre=[convert_to_lower],label=SPAM)
+@labeling_function(resources=dict(keywords=trigWord3),pre=[convert_to_lower],label=ClassLabels.SPAM.value)
 def LF3(c,**kwargs):
     if len(kwargs["keywords"].intersection(c.split())) > 0:
-        return SPAM
+        return ClassLabels.SPAM 
     else:
         return ABSTAIN
 
-@labeling_function(resources=dict(keywords=notFreeWords),pre=[convert_to_lower],label=HAM)
+@labeling_function(resources=dict(keywords=notFreeWords),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def LF4(c,**kwargs):
     if "free" in c.split() and len(kwargs["keywords"].intersection(c.split()))>0:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
-@labeling_function(resources=dict(keywords=notFreeSubstring),pre=[convert_to_lower],label=HAM)
+@labeling_function(resources=dict(keywords=notFreeSubstring),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def LF5(c,**kwargs):
     for pattern in kwargs["keywords"]:    
         if "free" in c.split() and re.search(pattern,c, flags= re.I):
-            return HAM
+            return ClassLabels.HAM
     return ABSTAIN
 
-@labeling_function(resources=dict(keywords=firstAndSecondPersonWords),pre=[convert_to_lower],label=HAM)
+@labeling_function(resources=dict(keywords=firstAndSecondPersonWords),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def LF6(c,**kwargs):
     if "free" in c.split() and len(kwargs["keywords"].intersection(c.split()))>0:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
 
-@labeling_function(resources=dict(keywords=thirdPersonWords),pre=[convert_to_lower],label=HAM)
+@labeling_function(resources=dict(keywords=thirdPersonWords),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def LF7(c,**kwargs):
     if "free" in c.split() and len(kwargs["keywords"].intersection(c.split()))>0:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
-@labeling_function(label=SPAM)
+@labeling_function(label=ClassLabels.SPAM.value)
 def LF8(c,**kwargs):
     if (sum(1 for ch in c if ch.isupper()) > 6):
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
 # @labeling_function()
 # def LF9(c,**kwargs):
-#     return HAM
+#     return ClassLabels.HAM.value
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=trigWord1),pre=[convert_to_lower],label=SPAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=trigWord1),pre=[convert_to_lower],label=ClassLabels.SPAM.value)
 def CLF1(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=trigWord2),pre=[convert_to_lower],label=SPAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=trigWord2),pre=[convert_to_lower],label=ClassLabels.SPAM.value)
 def CLF2(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=trigWord3),pre=[convert_to_lower],label=SPAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=trigWord3),pre=[convert_to_lower],label=ClassLabels.SPAM.value)
 def CLF3(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=notFreeWords),pre=[convert_to_lower],label=HAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=notFreeWords),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def CLF4(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=notFreeSubstring),pre=[convert_to_lower],label=HAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=notFreeSubstring),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def CLF5(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=firstAndSecondPersonWords),pre=[convert_to_lower],label=HAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=firstAndSecondPersonWords),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def CLF6(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=thirdPersonWords),pre=[convert_to_lower],label=HAM)
+@labeling_function(cont_scorer=word_similarity,resources=dict(keywords=thirdPersonWords),pre=[convert_to_lower],label=ClassLabels.HAM.value)
 def CLF7(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return HAM
+        return ClassLabels.HAM
     else:
         return ABSTAIN
 
-@labeling_function(cont_scorer=lambda x: 1-np.exp(float(-(sum(1 for ch in x if ch.isupper()))/2)),label=SPAM)
+@labeling_function(cont_scorer=lambda x: 1-np.exp(float(-(sum(1 for ch in x if ch.isupper()))/2)),label=ClassLabels.SPAM.value)
 def CLF8(c,**kwargs):
     if kwargs["continuous_score"] >= THRESHOLD:
-        return SPAM
+        return ClassLabels.SPAM
     else:
         return ABSTAIN
 
 # @labeling_function()
 # def CLF9(c,**kwargs):
-#     return HAM
+#     return ClassLabels.HAM.value
 
 LFS = [LF1,
     LF2,
