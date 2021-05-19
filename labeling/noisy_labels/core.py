@@ -81,7 +81,7 @@ class NoisyLabels:
 
         s=self._S                                                               # continuous scores
         n=np.array([lf._is_cont for lf in self._rules.get_lfs()], dtype=bool)   # lf continuous or not
-        k=np.array([lf._label for lf in self._rules.get_lfs()], dtype=int)      # lf associated to which class
+        k=np.array([lf._label for lf in self._rules.get_lfs()])      # lf associated to which class
 
         output = dict()
         output["x"] = x

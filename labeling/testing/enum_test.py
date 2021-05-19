@@ -27,13 +27,13 @@ def score(x, **kwargs):
     t3=kwargs["r3"]/kwargs["len2"]
     return t1*t2*t3
 
-@labeling_function(pre=[square], resources=lf_resources, cont_scorer=score, label=ClassLabels.HAM.value)
+@labeling_function(pre=[square], resources=lf_resources, cont_scorer=score, label=ClassLabels.HAM)
 def lf1(x, **kwargs):
     if np.linalg.norm(x['value']) < 1 and kwargs["r3"]==4:
         return ClassLabels.HAM
     return ABSTAIN
 
-@labeling_function(pre=[square], label=1)                # no continuous scorer specified
+@labeling_function(pre=[square], label=ClassLabels.SPAM)                # no continuous scorer specified
 def lf2(x, **kwargs):
     if np.linalg.norm(x['value']) < 5:
         return ClassLabels.SPAM
