@@ -5,7 +5,7 @@ from labeling.lf import *
 from labeling.lf_set import *
 from labeling.utils.pickle import *
 
-import pickle
+import pickle, enum, json
 import numpy as np
 
 class NoisyLabels:
@@ -24,7 +24,8 @@ class NoisyLabels:
         data: DataPoints,
         gold_labels: Optional[DataPoints],
         rules: LFSet,
-        enum : Dict = {},
+        labels_enum = None,
+        num_classes = -1,
         exemplars: DataPoints=[],
     ) -> None:       
         """Instantiates NoisyLabels class with dataset and set of LFs to noisily label the dataset
@@ -33,11 +34,14 @@ class NoisyLabels:
         self._data = data
         self._gold_labels = gold_labels
         self._rules = rules
-        # self._L = None
-        self._E = None
+        self._labels_enum = labels_enum
+        self._num_classes = num_classes
+        self._L = None
         self._S = None
         self._R = exemplars
         self._enum = enum
+
+        assert(num_classes == len(labels_enum))
 
     def get_labels(self):
         """Applies LFs to the dataset to generate noisy labels and returns noisy labels and confidence scores
@@ -45,13 +49,29 @@ class NoisyLabels:
         Returns:
             Tuple(DataPoints, DataPoints): Noisy Labels and Confidences
         """
-        if self._E is None or self._S is none:
+        if self._L is None or self._L is None:
             applier = LFApplier(lf_set = self._rules)
-            E,S = applier.apply(self._data)
-            self._E = E
+            L,S = applier.apply(self._data)
+            self._L = L
             self._S = S
-        return self._E, self._S
+        return self._L, self._S
 
+    def generate_json(self, filename=None):
+        """Generates a json file with label value to label name mapping
+
+        Args:
+            filename (str, optional): Name for json file. Defaults to None.
+        """
+        if filename is None:
+            filename = self.name+"_json.json"
+        
+        dic = {}
+        for e in self._labels_enum:
+            dic[e.value]=e.name
+
+        with open(filename, "w") as outfile:
+            json.dump(dic, outfile)
+        
     def generate_pickle(self, filename=None):
         """Generates a pickle file with noisy labels, confidence and other Metadata
 
@@ -61,32 +81,30 @@ class NoisyLabels:
         if filename is None:
             filename = self.name+"_pickle"
         
-        if (self._E is None or self._S is None):
+        if (self._L is None or self._S is None):
             applier = LFApplier(lf_set = self._rules)
-            E,S = applier.apply(self._data)
-            self._E = E
+            L,S = applier.apply(self._data)
+            self._L = L
             self._S = S
 
         num_inst=self._data.shape[0]
-        num_rules=self._E.shape[1]
+        num_rules=self._L.shape[1]
 
         x=self._data
-        # l=self._L
-        e=self._E
+        l=self._L
 
-        m=(self._E!=ABSTAIN).astype(int)                                        # lf covers example or not 
+        m=(self._L!=ABSTAIN).astype(int)                                        # lf covers example or not 
         L=self._gold_labels                                                     # true labels
         d=np.ones((num_inst, 1))                                                # belongs to labeled data or not
         r=self._R                                                               # exemplars
 
         s=self._S                                                               # continuous scores
         n=np.array([lf._is_cont for lf in self._rules.get_lfs()], dtype=bool)   # lf continuous or not
-        k=np.array([lf._label for lf in self._rules.get_lfs()])      # lf associated to which class
+        k=np.array([lf._label.value for lf in self._rules.get_lfs()])           # lf associated to which class
 
         output = dict()
         output["x"] = x
-        output["e"] = e
-        # output["l"] = l
+        output["l"] = l
         output["m"] = m
         output["L"] = L
         output["d"] = d
@@ -94,6 +112,7 @@ class NoisyLabels:
         output["s"] = s
         output["n"] = n
         output["k"] = k
+        output["num_classes"] = self._num_classes
         to_dump = [output]
 
         dump_to_pickle(filename, to_dump)
