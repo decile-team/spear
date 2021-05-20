@@ -1,7 +1,6 @@
 import torch
 from torch import optim
 import numpy as np
-import os
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
@@ -24,7 +23,6 @@ class Cage:
 	def __init__(self, n_classes, path):
 		assert type(n_classes) == np.int or type(n_classes) == np.float
 		assert type(path) == str
-		assert os.path.exists(path)
 
 		data = get_data(path)
 

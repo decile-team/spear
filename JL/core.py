@@ -8,7 +8,6 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
 
-import os
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -37,7 +36,7 @@ class JL:
 
 		assert type(n_classes) == np.int or type(n_classes) == np.float
 		assert type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
-		assert os.path.exists(path_L) and os.path.exists(path_U) and os.path.exists(path_V) and os.path.exists(path_T)
+		#assert os.path.exists(path_L) and os.path.exists(path_U) and os.path.exists(path_V) and os.path.exists(path_T)
 		assert type(use_accuracy_score) == np.bool
 
 		torch.set_default_dtype(torch.float64)
@@ -142,10 +141,10 @@ class JL:
 
 		##adding subsetselection here for testing. todo: has to be removed.
 		#indices = rand_subset(self.x_train.shape[0], len(self.x_sup))
-		indices = unsup_subset(self.x_train, len(self.x_sup))
+		#indices = unsup_subset(self.x_train, len(self.x_sup))
 
-		supervised_mask = torch.zeros(self.x_train.shape[0])
-		supervised_mask[indices] = 1
+		#self.supervised_mask = torch.zeros(self.x_train.shape[0])
+		#self.supervised_mask[indices] = 1
 		##
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
@@ -250,8 +249,8 @@ class JL:
 		dataset = TensorDataset(self.x_train, self.y_train, self.l, self.s, self.supervised_mask)
 		loader = DataLoader(dataset, batch_size = self.batch_size, shuffle = True, pin_memory = True)
 
-		best_score_fm, best_score_gm, best_epoch_fm, best_epoch_gm, best_score_fm_val, best_score_gm_val = 0,0,0,0,0,0
-		best_score_fm_prec, best_score_fm_recall, best_score_gm_prec, best_score_gm_recall= 0,0,0,0
+		best_score_fm, best_score_gm, best_epoch, best_score_fm_val, best_score_gm_val = 0,0,0,0,0
+		#best_score_fm_prec, best_score_fm_recall, best_score_gm_prec, best_score_gm_recall= 0,0,0,0
 
 		gm_acc, fm_acc = -1, -1
 
@@ -324,33 +323,33 @@ class JL:
 					optimizer_gm.step()
 					optimizer_fm.step()
 
-			#gm Test
+			#gm test
 			y_pred = predict_gm(self.theta, self.pi, self.l_test, self.s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
 				gm_acc = accuracy_score(self.y_test, y_pred)
 			else:
 				gm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			gm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			gm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+			# gm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
+			# gm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
-			#gm Validation
+			#gm validation
 			y_pred = predict_gm(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
 				gm_valid_acc = accuracy_score(self.y_valid, y_pred)
 			else:
 				gm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
 
-			#fm Test
+			#fm test
 			probs = torch.nn.Softmax()(self.feature_model(self.x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
 				fm_acc = accuracy_score(self.y_test, y_pred)
 			else:
 				fm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			fm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			fm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+			# fm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
+			# fm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
-			#fm Validation
+			#fm validation
 			probs = torch.nn.Softmax()(self.feature_model(self.x_valid))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
@@ -366,31 +365,30 @@ class JL:
 			if epoch > self.start_len and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
 					if best_score_gm < gm_acc or best_score_fm < fm_acc:
-						best_epoch_fm = epoch
+						best_epoch = epoch
+
 						best_score_fm_val = fm_valid_acc
 						best_score_fm = fm_acc
 
-						best_epoch_gm = epoch
 						best_score_gm_val = gm_valid_acc
 						best_score_gm = gm_acc
 
-						best_score_fm_prec = fm_prec
-						best_score_fm_recall  = fm_recall
-						best_score_gm_prec = gm_prec
-						best_score_gm_recall  = gm_recall
+						# best_score_fm_prec = fm_prec
+						# best_score_fm_recall  = fm_recall
+						# best_score_gm_prec = gm_prec
+						# best_score_gm_recall  = gm_recall
 				else:
-					best_epoch_fm = epoch
+					best_epoch = epoch
 					best_score_fm_val = fm_valid_acc
 					best_score_fm = fm_acc
 
-					best_epoch_gm = epoch
 					best_score_gm_val = gm_valid_acc
 					best_score_gm = gm_acc
 
-					best_score_fm_prec = fm_prec
-					best_score_fm_recall  = fm_recall
-					best_score_gm_prec = gm_prec
-					best_score_gm_recall  = gm_recall
+					# best_score_fm_prec = fm_prec
+					# best_score_fm_recall  = fm_recall
+					# best_score_gm_prec = gm_prec
+					# best_score_gm_recall  = gm_recall
 					stop_early_fm = []
 					stop_early_gm = []
 
@@ -398,31 +396,29 @@ class JL:
 				if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
 					if best_score_fm < fm_acc or best_score_gm < gm_acc:
 						
-						best_epoch_fm = epoch
+						best_epoch = epoch
 						best_score_fm_val = fm_valid_acc
 						best_score_fm = fm_acc
 
-						best_epoch_gm = epoch
 						best_score_gm_val = gm_valid_acc
 						best_score_gm = gm_acc
 
-						best_score_fm_prec = fm_prec
-						best_score_fm_recall  = fm_recall
-						best_score_gm_prec = gm_prec
-						best_score_gm_recall  = gm_recall
+						# best_score_fm_prec = fm_prec
+						# best_score_fm_recall  = fm_recall
+						# best_score_gm_prec = gm_prec
+						# best_score_gm_recall  = gm_recall
 				else:
-					best_epoch_fm = epoch
+					best_epoch = epoch
 					best_score_fm_val = fm_valid_acc
 					best_score_fm = fm_acc
 
-					best_epoch_gm = epoch
 					best_score_gm_val = gm_valid_acc
 					best_score_gm = gm_acc
-					best_score_fm_prec = fm_prec
 
-					best_score_fm_recall  = fm_recall
-					best_score_gm_prec = gm_prec
-					best_score_gm_recall  = gm_recall
+					# best_score_fm_prec = fm_prec
+					# best_score_fm_recall  = fm_recall
+					# best_score_gm_prec = gm_prec
+					# best_score_gm_recall  = gm_recall
 					stop_early_fm = []
 					stop_early_gm = []
 
@@ -438,14 +434,14 @@ class JL:
 
 		if self.stopped_early:
 			print('early stopping: best_epoch: {}\tbest_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
-				best_epoch_gm, best_score_gm, best_score_fm))
+				best_epoch, best_score_gm, best_score_fm))
 			print('early stopping: best_epoch: {}\tbest_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
-				best_epoch_gm, best_score_gm_val, best_score_fm_val))
+				best_epoch, best_score_gm_val, best_score_fm_val))
 		else:
 			print('best_epoch: {}\tbest_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
-				best_epoch_gm, best_score_gm, best_score_fm))
+				best_epoch, best_score_gm, best_score_fm))
 			print('best_epoch: {}\tbest_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
-				best_epoch_gm, best_score_gm_val, best_score_fm_val))
+				best_epoch, best_score_gm_val, best_score_fm_val))
 
 		# Algo ended
 

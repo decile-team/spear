@@ -5,10 +5,11 @@ The common utils to CAGE and JL algorithms are in this file. Don't change the na
 import pickle
 import numpy as np 
 import torch
+import os
 from torch.distributions.beta import Beta
 
 
-def get_data(path):
+def get_data(path, check_shapes = True):
 	'''
 		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k
 			x: (num_instances, num_features), x[i][j] is jth feature of ith instance
@@ -35,6 +36,7 @@ def get_data(path):
 	Return:
 		A list containing all the numpy arrays mentioned above
 	'''
+	assert os.path.exists(path)
 	data = []
 	with open(path, 'rb') as file:
 		for i in range(9):
@@ -47,18 +49,19 @@ def get_data(path):
 
 			assert type(data[i]) == np.ndarray
 
-	assert data[1].shape == data[2].shape # l, m
-	assert data[1].shape == data[5].shape # l, r
-	assert data[1].shape == data[6].shape # l, s
-	assert data[3].shape == (data[1].shape[0],1) #L, l
-	assert data[4].shape == (data[1].shape[0],1) #d, l
-	assert data[7].shape == (data[1].shape[1],) #n, l
-	assert data[8].shape == (data[1].shape[1],) #k, l
-	assert data[1].shape[0] == data[0].shape[0] #x, l
-	assert np.all(np.logical_or(data[2] == 0, data[2] == 1)) #m
-	assert np.all(np.logical_or(data[4] == 0, data[4] == 1)) #d
-	assert np.all(np.logical_or(data[5] == 0, data[5] == 1)) #r
-	assert np.all(np.logical_or(data[7] == 0, data[7] == 1)) #n
+	if check_shapes:
+		assert data[1].shape == data[2].shape # l, m
+		assert data[1].shape == data[5].shape # l, r
+		assert data[1].shape == data[6].shape # l, s
+		assert data[3].shape == (data[1].shape[0],1) #L, l
+		assert data[4].shape == (data[1].shape[0],1) #d, l
+		assert data[7].shape == (data[1].shape[1],) #n, l
+		assert data[8].shape == (data[1].shape[1],) #k, l
+		assert data[1].shape[0] == data[0].shape[0] #x, l
+		assert np.all(np.logical_or(data[2] == 0, data[2] == 1)) #m
+		assert np.all(np.logical_or(data[4] == 0, data[4] == 1)) #d
+		assert np.all(np.logical_or(data[5] == 0, data[5] == 1)) #r
+		assert np.all(np.logical_or(data[7] == 0, data[7] == 1)) #n
 
 	return data
 
