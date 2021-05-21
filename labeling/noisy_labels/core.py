@@ -45,7 +45,7 @@ class NoisyLabels:
         Returns:
             Tuple(DataPoints, DataPoints): Noisy Labels and Confidences
         """
-        if self._E is None or self._S is none:
+        if self._E is None or self._S is None:
             applier = LFApplier(lf_set = self._rules)
             E,S = applier.apply(self._data)
             self._E = E
