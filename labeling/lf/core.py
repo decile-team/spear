@@ -18,7 +18,7 @@ class LabelingFunction:
     Args:
         name (str): name for this LF object
         f (Callable[..., int]): core function which labels the input
-        label (int): Which class this LF corresponds to
+        label (enum): Which class this LF corresponds to
         resources (Optional[Mapping[str, Any]], optional): Additional resources for core function. Defaults to None.
         pre (Optional[List[BasePreprocessor]], optional): Preprocessors to apply on input before labeling. Defaults to None.
         cont_scorer (Optional[BaseContinuousScorer], optional): Continuous Scorer to calculate the confidence score. Defaults to None.
@@ -27,7 +27,7 @@ class LabelingFunction:
         self,
         name: str,
         f: Callable[..., int],                              
-        label: int,
+        label,
         resources: Optional[Mapping[str, Any]] = None,
         pre: Optional[List[BasePreprocessor]] = None,
         cont_scorer: Optional[BaseContinuousScorer] = None,
@@ -36,8 +36,6 @@ class LabelingFunction:
         """
         self.name = name
         self._f = f
-        if label is None:
-            self.label = -1
         self._label = label
         self._resources = resources or {}
         self._pre = pre or []
@@ -99,7 +97,7 @@ class labeling_function:
     
     Args:
         name (Optional[str], optional): Name for this labeling function. Defaults to None.
-        label (Optional[int], optional): Which class this LF corresponds to. Defaults to None.
+        label (Optional[Enum], optional): An enum. Which class this LF corresponds to. Defaults to None.
         resources (Optional[Mapping[str, Any]], optional): Additional resources for the LF. Defaults to None.
         pre (Optional[List[BasePreprocessor]], optional): Preprocessors to apply on input before labeling . Defaults to None.
         cont_scorer (Optional[BaseContinuousScorer], optional): Continuous Scorer to calculate the confidence score. Defaults to None.
@@ -110,7 +108,7 @@ class labeling_function:
     def __init__(
         self,
         name: Optional[str] = None,
-        label: Optional[int] = None,
+        label = None,
         resources: Optional[Mapping[str, Any]] = None,
         pre: Optional[List[BasePreprocessor]] = None,
         cont_scorer: Optional[BaseContinuousScorer] = None,
