@@ -25,7 +25,7 @@ class _FunctionCaller:
         self.fault_tolerant = fault_tolerant
         self.fault_counts: DefaultDict[str, int] = DefaultDict(int)
 
-    def __call__(self, f: LabelingFunction, x: DataPoint) -> (int, float):
+    def __call__(self, f: LabelingFunction, x: DataPoint):
         if not self.fault_tolerant:
             return f(x)
         try:
@@ -59,15 +59,13 @@ class BaseLFApplier:
         check_unique_names(self._lf_names)
 
     def _numpy_from_row_data(self, labels: List[RowData]) -> np.ndarray:
-        E = np.empty((len(labels), len(self._lfs)), dtype=object)
-        E.fill(ABSTAIN)
-        # L = np.zeros((len(labels), len(self._lfs)), dtype=int) - 1
+        L = np.empty((len(labels), len(self._lfs)), dtype=object)
+        L.fill(ABSTAIN)
         S = np.zeros((len(labels), len(self._lfs)), dtype=float) - 1.0
         # NB: this check will short-circuit, so ok for large L
         if any(map(len, labels)):
             row, col, enm, conf = zip(*chain.from_iterable(labels))
-            E[row, col] = enm
-            # L[row, col] = lab
+            L[row, col] = enm
             S[row, col] = conf
 
         if self._use_recarray:                                        # always false
@@ -79,7 +77,7 @@ class BaseLFApplier:
 
             return recarray
         else:
-            return E,S
+            return L,S
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}, LFs: {self._lf_names}"
@@ -104,7 +102,7 @@ def apply_lfs_to_data_point(
         y, z = f_caller(lf, x)
         if (y==ABSTAIN):
             continue
-        labels.append((index, j, y, z))
+        labels.append((index, j, y.value, z))
     return labels
 
 

@@ -3,14 +3,7 @@ from labeling.mtypes import DataPoint
 from labeling.preprocess import BasePreprocessor
 from labeling.continuous_scoring import BaseContinuousScorer
 
-class AbstainClass:
-    def __init__(
-        self,
-        name: str = "Abstain"
-    ) -> None:
-        self.name = name
-
-ABSTAIN = AbstainClass()
+ABSTAIN = None
 
 class LabelingFunction:
     """Base class for labeling function
@@ -27,7 +20,7 @@ class LabelingFunction:
         self,
         name: str,
         f: Callable[..., int],                              
-        label,
+        label = None,
         resources: Optional[Mapping[str, Any]] = None,
         pre: Optional[List[BasePreprocessor]] = None,
         cont_scorer: Optional[BaseContinuousScorer] = None,
