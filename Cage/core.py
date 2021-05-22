@@ -60,7 +60,7 @@ class Cage:
 			lr: Learning rate for torch.optim, default is 0.01
 
 		Return:
-			numpy.ndarray of shape (num_instances, num_classes) where i,j element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
+			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 		'''
 		assert (type(qt) == np.float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
 		 or (type(qt) == np.int and (qt == 0 or qt == 1))
@@ -135,22 +135,14 @@ class Cage:
 			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']
 			n_epochs:Number of epochs, default is 100
 			lr: Learning rate for torch.optim, default is 0.01
-			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum)
+			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 
 		Return:
 			numpy.ndarray of shape (num_instances,) which are aggregated/predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
 		'''
 		assert type(need_strings) == np.bool
 		proba = self.fit_and_predict_proba(path_test, path_log, qt, qc, metric_avg, n_epochs, lr)
-		labels_with_altered_class_values = np.argmax(proba.detach().numpy(), 1)
-		remap_dict = {value:index for index, value in (self.class_map).items()}
-		final_labels = np.vectorize(remap_dict.get)(labels_with_altered_class_values)
-		if need_strings:
-			class_dict_with_abstain = (self.class_dict).copy()
-			class_dict_with_abstain[None] = 'Abstain'
-			return np.vectorise(class_dict_with_abstain.get)(final_labels)
-		else:
-			return final_labels
+		return get_predictions(proba, self.class_map, self.class_dict, need_strings)
 
 	def __predict_specific(self, m_test, s_test):
 		'''
@@ -161,7 +153,7 @@ class Cage:
 			s_test: numpy arrays of shape (num_instances, num_rules), s_test[i][j] is the continuous score of jth LF on ith instance
 		
 		Return:
-			numpy.ndarray of shape (num_instances,) which are predicted labels
+			numpy.ndarray of shape (num_instances,) which are predicted labels. Note that here the class labels appearing may not be the ones used in the Enum
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		s_temp = torch.tensor(s_test).double()
@@ -173,7 +165,7 @@ class Cage:
 		m_temp = torch.abs(torch.tensor(m_test).long())
 		return predict_gm(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, self.qc)
 
-	def predict(self, path_test):
+	def predict_proba(self, path_test):
 		'''
 			Used to predict labels based on a pickle file with path path_test
 
@@ -181,7 +173,7 @@ class Cage:
 			path_test: Path to the pickle file containing test data set in standard format
 		
 		Return:
-			numpy.ndarray of shape (num_instances,) which are predicted labels
+			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		data = get_data(path_test, self.class_map)
@@ -192,4 +184,18 @@ class Cage:
 		assert (data[2]).shape[1] == self.n_lfs
 		m_test = torch.abs(torch.tensor(data[2]).long())
 
-		return predict_gm(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, self.qc)
+		return probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, self.qc)
+
+	def predict(self, path_test, need_strings = False):
+		'''
+			Used to predict labels based on a pickle file with path path_test
+		Args:
+			path_test: Path to the pickle file containing test data set in standard format
+			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
+
+		Return:
+			numpy.ndarray of shape (num_instances,) which are predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
+			[Note: no aggregration/algorithm-running will be done using the current input]
+		'''
+		assert type(need_strings) == np.bool
+		return get_predictions(self.predict_proba(path_test, path_test), self.class_map, self.class_dict, need_strings)

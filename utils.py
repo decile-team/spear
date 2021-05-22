@@ -89,6 +89,17 @@ def get_classes(path):
 		json_object = json.load(f)
 	return json_object
 
+def get_predictions(proba, class_map, class_dict, need_strings):
+	labels_with_altered_class_values = np.argmax(proba.detach().numpy(), 1)
+	remap_dict = {value:index for index, value in (class_map).items()}
+	final_labels = np.vectorize(remap_dict.get)(labels_with_altered_class_values)
+	if need_strings:
+		class_dict_with_abstain = (class_dict).copy()
+		class_dict_with_abstain[None] = 'Abstain'
+		return np.vectorise(class_dict_with_abstain.get)(final_labels)
+	else:
+		return final_labels
+
 def phi(theta, l):
 	'''
 		A helper function

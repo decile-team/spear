@@ -154,7 +154,7 @@ class JL:
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
 		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
 
-	def fit_and_predict(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro'):
 		'''
 		Args:
@@ -176,8 +176,9 @@ class JL:
 			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
 
 		Return:
-			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances,), first one is through feature model, other one through graphical model.
-			Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model
+			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances, num_classes), first one is through feature model, other one through graphical model.
+			Else; the return value is predicted labels of numpy array of shape (num_instances, num_classes) through feature model. For a given model i,j-th element is the probability of ith instance being the 
+			jth class(the jth value when sorted in ascending order of values in Enum) using that model
 		'''
 
 		assert type(return_gm) == np.bool
@@ -459,12 +460,49 @@ class JL:
 			file.close()
 
 		if return_gm:
-			return np.argmax((torch.nn.Softmax()(self.feature_model(self.x_unsup))).detach().numpy(), 1), \
-				predict_gm(self.theta, self.pi, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
+			return (torch.nn.Softmax()(self.feature_model(self.x_unsup))), \
+				probability(self.theta, self.pi, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
 		else:
-			return np.argmax((torch.nn.Softmax()(self.feature_model(self.x_unsup))).detach().numpy(), 1)
+			return (torch.nn.Softmax()(self.feature_model(self.x_unsup)))
 
-	def predict_cage(self, path_test):
+	def fit_and_predict(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro', need_strings = False):
+		'''
+		Args:
+			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
+			batch_size: Batch size, type should be integer
+			lr_feature: Learning rate for feature model, type is integer or float
+			lr_gm: Learning rate for graphical model(cage), type is integer or float
+			path_log: Path to log file
+			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
+			n_epochs: Number of epochs in each run, type is integer, default is 100
+			start_len: A parameter used in validation, type is integer, default is 5
+			stop_len: A parameter used in validation, type is integer, default is 10
+			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
+			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
+			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
+			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
+			n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
+			feature_model: The model intended to be used for features, allowed values are 'lr'(Logistic Regression) or 'nn'(Neural network with 1 hidden layer) string, default is 'nn'
+			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
+			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
+
+		Return:
+			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances, ), first one is through feature model, other one through graphical model.
+			Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model. 
+		'''
+		assert type(need_strings) == np.bool
+		if return_gm:
+			proba_1, proba_2 = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_feature, lr_gm, path_log, return_gm, n_epochs, start_len,\
+	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
+			return get_predictions(proba_1, self.class_map, self.class_dict, need_strings), get_predictions(proba_2, self.class_map, self.class_dict, need_strings)
+		else:
+			proba = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_feature, lr_gm, path_log, return_gm, n_epochs, start_len,\
+	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
+			return get_predictions(proba, self.class_map, self.class_dict, need_strings)
+
+	
+	def predict_cage_proba(self, path_test):
 		'''
 			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)
 
@@ -472,7 +510,7 @@ class JL:
 			path_test: Path to the pickle file containing test data set
 		
 		Return:
-			numpy.ndarray of shape (num_instances,) which are predicted labels
+			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		data = get_data(path_test, self.class_map)
@@ -482,9 +520,9 @@ class JL:
 		assert (data[2]).shape[1] == self.n_lfs
 		m_test = torch.abs(torch.tensor(data[2]).long())
 
-		return predict_gm(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
+		return probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 
-	def predict_feature_model(self, path_test):
+	def predict_feature_model_proba(self, path_test):
 		'''
 			Used to find the predicted labels based on the trained parameters of feature model
 
@@ -492,12 +530,43 @@ class JL:
 			path_test: Path to the pickle file containing test data set
 		
 		Return:
-			numpy.ndarray of shape (num_instances,) which are predicted labels
+			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		data = get_data(path_test, self.class_map)
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 
-		return np.argmax((torch.nn.Softmax()(self.feature_model(x_test))).detach().numpy(), 1)
+		return (torch.nn.Softmax()(self.feature_model(x_test)))
+
+	def predict_cage(self, path_test, need_strings = False):
+		'''
+			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)
+
+		Args:
+			path_test: Path to the pickle file containing test data set
+			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
+		
+		Return:
+			numpy.ndarray of shape (num_instances,) which are predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
+			[Note: no aggregration/algorithm-running will be done using the current input]
+		'''
+		assert type(need_strings) == np.bool
+		return get_predictions(self.predict_cage_proba(path_test), self.class_map, self.class_dict, need_strings)
+
+	def predict_feature_model(self, path_test, need_strings = False):
+		'''
+			Used to find the predicted labels based on the trained parameters of feature model
+
+		Args:
+			path_test: Path to the pickle file containing test data set
+			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
+
+		Return:
+			numpy.ndarray of shape (num_instances,) which are predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
+			[Note: no aggregration/algorithm-running will be done using the current input]
+		'''
+		assert type(need_strings) == np.bool
+		return get_predictions(self.predict_feature_model_proba(path_test), self.class_map, self.class_dict, need_strings)
+
 
