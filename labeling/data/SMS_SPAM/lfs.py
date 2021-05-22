@@ -2,7 +2,7 @@ from labeling.lf import *
 from labeling.preprocess import *
 from labeling.continuous_scoring import *
 
-from preprocessor import *
+from preprocessor import convert_to_lower
 from labeling.lf_set import *
 from con_scorer import word_similarity
 

@@ -155,8 +155,15 @@ class LFApplier(BaseLFApplier):
         """        
         labels = []
         f_caller = _FunctionCaller(fault_tolerant)
-        for i, x in tqdm(enumerate(data_points), disable=(not progress_bar)):
-            labels.append(apply_lfs_to_data_point(x, i, self._lfs, f_caller))
+        if progress_bar:
+            with tqdm(total=len(data_points)) as pbar:
+                for i, x in enumerate(data_points):
+                    labels.append(apply_lfs_to_data_point(x, i, self._lfs, f_caller))
+                    pbar.update()
+        else:
+            for i, x in enumerate(data_points):
+                labels.append(apply_lfs_to_data_point(x, i, self._lfs, f_caller))
+        
         L,S = self._numpy_from_row_data(labels)
         if return_meta:
             return L, ApplierMetadata(f_caller.fault_counts)
