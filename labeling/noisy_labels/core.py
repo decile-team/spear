@@ -4,6 +4,7 @@ from labeling.apply import *
 from labeling.lf import *
 from labeling.lf_set import *
 from labeling.utils.pickle import *
+from labeling.analysis import LFAnalysis
 
 import pickle, enum, json
 import numpy as np
@@ -22,11 +23,11 @@ class NoisyLabels:
         self,
         name: str,
         data: DataPoints,
-        gold_labels: Optional[DataPoints],
         rules: LFSet,
+        gold_labels: Optional[DataPoints] = np.array([]),
         labels_enum = None,
         num_classes = -1,
-        exemplars: DataPoints=[],
+        exemplars: DataPoints=np.array([]),
     ) -> None:       
         """Instantiates NoisyLabels class with dataset and set of LFs to noisily label the dataset
         """
@@ -55,6 +56,29 @@ class NoisyLabels:
             self._L = L
             self._S = S
         return self._L, self._S
+
+    def analyse_lfs(self,plot=False):
+        """Analyse the lfs in LFSet on data
+
+        Args:
+            plot (bool, optional): Plot the values. Defaults to False.
+
+        Returns:
+            DataFrame: dataframe consisting of Ploarity, Coverage, Overlap, Conflicts, Empirical Acc
+        """        
+        if self._L is None or self._L is None:
+            applier = LFApplier(lf_set = self._rules)
+            L,S = applier.apply(self._data)
+            self._L = L
+            self._S = S
+        
+        analysis = LFAnalysis(self._labels_enum,self._L,self._rules)
+        if len(self._gold_labels) == 0:
+            df = analysis.lf_summary(plot=plot)
+        else:
+            df = analysis.lf_summary(self._gold_labels,plot=plot)
+        return df
+        
 
     def generate_json(self, filename=None):
         """Generates a json file with label value to label name mapping

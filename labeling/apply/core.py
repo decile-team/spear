@@ -61,7 +61,7 @@ class BaseLFApplier:
     def _numpy_from_row_data(self, labels: List[RowData]) -> np.ndarray:
         L = np.empty((len(labels), len(self._lfs)), dtype=object)
         L.fill(ABSTAIN)
-        S = np.zeros((len(labels), len(self._lfs)), dtype=float) - 1.0
+        S = np.full((len(labels), len(self._lfs)), None) #np.zeros((len(labels), len(self._lfs)), dtype=float) - 1.0
         # NB: this check will short-circuit, so ok for large L
         if any(map(len, labels)):
             row, col, enm, conf = zip(*chain.from_iterable(labels))

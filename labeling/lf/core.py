@@ -72,7 +72,7 @@ class LabelingFunction:
             dic = {"continuous_score": cs}
             return self._f(x,**self._resources, **dic), cs
         else:
-            cs = -1.0
+            cs = None
             return self._f(x,**self._resources), cs                                   
         
     def __repr__(self) -> str:

@@ -40,12 +40,12 @@ def preprocess(tokens):
 
 @continuous_scorer()
 def word_similarity(sentence,**kwargs):
-    similarity = 0
+    similarity = 0.0
     words = sentence.split()
     words = preprocess(words)
     word_vectors = get_word_vectors(words)
     for w in kwargs['keywords']:
-        similarity = max(similarity,get_similarity(word_vectors,w))
+        similarity = min(max(similarity,get_similarity(word_vectors,w)),1.0)
 
     return similarity
 

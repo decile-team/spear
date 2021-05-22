@@ -10,8 +10,8 @@ def plot_df_bar(df: DataFrame, mode:str):
         mode (str): Way to plot the bargraph
     """    
     if mode == "seperate":
-        df.plot.bar(width=0.75,subplots=True)
+        df.plot.bar(width=0.75,subplots=True,layout=(2,3),figsize=(15, 10))
     elif mode == "aggregate":
-        df.plot.bar(width=0.75,suplots=False)
+        df.plot.bar(width=0.75,subplots=True,layout=(2,3),figsize=(15, 10))
     plt.show()
 

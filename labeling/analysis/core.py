@@ -10,6 +10,9 @@ from sklearn.metrics import confusion_matrix
 from labeling.lf import LabelingFunction
 from labeling.utils import plot_df_bar
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 class LFAnalysis:   
     """Run analysis on LFs using label matrix.
 
@@ -23,12 +26,12 @@ class LFAnalysis:
     """
 
     def __init__(
-        self, enum, L: np.ndarray, lfs: Optional[List[LabelingFunction]] = None, abstain: int = -1
+        self, enum, L: np.ndarray, rules = None
     ) -> None:  
         self.L,self.mapping = self._create_L(enum,L)
         self._L_sparse = sparse.csr_matrix(self.L + 1)
         self._lf_names = None
-        self._abstain = abstain
+        lfs = list(rules.get_lfs())
         if lfs is not None:
             if len(lfs) != self.L.shape[1]:
                 raise ValueError(
@@ -37,14 +40,14 @@ class LFAnalysis:
                 )
             self._lf_names = [lf.name for lf in lfs]
 
-    def _create_L(self,enum,L_enum):
+    def _create_L(self,enum,L):
         """Map the enum values to non-ve integers and abstain to -1"""        
         mapping = {}
         j = 0
-        L_num = -1 * np.ones_like(L_enum,dtype=float)
+        L_num = -1 * np.ones_like(L,dtype=float)
         for i in enum:
             mapping[i.value] = j
-            L_num[L_enum==i] = j
+            L_num[L==i.value] = j
             j = j+1
         return L_num, mapping
         
@@ -53,12 +56,10 @@ class LFAnalysis:
     def _covered_data_points(self) -> np.ndarray:
         """Get indicator vector z where z_i = 1 if x_i is labeled by at least one LF."""
         return np.ravel(np.where(self._L_sparse.sum(axis=1) != 0, 1, 0))
-        # return np.ravel(np.where((L != self._abstain).sum(axis=1)>0, 1, 0))
     
     def _overlapped_data_points(self) -> np.ndarray:
         """Get indicator vector z where z_i = 1 if x_i is labeled by more than one LF."""
         return np.where(np.ravel((self._L_sparse != 0).sum(axis=1)) > 1, 1, 0)
-        # return np.ravel(np.where((self.L != self._abstain).sum(axis=1)>1, 1, 0))
 
     
     def _conflicted_data_points(self) -> np.ndarray:
@@ -69,18 +70,6 @@ class LFAnalysis:
             .astype(int)
             .todense()
         )
-        # m = sparse.diags(np.ravel(self._L_sparse.max(axis=1).todense()))
-        # return np.ravel(
-        #     np.max(m @ (self._L_sparse != 0) != self._L_sparse, axis=1)
-        #     .astype(int)
-        #     .todense()
-        # )
-
-        # rep = self.L.min()-1
-        # L1 = np.where(self.L == self._abstain,rep,self.L)
-        # m = L1.max(axis=1,keepdims=True)
-        # mask = (L1 != rep) & (L1 < m)
-        # return np.ravel(np.where(mask.sum(axis=1)>0, 1, 0))
 
     
     def label_coverage(self) -> float:
@@ -160,16 +149,9 @@ class LFAnalysis:
             [[0, 1], [0], [0]]
         """
         return [
-            sorted(list(set(self.L[:, i])))#.remove(self._abstain)
+            sorted(list(set(self.L[:, i])))
             for i in range(self.L.shape[1])
         ]
-        # polarities = []
-        # for i in range(self.L.shape[1]):
-        #     pol = self.L[:, i].tolist()
-        #     pol.remove(self._abstain)
-        #     pol = list(set(pol))
-        #     polarities.append(pol)
-        # return polarities
     
 
     def lf_coverages(self) -> np.ndarray:
@@ -189,7 +171,7 @@ class LFAnalysis:
             >>> LFAnalysis(L).lf_coverages()
             array([0.4, 0.8, 0.4])
         """
-        return np.ravel((self.L != self._abstain).sum(axis=0)) / self.L.shape[0]
+        return np.ravel((self.L != -1).sum(axis=0)) / self.L.shape[0]
     
 
     def lf_overlaps(self, normalize_by_coverage: bool = False) -> np.ndarray:
@@ -228,15 +210,6 @@ class LFAnalysis:
         if normalize_by_coverage:
             overlaps /= self.lf_coverages()
         return np.nan_to_num(overlaps)
-
-        # overlaps = (
-        #     (self.L != self._abstain).T
-        #     @ self._overlapped_data_points()
-        #     / self.L.shape[0]
-        # )
-        # if normalize_by_coverage:
-        #     overlaps /= self.lf_coverages()
-        # return np.nan_to_num(overlaps)
     
 
     def lf_conflicts(self, normalize_by_overlaps: bool = False) -> np.ndarray:
@@ -276,14 +249,6 @@ class LFAnalysis:
         if normalize_by_overlaps:
             conflicts /= self.lf_overlaps()
         return np.nan_to_num(conflicts)
-        # conflicts = (
-        #     (self.L != self._abstain).T
-        #     @ self._conflicted_data_points()
-        #     / self.L.shape[0]
-        # )
-        # if normalize_by_overlaps:
-        #     conflicts /= self.lf_overlaps()
-        # return np.nan_to_num(conflicts)
     
 
     def lf_empirical_accuracies(self, Y: np.ndarray) -> np.ndarray:
@@ -297,12 +262,12 @@ class LFAnalysis:
             np.ndarray: Empirical accuracies for each LF
         """
         X = np.where(
-            self.L == self._abstain,
+            self.L == -1,
             0,
             np.where(self.L == np.vstack([Y] * self.L.shape[1]).T, 1, -1),
         )
         with np.errstate(divide="ignore", invalid="ignore"):
-            return np.nan_to_num(0.5 * (X.sum(axis=0) / (self.L != self._abstain).sum(axis=0) + 1))
+            return np.nan_to_num(0.5 * (X.sum(axis=0) / (self.L != -1).sum(axis=0) + 1))
     
 
     # def lf_empirical_probs(self, Y: np.ndarray, k: int) -> np.ndarray:
