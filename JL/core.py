@@ -25,33 +25,37 @@ class JL:
 		[Note: from here on, feature model(fm) and feature-based classification model are used interchangeably. graphical model(gm) and CAGE algorithm terms are used interchangeably]
 	
 	Args:
-		n_classes: Number of classes/labels, type is integer
+		path_json: Path to json file containing the dictionary of number to string(class name) map
 		path_L: Path to pickle file of labelled instances
 		path_U: Path to pickle file of unlabelled instances
 		path_V: Path to pickle file of validation instances
 		path_T: Path to pickle file of test instances
 		use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
 	'''
-	def __init__(self, n_classes, path_L, path_U, path_V, path_T, use_accuracy_score):
+	def __init__(self, path_json, path_L, path_U, path_V, path_T, use_accuracy_score):
 
-		assert type(n_classes) == np.int or type(n_classes) == np.float
-		assert type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
-		#assert os.path.exists(path_L) and os.path.exists(path_U) and os.path.exists(path_V) and os.path.exists(path_T)
+		assert type(path_json) == str and type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
 		assert type(use_accuracy_score) == np.bool
-
 		torch.set_default_dtype(torch.float64)
-		self.n_classes = int(n_classes)
-		self.use_accuracy_score = use_accuracy_score
+		
+		self.class_dict = get_classes(path_json)
+		self.class_list = list((self.class_dict).keys())
+		self.class_list.sort()
+		self.n_classes = len(self.class_dict)
 
+		self.class_map = {index : value for index, value in enumerate(self.class_list)}
+		self.class_map[None] = self.n_classes
+
+		self.use_accuracy_score = use_accuracy_score
 		if self.use_accuracy_score:
 			self.score_used = "accuracy_score"
 		else:
 			self.score_used = "f1_score"
 
-		data_L = get_data(path_L)
-		data_U = get_data(path_U)
-		data_V = get_data(path_V)
-		data_T = get_data(path_T)
+		data_L = get_data(path_L, self.class_map)
+		data_U = get_data(path_U, self.class_map)
+		data_V = get_data(path_V, self.class_map)
+		data_T = get_data(path_T, self.class_map)
 
 		self.x_sup = torch.tensor(data_L[0]).double()
 		self.y_sup = torch.tensor(data_L[3]).long()
@@ -82,8 +86,8 @@ class JL:
 
 		self.y_unsup = (self.y_unsup).view(-1)
 		self.y_sup = (self.y_sup).view(-1)
-		(self.y_valid).resize((self.y_valid).size,)
-		(self.y_test).resize((self.y_test).size,)
+		self.y_valid = (self.y_valid).flatten()
+		self.y_test = (self.y_test).flatten()
 
 		self.n_features = self.x_sup.shape[1]
 		self.k = torch.tensor(data_L[8]).long() # LF's classes
@@ -150,7 +154,7 @@ class JL:
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
 		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
 
-	def fit(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	def fit_and_predict(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro'):
 		'''
 		Args:
@@ -163,8 +167,8 @@ class JL:
 			n_epochs: Number of epochs in each run, type is integer, default is 100
 			start_len: A parameter used in validation, type is integer, default is 5
 			stop_len: A parameter used in validation, type is integer, default is 10
-			is_qt: True if quality guide is available. False if quality guide is intended to be found from validation instances. Default is True
-			is_qc: True if quality index is available. False if quality index is intended to be found from validation instances. Default is True
+			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
+			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
@@ -250,7 +254,7 @@ class JL:
 		loader = DataLoader(dataset, batch_size = self.batch_size, shuffle = True, pin_memory = True)
 
 		best_score_fm, best_score_gm, best_epoch, best_score_fm_val, best_score_gm_val = 0,0,0,0,0
-		#best_score_fm_prec, best_score_fm_recall, best_score_gm_prec, best_score_gm_recall= 0,0,0,0
+		best_score_fm_prec, best_score_fm_recall, best_score_gm_prec, best_score_gm_recall= 0,0,0,0
 
 		gm_acc, fm_acc = -1, -1
 
@@ -329,8 +333,8 @@ class JL:
 				gm_acc = accuracy_score(self.y_test, y_pred)
 			else:
 				gm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			# gm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			# gm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+			gm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
+			gm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#gm validation
 			y_pred = predict_gm(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
@@ -346,8 +350,8 @@ class JL:
 				fm_acc = accuracy_score(self.y_test, y_pred)
 			else:
 				fm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			# fm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			# fm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+			fm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
+			fm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#fm validation
 			probs = torch.nn.Softmax()(self.feature_model(self.x_valid))
@@ -359,7 +363,7 @@ class JL:
 
 			if path_log != None:
 				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(self.score_used, epoch, gm_valid_acc, fm_valid_acc))
-				if epoch % 10 == 0:
+				if epoch % 5 == 0:
 					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(self.score_used, epoch, gm_acc, fm_acc))
 
 			if epoch > self.start_len and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
@@ -373,10 +377,10 @@ class JL:
 						best_score_gm_val = gm_valid_acc
 						best_score_gm = gm_acc
 
-						# best_score_fm_prec = fm_prec
-						# best_score_fm_recall  = fm_recall
-						# best_score_gm_prec = gm_prec
-						# best_score_gm_recall  = gm_recall
+						best_score_fm_prec = fm_prec
+						best_score_fm_recall  = fm_recall
+						best_score_gm_prec = gm_prec
+						best_score_gm_recall  = gm_recall
 				else:
 					best_epoch = epoch
 					best_score_fm_val = fm_valid_acc
@@ -385,10 +389,10 @@ class JL:
 					best_score_gm_val = gm_valid_acc
 					best_score_gm = gm_acc
 
-					# best_score_fm_prec = fm_prec
-					# best_score_fm_recall  = fm_recall
-					# best_score_gm_prec = gm_prec
-					# best_score_gm_recall  = gm_recall
+					best_score_fm_prec = fm_prec
+					best_score_fm_recall  = fm_recall
+					best_score_gm_prec = gm_prec
+					best_score_gm_recall  = gm_recall
 					stop_early_fm = []
 					stop_early_gm = []
 
@@ -403,10 +407,10 @@ class JL:
 						best_score_gm_val = gm_valid_acc
 						best_score_gm = gm_acc
 
-						# best_score_fm_prec = fm_prec
-						# best_score_fm_recall  = fm_recall
-						# best_score_gm_prec = gm_prec
-						# best_score_gm_recall  = gm_recall
+						best_score_fm_prec = fm_prec
+						best_score_fm_recall  = fm_recall
+						best_score_gm_prec = gm_prec
+						best_score_gm_recall  = gm_recall
 				else:
 					best_epoch = epoch
 					best_score_fm_val = fm_valid_acc
@@ -415,10 +419,10 @@ class JL:
 					best_score_gm_val = gm_valid_acc
 					best_score_gm = gm_acc
 
-					# best_score_fm_prec = fm_prec
-					# best_score_fm_recall  = fm_recall
-					# best_score_gm_prec = gm_prec
-					# best_score_gm_recall  = gm_recall
+					best_score_fm_prec = fm_prec
+					best_score_fm_recall  = fm_recall
+					best_score_gm_prec = gm_prec
+					best_score_gm_recall  = gm_recall
 					stop_early_fm = []
 					stop_early_gm = []
 
@@ -433,21 +437,25 @@ class JL:
 			#epoch for loop ended
 
 		if self.stopped_early:
-			print('early stopping: best_epoch: {}\tbest_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
-				best_epoch, best_score_gm, best_score_fm))
-			print('early stopping: best_epoch: {}\tbest_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
-				best_epoch, best_score_gm_val, best_score_fm_val))
+			print('early stopping... best_epoch: {}'.format(best_epoch))
 		else:
-			print('best_epoch: {}\tbest_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
-				best_epoch, best_score_gm, best_score_fm))
-			print('best_epoch: {}\tbest_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
-				best_epoch, best_score_gm_val, best_score_fm_val))
+			print('best_epoch: {}'.format(best_epoch))
+		
+		print('best_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
+			best_score_gm_val, best_score_fm_val))
+		print('best_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
+			best_score_gm, best_score_fm))
+		print('best_gm_test_precision:{}\tbest_fm_test_precision:{}\n'.format(\
+			best_score_gm_prec, best_score_fm_prec))
+		print('best_gm_test_recall:{}\tbest_fm_test_recall:{}\n'.format(\
+			best_score_gm_recall, best_score_fm_recall))
+			
 
 		# Algo ended
 
-		print("Training is done. gm_test_acc: {}\tfm_test_acc: {}\n".format(gm_acc, fm_acc))
+		print("final_gm_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_acc, fm_acc))
 		if path_log != None:
-			file.write("Training is done. gm_test_acc: {}\tfm_test_acc: {}\n".format(gm_acc, fm_acc))
+			file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_acc, fm_acc))
 			file.close()
 
 		if return_gm:
@@ -467,7 +475,7 @@ class JL:
 			numpy.ndarray of shape (num_instances,) which are predicted labels
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
-		data = get_data(path_test)
+		data = get_data(path_test, self.class_map)
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
@@ -487,7 +495,7 @@ class JL:
 			numpy.ndarray of shape (num_instances,) which are predicted labels
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
-		data = get_data(path_test)
+		data = get_data(path_test, self.class_map)
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 

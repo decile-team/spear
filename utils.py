@@ -2,39 +2,43 @@
 The common utils to CAGE and JL algorithms are in this file. Don't change the name or location of this file.
 '''
 
-import pickle
+import pickle, json
 import numpy as np 
 import torch
 import os
 from torch.distributions.beta import Beta
 
 
-def get_data(path, check_shapes = True):
+def get_data(path, class_map, check_shapes = True):
 	'''
 		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k
 			x: (num_instances, num_features), x[i][j] is jth feature of ith instance
 			
-			l: (num_instances, num_rules), l[i][j] is the prediction of jth LF(range: 0 to num_classes-1) on ith instance. l[i][j] = num_classes imply Abstain
+			l: (num_instances, num_lfs), l[i][j] is the prediction of jth LF(range: 0 to num_classes-1) on ith instance. l[i][j] = num_classes imply Abstain
 			
-			m: (num_instances, num_rules), m[i][j] is 1 if jth LF didn't Abstain on ith instance. Else it's 0
+			m: (num_instances, num_lfs), m[i][j] is 1 if jth LF didn't Abstain on ith instance. Else it's 0
 			
 			L: (num_instances, 1), L[i] is true label(range: 0 to num_classes-1) of ith instance, if available. Else it is num_classes
 			
 			d: (num_instances, 1), d[i] is 1 if ith instance is labelled. Else it is 0
 			
-			r: (num_instances, num_rules), r[i][j] is 1 if ith instance is an exemplar for jth rule. Else it's 0
+			r: (num_instances, num_lfs), r[i][j] is 1 if ith instance is an exemplar for jth rule. Else it's 0
 			
-			s: (num_instances, num_rules), s[i][j] is the continuous score of ith instance given by jth continuous LF
+			s: (num_instances, num_lfs), s[i][j] is the continuous score of ith instance given by jth continuous LF
 			
-			n: (num_rules,), n[i] is 1 if ith LF has continuous counter part, else it is 0
+			n: (num_lfs,), n[i] is 1 if ith LF has continuous counter part, else it is 0
 			
-			k: (num_rules,), k[i] is the class of ith LF, range: 0 to num_classes-1
+			k: (num_lfs,), k[i] is the class of ith LF, range: 0 to num_classes-1
+
+			n_classes: total number of classes
 
 	Args: 
 		path: path to pickle file with data in the format above
+		class_map: dictionary of class numbers(sorted, mapped to [0,n_classes-1]) are per the Enum defined in labeling part
+		check_shapes: if true, checks whether the shapes of numpy arrays in pickle file are consistent as per the format mentioned above. Else it doesn't check. Default is True. 
 
 	Return:
-		A list containing all the numpy arrays mentioned above
+		A list containing all the numpy arrays mentioned above. The arrays l, L are modified using the class_map 
 	'''
 	assert os.path.exists(path)
 	data = []
@@ -48,6 +52,7 @@ def get_data(path, check_shapes = True):
 				data.append(pickle.load(file).astype(np.int32))
 
 			assert type(data[i]) == np.ndarray
+		data.append(pickle.load(file))
 
 	if check_shapes:
 		assert data[1].shape == data[2].shape # l, m
@@ -63,7 +68,26 @@ def get_data(path, check_shapes = True):
 		assert np.all(np.logical_or(data[5] == 0, data[5] == 1)) #r
 		assert np.all(np.logical_or(data[7] == 0, data[7] == 1)) #n
 
+	data[1] = np.vectorize(class_map.get)(data[1])
+	data[3] = np.vectorize(class_map.get)(data[3])
+
 	return data
+
+def get_classes(path):
+	'''
+		The json file should contain a dictionary of number to string(class name) map
+
+		Args:
+			path: path of json file with contents mentioned above
+		
+		Returns:
+			A dictionary (number to string(class name) map)
+	'''
+	assert os.path.exists(path)
+	json_object = None
+	with open(path, 'r') as f:
+		json_object = json.load(f)
+	return json_object
 
 def phi(theta, l):
 	'''

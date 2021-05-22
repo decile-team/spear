@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from utils import probability, predict_gm, get_data
+from utils import probability
 
 def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc):
 	'''
