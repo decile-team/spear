@@ -16,7 +16,7 @@ class Cage:
 		[Note: from here on, graphical model(gm) and CAGE algorithm terms are used interchangeably]
 
 	Args:
-		path_json: Path to json file of number to string(class name) map
+		path_json: Path to json file consisting of number to string(class name) map
 		path_pkl: Path to pickle file of input data in standard format
 
 	'''

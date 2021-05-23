@@ -146,13 +146,16 @@ class JL:
 		##adding subsetselection here for testing. todo: has to be removed.
 		#indices = rand_subset(self.x_train.shape[0], len(self.x_sup))
 		#indices = unsup_subset(self.x_train, len(self.x_sup))
-
+		#
 		#self.supervised_mask = torch.zeros(self.x_train.shape[0])
 		#self.supervised_mask[indices] = 1
 		##
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
 		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+
+		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
+		self.fm_optimal_params = None
 
 	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro'):
@@ -165,8 +168,8 @@ class JL:
 			path_log: Path to log file
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
-			start_len: A parameter used in validation, type is integer, default is 5
-			stop_len: A parameter used in validation, type is integer, default is 10
+			start_len: A parameter used in validation refers to the least epoch after which validation checks need to be performed, type is integer, default is 5
+			stop_len: A parameter used in validation refers to the least number of continuous epochs of non incresing validation accuracy after which the training should be stopped, type is integer, default is 10
 			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
@@ -234,6 +237,8 @@ class JL:
 		elif self.feature_based_model =='nn':
 			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes)
 
+		self.fm_optimal_params = (self.feature_model).state_dict()
+
 		file = None
 		if path_log != None:
 			file = open(path_log, "a+")
@@ -254,10 +259,10 @@ class JL:
 		dataset = TensorDataset(self.x_train, self.y_train, self.l, self.s, self.supervised_mask)
 		loader = DataLoader(dataset, batch_size = self.batch_size, shuffle = True, pin_memory = True)
 
-		best_score_fm, best_score_gm, best_epoch, best_score_fm_val, best_score_gm_val = 0,0,0,0,0
-		best_score_fm_prec, best_score_fm_recall, best_score_gm_prec, best_score_gm_recall= 0,0,0,0
+		best_score_fm_test, best_score_gm_test, best_epoch, best_score_fm_val, best_score_gm_val = 0,0,0,0,0
+		best_prec_fm_test, best_recall_fm_test, best_prec_gm_test, best_recall_gm_test= 0,0,0,0
 
-		gm_acc, fm_acc = -1, -1
+		gm_test_acc, fm_test_acc = -1, -1
 
 		self.stopped_early = False
 		stop_early_fm, stop_early_gm = [], []
@@ -331,11 +336,11 @@ class JL:
 			#gm test
 			y_pred = predict_gm(self.theta, self.pi, self.l_test, self.s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
-				gm_acc = accuracy_score(self.y_test, y_pred)
+				gm_test_acc = accuracy_score(self.y_test, y_pred)
 			else:
-				gm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			gm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			gm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+				gm_test_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
+			gm_test_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
+			gm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#gm validation
 			y_pred = predict_gm(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
@@ -348,11 +353,11 @@ class JL:
 			probs = torch.nn.Softmax()(self.feature_model(self.x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
-				fm_acc = accuracy_score(self.y_test, y_pred)
+				fm_test_acc = accuracy_score(self.y_test, y_pred)
 			else:
-				fm_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			fm_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			fm_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+				fm_test_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
+			fm_test_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
+			fm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#fm validation
 			probs = torch.nn.Softmax()(self.feature_model(self.x_valid))
@@ -365,65 +370,75 @@ class JL:
 			if path_log != None:
 				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(self.score_used, epoch, gm_valid_acc, fm_valid_acc))
 				if epoch % 5 == 0:
-					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(self.score_used, epoch, gm_acc, fm_acc))
+					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(self.score_used, epoch, gm_test_acc, fm_test_acc))
 
 			if epoch > self.start_len and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
-					if best_score_gm < gm_acc or best_score_fm < fm_acc:
+					if best_score_gm_test < gm_test_acc or best_score_fm_test < fm_test_acc:
 						best_epoch = epoch
+						self.pi_optimal = (self.pi).detach().clone()
+						self.theta_optimal = (self.theta).detach().clone()
+						self.fm_optimal_params = (self.feature_model).state_dict()
 
 						best_score_fm_val = fm_valid_acc
-						best_score_fm = fm_acc
-
+						best_score_fm_test = fm_test_acc
 						best_score_gm_val = gm_valid_acc
-						best_score_gm = gm_acc
+						best_score_gm_test = gm_test_acc
 
-						best_score_fm_prec = fm_prec
-						best_score_fm_recall  = fm_recall
-						best_score_gm_prec = gm_prec
-						best_score_gm_recall  = gm_recall
+						best_prec_fm_test = fm_test_prec
+						best_recall_fm_test  = fm_test_recall
+						best_prec_gm_test = gm_test_prec
+						best_recall_gm_test  = gm_test_recall
 				else:
 					best_epoch = epoch
+					self.pi_optimal = (self.pi).detach().clone()
+					self.theta_optimal = (self.theta).detach().clone()
+					self.fm_optimal_params = (self.feature_model).state_dict()
+
 					best_score_fm_val = fm_valid_acc
-					best_score_fm = fm_acc
-
+					best_score_fm_test = fm_test_acc
 					best_score_gm_val = gm_valid_acc
-					best_score_gm = gm_acc
+					best_score_gm_test = gm_test_acc
 
-					best_score_fm_prec = fm_prec
-					best_score_fm_recall  = fm_recall
-					best_score_gm_prec = gm_prec
-					best_score_gm_recall  = gm_recall
+					best_prec_fm_test = fm_test_prec
+					best_recall_fm_test  = fm_test_recall
+					best_prec_gm_test = gm_test_prec
+					best_recall_gm_test  = gm_test_recall
 					stop_early_fm = []
 					stop_early_gm = []
 
 			if epoch > self.start_len and fm_valid_acc >= best_score_fm_val and fm_valid_acc >= best_score_gm_val:
 				if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
-					if best_score_fm < fm_acc or best_score_gm < gm_acc:
-						
+					if best_score_fm_test < fm_test_acc or best_score_gm_test < gm_test_acc:
 						best_epoch = epoch
+						self.pi_optimal = (self.pi).detach().clone()
+						self.theta_optimal = (self.theta).detach().clone()
+						self.fm_optimal_params = (self.feature_model).state_dict()
+
 						best_score_fm_val = fm_valid_acc
-						best_score_fm = fm_acc
-
+						best_score_fm_test = fm_test_acc
 						best_score_gm_val = gm_valid_acc
-						best_score_gm = gm_acc
+						best_score_gm_test = gm_test_acc
 
-						best_score_fm_prec = fm_prec
-						best_score_fm_recall  = fm_recall
-						best_score_gm_prec = gm_prec
-						best_score_gm_recall  = gm_recall
+						best_prec_fm_test = fm_test_prec
+						best_recall_fm_test  = fm_test_recall
+						best_prec_gm_test = gm_test_prec
+						best_recall_gm_test  = gm_test_recall
 				else:
 					best_epoch = epoch
+					self.pi_optimal = (self.pi).detach().clone()
+					self.theta_optimal = (self.theta).detach().clone()
+					self.fm_optimal_params = (self.feature_model).state_dict()
+					
 					best_score_fm_val = fm_valid_acc
-					best_score_fm = fm_acc
-
+					best_score_fm_test = fm_test_acc
 					best_score_gm_val = gm_valid_acc
-					best_score_gm = gm_acc
+					best_score_gm_test = gm_test_acc
 
-					best_score_fm_prec = fm_prec
-					best_score_fm_recall  = fm_recall
-					best_score_gm_prec = gm_prec
-					best_score_gm_recall  = gm_recall
+					best_prec_fm_test = fm_test_prec
+					best_recall_fm_test  = fm_test_recall
+					best_prec_gm_test = gm_test_prec
+					best_recall_gm_test  = gm_test_recall
 					stop_early_fm = []
 					stop_early_gm = []
 
@@ -435,7 +450,7 @@ class JL:
 				stop_early_fm.append(fm_valid_acc)
 				stop_early_gm.append(gm_valid_acc)
 
-			#epoch for loop ended
+		#epoch for loop ended
 
 		if self.stopped_early:
 			print('early stopping... best_epoch: {}'.format(best_epoch))
@@ -445,23 +460,23 @@ class JL:
 		print('best_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
 			best_score_gm_val, best_score_fm_val))
 		print('best_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
-			best_score_gm, best_score_fm))
+			best_score_gm_test, best_score_fm_test))
 		print('best_gm_test_precision:{}\tbest_fm_test_precision:{}\n'.format(\
-			best_score_gm_prec, best_score_fm_prec))
+			best_prec_gm_test, best_prec_fm_test))
 		print('best_gm_test_recall:{}\tbest_fm_test_recall:{}\n'.format(\
-			best_score_gm_recall, best_score_fm_recall))
+			best_recall_gm_test, best_recall_fm_test))
 			
 
 		# Algo ended
 
-		print("final_gm_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_acc, fm_acc))
+		print("final_gm_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
 		if path_log != None:
-			file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_acc, fm_acc))
+			file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
 			file.close()
 
 		if return_gm:
 			return (torch.nn.Softmax()(self.feature_model(self.x_unsup))), \
-				probability(self.theta, self.pi, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
+				probability(self.theta_optimal, self.pi_optimal, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
 		else:
 			return (torch.nn.Softmax()(self.feature_model(self.x_unsup)))
 
