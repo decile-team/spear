@@ -4,10 +4,11 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
-import sys
-from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from utils import *
+# todo: remove these comments if not needed
+# import sys
+# from os import path
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm
 
 class Cage:
 	'''

@@ -8,6 +8,17 @@ import torch
 import os
 from torch.distributions.beta import Beta
 
+def is_dict_trivial(dict):
+	for key, value in dict.items():
+		try:
+			if key == value:
+				continue
+			else:
+				return False
+		except:
+			return False
+	return True
+
 
 def get_data(path, class_map, check_shapes = True):
 	'''
@@ -68,8 +79,9 @@ def get_data(path, class_map, check_shapes = True):
 		assert (data[5].shape[0] == 0) or (np.all(np.logical_or(data[5] == 0, data[5] == 1)) )#r
 		assert np.all(np.logical_or(data[7] == 0, data[7] == 1)) #n
 
-	data[1] = np.vectorize(class_map.get)(data[1])
-	data[3] = np.vectorize(class_map.get)(data[3])
+	if not(is_dict_trivial(class_map)):
+		data[1] = np.vectorize(class_map.get)(data[1])
+		data[3] = np.vectorize(class_map.get)(data[3])
 
 	return data
 
@@ -103,13 +115,14 @@ def get_predictions(proba, class_map, class_dict, need_strings):
 		numpy.ndarray of shape (num_instances,), where elements are class_names/class_numbers depending on need_strings is True/False, where the elements
 		represent the class of each instance
 	'''
-	labels_with_altered_class_values = np.argmax(proba.detach().numpy(), 1)
-	remap_dict = {value:index for index, value in (class_map).items()}
-	final_labels = np.vectorize(remap_dict.get)(labels_with_altered_class_values)
+	final_labels = np.argmax(proba.detach().numpy(), 1) # this is actually labels_with_altered_class_values
+	if not(is_dict_trivial(class_map)):
+		remap_dict = {value:index for index, value in (class_map).items()}
+		final_labels = np.vectorize(remap_dict.get)(final_labels)
 	if need_strings:
 		class_dict_with_abstain = (class_dict).copy()
 		class_dict_with_abstain[None] = 'Abstain'
-		return np.vectorise(class_dict_with_abstain.get)(final_labels)
+		return np.vectorize(class_dict_with_abstain.get)(final_labels)
 	else:
 		return final_labels
 

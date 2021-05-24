@@ -4,10 +4,11 @@ import torch
 from sklearn.metrics.pairwise import euclidean_distances
 from utils_jl import find_indices, get_similarity_kernel
 import pickle
-
-import sys
 from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+# todo: remove these comments if not needed
+# import sys
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from utils import predict_gm, get_data, get_classes
 
 def rand_subset(n_all, n_instances):

@@ -1,19 +1,18 @@
 import torch
-from torch import optim
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
-import sklearn
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
 
-import sys
-from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from utils import *
+# todo: remove these comments if not needed
+# import sys
+# from os import path
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm
 
-from utils_jl import *
+from utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from models import *
 
 ##todo: need to remove below import (imported only for testing)
@@ -30,12 +29,10 @@ class JL:
 		path_U: Path to pickle file of unlabelled instances
 		path_V: Path to pickle file of validation instances
 		path_T: Path to pickle file of test instances
-		use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
 	'''
-	def __init__(self, path_json, path_L, path_U, path_V, path_T, use_accuracy_score):
+	def __init__(self, path_json, path_L, path_U, path_V, path_T):
 
 		assert type(path_json) == str and type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
-		assert type(use_accuracy_score) == np.bool
 		torch.set_default_dtype(torch.float64)
 		
 		self.class_dict = get_classes(path_json)
@@ -45,12 +42,6 @@ class JL:
 
 		self.class_map = {index : value for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
-
-		self.use_accuracy_score = use_accuracy_score
-		if self.use_accuracy_score:
-			self.score_used = "accuracy_score"
-		else:
-			self.score_used = "f1_score"
 
 		data_L = get_data(path_L, self.class_map)
 		data_U = get_data(path_U, self.class_map)
@@ -157,7 +148,7 @@ class JL:
 		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
 		self.fm_optimal_params = None
 
-	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_feature, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro'):
 		'''
 		Args:
@@ -165,6 +156,7 @@ class JL:
 			batch_size: Batch size, type should be integer
 			lr_feature: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage), type is integer or float
+			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
 			path_log: Path to log file
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
@@ -189,6 +181,7 @@ class JL:
 		assert type(batch_size) == np.int or type(batch_size) == np.float
 		assert type(lr_feature) == np.int or type(lr_feature) == np.float
 		assert type(lr_gm) == np.int or type(lr_gm) == np.float
+		assert type(use_accuracy_score) == np.bool
 		assert type(n_epochs) == np.int or type(n_epochs) == np.float
 		assert type(start_len) == np.int or type(start_len) == np.float
 		assert type(stop_len) == np.int or type(stop_len) == np.float
@@ -212,6 +205,9 @@ class JL:
 		self.n_hidden = int(n_hidden)
 		self.feature_based_model = feature_model
 		self.metric_avg = metric_avg
+
+		self.use_accuracy_score = use_accuracy_score
+		self.score_used = "accuracy_score" if self.use_accuracy_score else "f1_score"
 
 		assert self.start_len <= self.n_epochs and self.stop_len <= self.n_epochs
 
@@ -244,6 +240,7 @@ class JL:
 			file = open(path_log, "a+")
 			file.write("JL log:\n")
 
+		self.stopped_early = False
 		#Algo starting
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
@@ -287,7 +284,7 @@ class JL:
 					loss_1=0
 
 				if(self.loss_func_mask[1]):
-					unsupervised_fm_probability = torch.nn.Softmax()(self.feature_model(sample[0][unsupervised_indices]))
+					unsupervised_fm_probability = torch.nn.softmax(dim = 1)(self.feature_model(sample[0][unsupervised_indices]))
 					loss_2 = entropy(unsupervised_fm_probability)
 				else:
 					loss_2=0
@@ -317,7 +314,7 @@ class JL:
 						probs_graphical = probability(self.theta, self.pi,sample[2][unsupervised_indices],sample[3][unsupervised_indices],\
 							self.k, self.n_classes, self.continuous_mask, self.qc)
 					probs_graphical = (probs_graphical.t() / probs_graphical.sum(1)).t()
-					probs_fm = torch.nn.Softmax()(self.feature_model(sample[0]))
+					probs_fm = torch.nn.softmax(dim = 1)(self.feature_model(sample[0]))
 					loss_6 = kl_divergence(probs_fm, probs_graphical)
 				else:
 					loss_6= 0
@@ -350,7 +347,7 @@ class JL:
 				gm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
 
 			#fm test
-			probs = torch.nn.Softmax()(self.feature_model(self.x_test))
+			probs = torch.nn.softmax(dim = 1)(self.feature_model(self.x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
 				fm_test_acc = accuracy_score(self.y_test, y_pred)
@@ -360,7 +357,7 @@ class JL:
 			fm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#fm validation
-			probs = torch.nn.Softmax()(self.feature_model(self.x_valid))
+			probs = torch.nn.softmax(dim = 1)(self.feature_model(self.x_valid))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
 				fm_valid_acc = accuracy_score(self.y_valid, y_pred)
@@ -475,10 +472,10 @@ class JL:
 			file.close()
 
 		if return_gm:
-			return (torch.nn.Softmax()(self.feature_model(self.x_unsup))), \
+			return (torch.nn.softmax(dim = 1)(self.feature_model(self.x_unsup))), \
 				probability(self.theta_optimal, self.pi_optimal, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
 		else:
-			return (torch.nn.Softmax()(self.feature_model(self.x_unsup)))
+			return (torch.nn.softmax(dim = 1)(self.feature_model(self.x_unsup)))
 
 	def fit_and_predict(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro', need_strings = False):
@@ -552,7 +549,7 @@ class JL:
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 
-		return (torch.nn.Softmax()(self.feature_model(x_test)))
+		return (torch.nn.softmax(dim = 1)(self.feature_model(x_test)))
 
 	def predict_cage(self, path_test, need_strings = False):
 		'''
