@@ -1,22 +1,22 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
+from copy import deepcopy
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
 
-# todo: remove these comments if not needed
-# import sys
-# from os import path
-# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm
 
 from utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from models import *
 
 ##todo: need to remove below import (imported only for testing)
-from subset_selection import *
+#from subset_selection import *
 
 class JL:
 	'''
@@ -142,10 +142,10 @@ class JL:
 		#self.supervised_mask[indices] = 1
 		##
 
-		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
-		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+		self.pi, self.theta = None, None
+		self.is_training_done = False
 
-		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
+		self.pi_optimal, self.theta_optimal = None, None
 		self.fm_optimal_params = None
 
 	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_feature, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
@@ -233,7 +233,7 @@ class JL:
 		elif self.feature_based_model =='nn':
 			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes)
 
-		self.fm_optimal_params = (self.feature_model).state_dict()
+		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 		file = None
 		if path_log != None:
@@ -241,6 +241,7 @@ class JL:
 			file.write("JL log:\n")
 
 		self.stopped_early = False
+
 		#Algo starting
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
@@ -248,6 +249,8 @@ class JL:
 
 		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
 		(self.theta).requires_grad = True
+
+		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
 
 		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = self.lr_feature)
 		optimizer_gm = torch.optim.Adam([self.theta, self.pi], lr = self.lr_gm, weight_decay=0)
@@ -375,7 +378,7 @@ class JL:
 						best_epoch = epoch
 						self.pi_optimal = (self.pi).detach().clone()
 						self.theta_optimal = (self.theta).detach().clone()
-						self.fm_optimal_params = (self.feature_model).state_dict()
+						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 						best_score_fm_val = fm_valid_acc
 						best_score_fm_test = fm_test_acc
@@ -390,7 +393,7 @@ class JL:
 					best_epoch = epoch
 					self.pi_optimal = (self.pi).detach().clone()
 					self.theta_optimal = (self.theta).detach().clone()
-					self.fm_optimal_params = (self.feature_model).state_dict()
+					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 					best_score_fm_val = fm_valid_acc
 					best_score_fm_test = fm_test_acc
@@ -410,7 +413,7 @@ class JL:
 						best_epoch = epoch
 						self.pi_optimal = (self.pi).detach().clone()
 						self.theta_optimal = (self.theta).detach().clone()
-						self.fm_optimal_params = (self.feature_model).state_dict()
+						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 						best_score_fm_val = fm_valid_acc
 						best_score_fm_test = fm_test_acc
@@ -425,7 +428,7 @@ class JL:
 					best_epoch = epoch
 					self.pi_optimal = (self.pi).detach().clone()
 					self.theta_optimal = (self.theta).detach().clone()
-					self.fm_optimal_params = (self.feature_model).state_dict()
+					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 					
 					best_score_fm_val = fm_valid_acc
 					best_score_fm_test = fm_test_acc
@@ -449,6 +452,8 @@ class JL:
 
 		#epoch for loop ended
 
+		self.is_training_done = True
+
 		if self.stopped_early:
 			print('early stopping... best_epoch: {}'.format(best_epoch))
 		else:
@@ -466,10 +471,14 @@ class JL:
 
 		# Algo ended
 
-		print("final_gm_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
-		if path_log != None:
-			file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
-			file.close()
+		# below prints and writes to file, the final test accuracies
+		# print("final_gm_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
+		# if path_log != None:
+		# 	file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
+		# 	file.close()
+
+		(self.feature_model).load_state_dict(self.fm_optimal_params)
+		(self.feature_model).eval()
 
 		if return_gm:
 			return (torch.nn.softmax(dim = 1)(self.feature_model(self.x_unsup))), \
@@ -525,6 +534,8 @@ class JL:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
+		assert self.is_training_done
+
 		data = get_data(path_test, self.class_map)
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
@@ -532,7 +543,7 @@ class JL:
 		assert (data[2]).shape[1] == self.n_lfs
 		m_test = torch.abs(torch.tensor(data[2]).long())
 
-		return probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
+		return probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 
 	def predict_feature_model_proba(self, path_test):
 		'''
@@ -545,6 +556,8 @@ class JL:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
+		assert self.is_training_done
+
 		data = get_data(path_test, self.class_map)
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features

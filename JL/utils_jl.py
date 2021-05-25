@@ -2,10 +2,9 @@ import torch.nn as nn
 from torch import log as tlog
 import numpy as np
 
-# todo: remove these comments if not needed
-# import sys
-# from os import path
-# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from utils import probability
 
 def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc):
