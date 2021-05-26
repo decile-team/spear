@@ -10,17 +10,18 @@ from torch.distributions.beta import Beta
 
 def is_dict_trivial(dict):
 	for key, value in dict.items():
-		try:
-			if key == value:
-				continue
-			else:
+		if not(key == None):
+			try:
+				if key == value:
+					continue
+				else:
+					return False
+			except:
 				return False
-		except:
-			return False
 	return True
 
 
-def get_data(path, class_map, check_shapes = True):
+def get_data(path, check_shapes = True, class_map = None):
 	'''
 		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k
 			x: (num_instances, num_features), x[i][j] is jth feature of ith instance. Note that the dimension fo this array can vary depending on the dimension of input
@@ -45,8 +46,8 @@ def get_data(path, class_map, check_shapes = True):
 
 	Args: 
 		path: path to pickle file with data in the format above
-		class_map: dictionary of class numbers(sorted, mapped to [0,n_classes-1]) are per the Enum defined in labeling part
 		check_shapes: if true, checks whether the shapes of numpy arrays in pickle file are consistent as per the format mentioned above. Else it doesn't check. Default is True. 
+		class_map: dictionary of class numbers(sorted, mapped to [0,n_classes-1]) are per the Enum defined in labeling part
 
 	Return:
 		A list containing all the numpy arrays mentioned above. The arrays l, L are modified using the class_map 
@@ -55,15 +56,12 @@ def get_data(path, class_map, check_shapes = True):
 	data = []
 	with open(path, 'rb') as file:
 		for i in range(9):
-			if i == 0:
-				data.append(pickle.load(file))
-			elif i == 6:
-				data.append(pickle.load(file).astype(np.float32))
-			else:
-				data.append(pickle.load(file).astype(np.int32))
-
+			data.append(pickle.load(file))
 			assert type(data[i]) == np.ndarray
 		data.append(pickle.load(file))
+	
+	print(data[9])
+	assert type(data[9]) == np.int
 
 	if check_shapes:
 		assert data[1].shape == data[2].shape # l, m
@@ -79,18 +77,33 @@ def get_data(path, class_map, check_shapes = True):
 		assert (data[5].shape[0] == 0) or (np.all(np.logical_or(data[5] == 0, data[5] == 1)) )#r
 		assert np.all(np.logical_or(data[7] == 0, data[7] == 1)) #n
 
-	if not(is_dict_trivial(class_map)):
+	if class_map == None:
+		return data
+
+	is_dict_trivial_ = is_dict_trivial(class_map)
+	if not(is_dict_trivial_):
 		data[1] = np.vectorize(class_map.get)(data[1])
 		data[3] = np.vectorize(class_map.get)(data[3])
+	else:
+		data[1][data[1] == None] = data[9]
+		data[3][data[3] == None] = data[9]
+
+	for i in range(9):
+		if i == 0:
+			continue
+		elif i == 6:
+			data[i] = data[i].astype(np.float32)
+		else:
+			data[i] = data[i].astype(np.int32)
 
 	return data
 
 def get_classes(path):
 	'''
-		The json file should contain a dictionary of number to string(class name) map
+		The json file should contain a dictionary of number to string(class name) map as defined in Enum
 
 		Args:
-			path: path of json file with contents mentioned above
+			path: path to json file with contents mentioned above
 		
 		Returns:
 			A dictionary (number to string(class name) map)
@@ -103,7 +116,7 @@ def get_classes(path):
 
 def get_predictions(proba, class_map, class_dict, need_strings):
 	'''
-		This function takes probaility of instances being a class and what class each instance belongs to, using the maximum of probabilities
+		This function takes probaility of instances being a class and gives what class each instance belongs to, using the maximum of probabilities
 
 	Args:
 		proba: probability numpy.ndarray of shape (num_instances, num_classes)
@@ -145,7 +158,7 @@ def get_enum(np_array, enm):
 
 def phi(theta, l):
 	'''
-		A helper function
+		Graphical model utils: A helper function
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -249,7 +262,7 @@ def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 
 def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		Graphical model utils: negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
+		Graphical model utils: Negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -297,7 +310,7 @@ def precision_loss(theta, k, n_classes, a):
 	loss = a * torch.log(correct_prob).double() + (1 - a) * torch.log(1 - correct_prob).double()
 	return -loss.sum()
 
-def predict_gm(theta, pi, m, s, k, n_classes, continuous_mask, qc):
+def predict_gm_labels(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
 		Graphical model utils: Used to predict the labels after the training is done
 

@@ -9,8 +9,9 @@ from sklearn.metrics import recall_score as recall_score
 
 import sys
 from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(path.dirname(path.abspath('')))
+from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm_labels
 
 from utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from models import *
@@ -43,10 +44,10 @@ class JL:
 		self.class_map = {index : value for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
 
-		data_L = get_data(path_L, self.class_map)
-		data_U = get_data(path_U, self.class_map)
-		data_V = get_data(path_V, self.class_map)
-		data_T = get_data(path_T, self.class_map)
+		data_L = get_data(path_L, True, self.class_map)
+		data_U = get_data(path_U, True, self.class_map)
+		data_V = get_data(path_V, True, self.class_map)
+		data_T = get_data(path_T, True, self.class_map)
 
 		self.x_sup = torch.tensor(data_L[0]).double()
 		self.y_sup = torch.tensor(data_L[3]).long()
@@ -293,7 +294,7 @@ class JL:
 					loss_2=0
 
 				if(self.loss_func_mask[2]):
-					y_pred_unsupervised = predict_gm(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, self.qc)
+					y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, self.qc)
 					loss_3 = supervised_criterion(self.feature_model(sample[0][unsupervised_indices]), torch.tensor(y_pred_unsupervised))
 				else:
 					loss_3 = 0
@@ -334,7 +335,7 @@ class JL:
 					optimizer_fm.step()
 
 			#gm test
-			y_pred = predict_gm(self.theta, self.pi, self.l_test, self.s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
+			y_pred = predict_gm_labels(self.theta, self.pi, self.l_test, self.s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
 				gm_test_acc = accuracy_score(self.y_test, y_pred)
 			else:
@@ -343,7 +344,7 @@ class JL:
 			gm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#gm validation
-			y_pred = predict_gm(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
+			y_pred = predict_gm_labels(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
 			if self.use_accuracy_score:
 				gm_valid_acc = accuracy_score(self.y_valid, y_pred)
 			else:
@@ -523,7 +524,7 @@ class JL:
 			return get_predictions(proba, self.class_map, self.class_dict, need_strings)
 
 	
-	def predict_cage_proba(self, path_test):
+	def predict_gm_proba(self, path_test):
 		'''
 			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)
 
@@ -536,7 +537,7 @@ class JL:
 		'''
 		assert self.is_training_done
 
-		data = get_data(path_test, self.class_map)
+		data = get_data(path_test, True, self.class_map)
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
@@ -545,7 +546,7 @@ class JL:
 
 		return probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
 
-	def predict_feature_model_proba(self, path_test):
+	def predict_fm_proba(self, path_test):
 		'''
 			Used to find the predicted labels based on the trained parameters of feature model
 
@@ -558,13 +559,13 @@ class JL:
 		'''
 		assert self.is_training_done
 
-		data = get_data(path_test, self.class_map)
+		data = get_data(path_test, True, self.class_map)
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 
 		return (torch.nn.softmax(dim = 1)(self.feature_model(x_test)))
 
-	def predict_cage(self, path_test, need_strings = False):
+	def predict_gm(self, path_test, need_strings = False):
 		'''
 			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)
 
@@ -577,9 +578,9 @@ class JL:
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		assert type(need_strings) == np.bool
-		return get_predictions(self.predict_cage_proba(path_test), self.class_map, self.class_dict, need_strings)
+		return get_predictions(self.predict_gm_proba(path_test), self.class_map, self.class_dict, need_strings)
 
-	def predict_feature_model(self, path_test, need_strings = False):
+	def predict_fm(self, path_test, need_strings = False):
 		'''
 			Used to find the predicted labels based on the trained parameters of feature model
 
@@ -592,6 +593,6 @@ class JL:
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		assert type(need_strings) == np.bool
-		return get_predictions(self.predict_feature_model_proba(path_test), self.class_map, self.class_dict, need_strings)
+		return get_predictions(self.predict_fm_proba(path_test), self.class_map, self.class_dict, need_strings)
 
 

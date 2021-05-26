@@ -44,7 +44,8 @@ Noisy Labels
 ---------------
 .. automodule:: labeling.noisy_labels.core
 	:members: NoisyLabels
-             
+
+----
 
 CAGE
 ==================
@@ -54,6 +55,8 @@ CAGE
 .. automodule:: Cage.core
 	:members:
 
+----
+
 Joint Learning(JL)
 ==================
 
@@ -61,13 +64,13 @@ Joint Learning(JL)
 
 	From here on, Feature model(fm) imply Feature based classification model
 
-
 .. automodule:: JL.core
 	:members:
 
+----
 
-CAGE, JL utils
-===============
+CAGE, JL - UTILS
+==================
 
 CAGE and JL utils
 ------------------
@@ -77,19 +80,19 @@ CAGE and JL utils
 .. automodule:: utils
 	:members:
 
-Feature-based Models
----------------------
-
-.. automodule:: JL.models
-	:members:
-
 JL utils
 ---------
 
 .. automodule:: JL.utils_jl
 	:members:
 
+Feature-based Models
+---------------------
 
+.. automodule:: JL.models
+	:members:
+
+----
 
 IMPLYLOSS
 ============

@@ -1,10 +1,11 @@
 import torch.nn as nn
-from torch import log as tlog
+from torch import log
 import numpy as np
 
 import sys
 from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(path.dirname(path.abspath('')))
 from utils import probability
 
 def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc):
@@ -26,7 +27,7 @@ def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_
 	'''
 	prob = probability(theta, pi, m, s, k, n_classes, continuous_mask, qc)
 	prob = (prob.t() / prob.sum(1)).t()
-	return nn.NLLLoss()(tlog(prob), y)
+	return nn.NLLLoss()(log(prob), y)
 
 def entropy(probabilities):
 	'''
@@ -38,7 +39,7 @@ def entropy(probabilities):
 	Return:
 		a real value, the entropy value of given probability
 	'''
-	entropy = - (probabilities * tlog(probabilities)).sum(1)
+	entropy = - (probabilities * log(probabilities)).sum(1)
 	return entropy.sum() / probabilities.shape[0]
 
 def kl_divergence(probs_p, probs_q):
@@ -52,7 +53,7 @@ def kl_divergence(probs_p, probs_q):
 	Return:
 		a real value, the KL divergence of given probabilities
 	'''
-	return (probs_p * tlog(probs_p / probs_q)).sum() / probs_p.shape[0]
+	return (probs_p * log(probs_p / probs_q)).sum() / probs_p.shape[0]
 
 
 def find_indices(data, data_sub):

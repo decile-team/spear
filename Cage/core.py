@@ -6,8 +6,9 @@ from sklearn.metrics import f1_score
 
 import sys
 from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(path.dirname(path.abspath('')))
+from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm_labels
 
 class Cage:
 	'''
@@ -30,7 +31,7 @@ class Cage:
 
 		self.class_map = {index : value for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
-		data = get_data(path_pkl, self.class_map)
+		data = get_data(path_pkl, True, self.class_map)
 
 		self.m = torch.abs(torch.tensor(data[2]).long())
 		self.s = torch.tensor(data[6]).double() # continuous score
@@ -90,7 +91,7 @@ class Cage:
 		y_true_test = None
 		s_test, m_test = None, None
 		if path_test != None:
-			data = get_data(path_test, self.class_map)
+			data = get_data(path_test, True, self.class_map)
 			m_test, y_true_test, s_test = data[2], data[3], data[6]
 			y_true_test = y_true_test.flatten()
 			assert data[9] == self.n_classes
@@ -163,7 +164,7 @@ class Cage:
 		assert m_test.shape[1] == self.n_lfs
 		assert np.all(np.logical_or(m_test == 1, m_test == 0))
 		m_temp = torch.abs(torch.tensor(m_test).long())
-		return predict_gm(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, self.qc)
+		return predict_gm_labels(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, self.qc)
 
 	def predict_proba(self, path_test):
 		'''
@@ -176,7 +177,7 @@ class Cage:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
-		data = get_data(path_test, self.class_map)
+		data = get_data(path_test, True, self.class_map)
 		assert self.n_features == data[0].shape[1]
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
@@ -189,6 +190,7 @@ class Cage:
 	def predict(self, path_test, need_strings = False):
 		'''
 			Used to predict labels based on a pickle file with path path_test
+			
 		Args:
 			path_test: Path to the pickle file containing test data set in standard format
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False

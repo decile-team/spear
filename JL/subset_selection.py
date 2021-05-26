@@ -7,8 +7,9 @@ import pickle
 from os import path
 
 import sys
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from utils import predict_gm, get_data, get_classes
+# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(path.dirname(path.abspath('')))
+from utils import predict_gm_labels, get_data, get_classes
 
 def rand_subset(n_all, n_instances):
 	'''
@@ -67,7 +68,7 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	class_map = {index : value for index, value in enumerate(class_list)}
 	class_map[None] = n_classes
 
-	data = get_data(path_pkl, class_map)
+	data = get_data(path_pkl, True, class_map)
 	m = data[2]
 	assert m.shape[0] > int(n_sup)
 	s = data[6]
@@ -78,7 +79,7 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	params_1 = torch.ones((n_classes, n_lfs)).double() # initialisation of gm parameters, refer section 3.4 in the JL paper
 	params_2 = torch.ones((n_classes, n_lfs)).double()
 
-	y_train_pred = predict_gm(params_1, params_2, m, s, k, n_classes, continuous_mask, qc_temp)
+	y_train_pred = predict_gm_labels(params_1, params_2, m, s, k, n_classes, continuous_mask, qc_temp)
 	kernel = get_similarity_kernel(y_train_pred)
 	similarity = euclidean_distances(data[0])
 	sim_mat = kernel * similarity
