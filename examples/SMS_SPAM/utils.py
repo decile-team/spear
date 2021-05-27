@@ -1,6 +1,6 @@
 import numpy as np
 
-def load_data_to_numpy(file_name="dataset/SMSSpamCollection"):
+def load_data_to_numpy(file_name="../../data/SMS_SPAM/SMSSpamCollection"):
     #SPAM = 1
     #HAM = 0
     #ABSTAIN = -1

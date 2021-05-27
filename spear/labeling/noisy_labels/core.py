@@ -1,13 +1,14 @@
-from typing import Any, Callable, List, Mapping, Optional
-from labeling.mtypes import DataPoint, DataPoints
-from labeling.apply import *
-from labeling.lf import *
-from labeling.lf_set import *
-from labeling.utils.pickle import *
-from labeling.analysis import LFAnalysis
-
-import pickle, enum, json
 import numpy as np
+import pickle, enum, json
+from typing import Any, Callable, List, Mapping, Optional
+
+from ..lf_set import LFSet
+from ..apply import LFApplier
+from ..analysis import LFAnalysis
+from ..lf import LabelingFunction
+from ..utils import dump_to_pickle
+from ..data_types import DataPoint, DataPoints
+
 
 class NoisyLabels:
     """Generate noisy lables, continuous score  from lf's applied on data  

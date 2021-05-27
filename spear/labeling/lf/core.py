@@ -1,7 +1,8 @@
 from typing import Any, Callable, List, Mapping, Optional
-from labeling.mtypes import DataPoint
-from labeling.preprocess import BasePreprocessor
-from labeling.continuous_scoring import BaseContinuousScorer
+
+from ..data_types import DataPoint
+from ..preprocess import BasePreprocessor
+from ..continuous_scoring import BaseContinuousScorer
 
 ABSTAIN = None
 

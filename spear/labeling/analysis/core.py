@@ -1,16 +1,15 @@
-from collections import OrderedDict
-from itertools import product
-from typing import List, Optional, Union
-
+import warnings
 import numpy as np
+from itertools import product
 import scipy.sparse as sparse
+from collections import OrderedDict
 from pandas import DataFrame, Series
+from typing import List, Optional, Union
 from sklearn.metrics import confusion_matrix
 
-from labeling.lf import LabelingFunction
-from labeling.utils import plot_df_bar
+from ..utils import plot_df_bar
+from ..lf import LabelingFunction
 
-import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class LFAnalysis:   

@@ -1,10 +1,14 @@
-from labeling.apply import *
-from labeling.noisy_labels import *
-from labeling.analysis import LFAnalysis
-from lfs import rules, ClassLabels
-from utils import load_data_to_numpy
+import sys
+sys.path.append('../../')
 
 import re
+import numpy as np
+
+from spear.labeling import NoisyLabels
+
+
+from lfs import rules, ClassLabels
+from utils import load_data_to_numpy
 
 X, Y = load_data_to_numpy()
 R = np.zeros((X.shape[0],len(rules.get_lfs())))

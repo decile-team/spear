@@ -1,5 +1,6 @@
 from typing import Any, Callable, List, Mapping, Optional
-from labeling.mtypes import DataPoint
+
+from ..data_types import DataPoint
 
 
 class BasePreprocessor:

@@ -1,14 +1,14 @@
-from labeling.lf import *
-from labeling.preprocess import *
-from labeling.continuous_scoring import *
-
-from preprocessor import convert_to_lower
-from labeling.lf_set import *
-from con_scorer import word_similarity
-
 import numpy as np
 import re
 import enum
+
+import sys
+sys.path.append('../../')
+
+from spear.labeling import labeling_function, LFSet, ABSTAIN, preprocessor
+
+from preprocessor import convert_to_lower
+from con_scorer import word_similarity
 
 class ClassLabels(enum.Enum):
     SPAM = 1
@@ -23,14 +23,6 @@ notFreeWords = {"toll","Toll","freely","call","meet","talk","feedback"}
 notFreeSubstring = {"not free","you are","when","wen"}
 firstAndSecondPersonWords = {"I","i","u","you","ur","your","our","we","us","youre"}
 thirdPersonWords = {"He","he","She","she","they","They","Them","them","their","Their"}
-
-
-from labeling.lf import labeling_function, ABSTAIN
-from labeling.lf_set import LFSet
-from labeling.preprocess import preprocessor
-
-from con_scorer import word_similarity
-import re
 
 
 @preprocessor()

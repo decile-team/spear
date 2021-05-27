@@ -1,10 +1,10 @@
 from typing import Any, Callable, List, Set, Mapping, Optional
-from labeling.mtypes import DataPoint, DataPoints
-from labeling.lf import *
 import warnings
-
 import pickle
 import numpy as np
+
+from ..data_types import DataPoint, DataPoints
+from ..lf import LabelingFunction
 
 class LFSet:              # LFSet
     """Class for Set of Labeling Functions

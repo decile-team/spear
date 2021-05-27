@@ -1,14 +1,14 @@
+import enum
+import numpy as np
+from tqdm import tqdm
 from itertools import chain
 from typing import DefaultDict, Dict, List, Set, NamedTuple, Tuple, Union
 
-import numpy as np
-from tqdm import tqdm
+from ..lf_set import LFSet
+from ..utils import check_unique_names
+from ..lf import ABSTAIN, LabelingFunction
+from ..data_types import DataPoint, DataPoints
 
-from labeling.lf import *
-from labeling.mtypes import DataPoint, DataPoints
-from labeling.utils.data_operators import check_unique_names
-from labeling.lf_set import *
-import enum
 
 RowData = List[Tuple[int, int, int, float]]     # index of datapoint, index of lf, label, confidence
 
