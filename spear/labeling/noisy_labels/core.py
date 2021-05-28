@@ -104,7 +104,7 @@ class NoisyLabels:
             filename (str, optional): Name for pickle file. Defaults to None.
         """
         if filename is None:
-            filename = self.name+"_pickle"
+            filename = self.name+"_pickle.pkl"
         
         if (self._L is None or self._S is None):
             applier = LFApplier(lf_set = self._rules)
@@ -138,9 +138,8 @@ class NoisyLabels:
         output["n"] = n
         output["k"] = k
         output["num_classes"] = self._num_classes
-        to_dump = [output]
 
-        dump_to_pickle(filename, to_dump)
+        dump_to_pickle(filename, output)
 
 
 
