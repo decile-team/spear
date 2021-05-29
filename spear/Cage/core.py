@@ -4,11 +4,8 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
-import sys
-from os import path
-# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-sys.path.append(path.dirname(path.abspath('')))
-from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm_labels
+from ..utils.data_editer import get_data, get_classes, get_predictions
+from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
 
 class Cage:
 	'''
@@ -41,7 +38,7 @@ class Cage:
 		self.s[self.s < 0.001] = 0.001 # clip s
 
 		self.n_lfs = self.m.shape[1]
-		self.n_instances, self.n_features = data[0].shape
+		self.n_instances = data[0].shape[0]
 
 		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
 		(self.pi).requires_grad = True
@@ -95,8 +92,8 @@ class Cage:
 			m_test, y_true_test, s_test = data[2], data[3], data[6]
 			y_true_test = y_true_test.flatten()
 			assert data[9] == self.n_classes
-			assert np.all(data[7] == self.n)
-			assert np.all(data[8] == self.k)
+			assert torch.all(torch.tensor(data[7]).double().eq(self.n))
+			assert torch.all(torch.tensor(data[8]).long().eq(self.k))
 
 		assert np.all(np.logical_and(y_true_test >= 0, y_true_test < self.n_classes))
 
@@ -178,7 +175,6 @@ class Cage:
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		data = get_data(path_test, True, self.class_map)
-		assert self.n_features == data[0].shape[1]
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001

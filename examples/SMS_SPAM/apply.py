@@ -11,16 +11,73 @@ from lfs import rules, ClassLabels
 from utils import load_data_to_numpy
 
 X, Y = load_data_to_numpy()
-R = np.zeros((X.shape[0],len(rules.get_lfs())))
+
+test_size = 200
+validation_size = 100
+L_size = 100
+# U_size = X.size - L_size - validation_size - test_size
+U_size = 300
+
+
+index = np.arange(X.size)
+index = np.random.permutation(index)
+X = X[index]
+Y = Y[index]
+
+X_V = X[-validation_size:]
+Y_V = Y[-validation_size:]
+R_V = np.zeros((validation_size,len(rules.get_lfs())))
+
+X_T = X[-(validation_size+test_size):-validation_size]
+Y_T = Y[-(validation_size+test_size):-validation_size]
+R_V = np.zeros((test_size,len(rules.get_lfs())))
+
+X_L = X[-(validation_size+test_size+L_size):-(validation_size+test_size)]
+Y_L = Y[-(validation_size+test_size+L_size):-(validation_size+test_size)]
+R_V = np.zeros((L_size,len(rules.get_lfs())))
+
+# X_U = X[:-(validation_size+test_size+L_size)]
+X_U = X[:U_size]
+# Y_U = Y[:-(validation_size+test_size+L_size)]
+R_V = np.zeros((U_size,len(rules.get_lfs())))
+
 
 sms_noisy_labels = NoisyLabels(name="sms",
-                               data=X,
-                               gold_labels=Y,
+                               data=X_V,
+                               gold_labels=Y_V,
                                rules=rules,
                                labels_enum=ClassLabels,
                                num_classes=2)
+# L,S = sms_noisy_labels.get_labels()
+# analyse = sms_noisy_labels.analyse_lfs(plot=True)
+sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_V.pkl')
+sms_noisy_labels.generate_json('data_pipeline/sms_json.json') #JSON
 
-L,S = sms_noisy_labels.get_labels()
-analyse = sms_noisy_labels.analyse_lfs(plot=True)
-sms_noisy_labels.generate_pickle()
-sms_noisy_labels.generate_json()
+sms_noisy_labels = NoisyLabels(name="sms",
+                               data=X_T,
+                               gold_labels=Y_T,
+                               rules=rules,
+                               labels_enum=ClassLabels,
+                               num_classes=2)
+# L,S = sms_noisy_labels.get_labels()
+# analyse = sms_noisy_labels.analyse_lfs(plot=True)
+sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_T.pkl')
+
+sms_noisy_labels = NoisyLabels(name="sms",
+                               data=X_L,
+                               gold_labels=Y_L,
+                               rules=rules,
+                               labels_enum=ClassLabels,
+                               num_classes=2)
+# L,S = sms_noisy_labels.get_labels()
+# analyse = sms_noisy_labels.analyse_lfs(plot=True)
+sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_L.pkl')
+
+sms_noisy_labels = NoisyLabels(name="sms",
+                               data=X_U,
+                               rules=rules,
+                               labels_enum=ClassLabels,
+                               num_classes=2)
+# L,S = sms_noisy_labels.get_labels()
+# analyse = sms_noisy_labels.analyse_lfs(plot=True)
+sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_U.pkl')

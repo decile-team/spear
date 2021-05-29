@@ -2,14 +2,12 @@ import apricot
 import numpy as np
 import torch
 from sklearn.metrics.pairwise import euclidean_distances
-from utils_jl import find_indices, get_similarity_kernel
 import pickle
 from os import path
 
-import sys
-# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-sys.path.append(path.dirname(path.abspath('')))
-from utils import predict_gm_labels, get_data, get_classes
+from ..utils.data_editer import get_data, get_classes
+from ..utils.utils_cage import  predict_gm_labels
+from ..utils.utils_jl import find_indices, get_similarity_kernel
 
 def rand_subset(n_all, n_instances):
 	'''
