@@ -24,6 +24,7 @@ class NoisyLabels:
         self,
         name: str,
         data: DataPoints,
+        data_feats: DataPoints,
         rules: LFSet,
         gold_labels: Optional[DataPoints] = np.array([]),
         labels_enum = None,
@@ -34,6 +35,7 @@ class NoisyLabels:
         """
         self.name = name
         self._data = data
+        self._data_feats = data_feats
         self._gold_labels = gold_labels
         self._rules = rules
         self._labels_enum = labels_enum
@@ -115,7 +117,7 @@ class NoisyLabels:
         num_inst=self._data.shape[0]
         num_rules=self._L.shape[1]
 
-        x=self._data
+        x=self._data_feats
         l=self._L
 
         m=(self._L!=ABSTAIN).astype(int)                                        # lf covers example or not 

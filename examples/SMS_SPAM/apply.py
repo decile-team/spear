@@ -10,7 +10,7 @@ from spear.labeling import NoisyLabels
 from lfs import rules, ClassLabels
 from utils import load_data_to_numpy
 
-X, Y = load_data_to_numpy()
+X, X_feats, Y = load_data_to_numpy()
 
 test_size = 200
 validation_size = 100
