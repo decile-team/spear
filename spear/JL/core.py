@@ -7,17 +7,11 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
 
-import sys
-from os import path
-# sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-sys.path.append(path.dirname(path.abspath('')))
-from utils import get_data, get_classes, get_predictions, probability, log_likelihood_loss, precision_loss, predict_gm_labels
+from ..utils.data_editer import get_data, get_classes, get_predictions
+from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
+from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
+from .models.models import *
 
-from utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
-from models import *
-
-##todo: need to remove below import (imported only for testing)
-#from subset_selection import *
 
 class JL:
 	'''
@@ -81,7 +75,6 @@ class JL:
 		self.y_valid = (self.y_valid).flatten()
 		self.y_test = (self.y_test).flatten()
 
-		self.n_features = self.x_sup.shape[1]
 		self.k = torch.tensor(data_L[8]).long() # LF's classes
 		self.n_lfs = self.l_sup.shape[1]
 		self.continuous_mask = torch.tensor(data_L[7]).double() # Mask for s/continuous_mask
@@ -107,9 +100,7 @@ class JL:
 		#	l: [num_instances, num_rules], 1 if LF is triggered, 0 else
 		#	s: [num_instances, num_rules], continuous score
 		#]
-		assert self.x_sup.shape[1] == self.n_features and self.x_unsup.shape[1] == self.n_features \
-		 and self.x_valid.shape[1] == self.n_features and self.x_test.shape[1] == self.n_features
-
+		
 		assert self.x_sup.shape[0] == self.y_sup.shape[0] and self.x_sup.shape[0] == self.l_sup.shape[0]\
 		 and self.l_sup.shape == self.s_sup.shape and self.l_sup.shape[1] == self.n_lfs
 		assert self.x_unsup.shape[0] == self.y_unsup.shape[0] and self.x_unsup.shape[0] == self.l_unsup.shape[0]\
@@ -149,19 +140,19 @@ class JL:
 		self.pi_optimal, self.theta_optimal = None, None
 		self.fm_optimal_params = None
 
-	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_feature, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro'):
 		'''
 		Args:
 			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
-			batch_size: Batch size, type should be integer
-			lr_feature: Learning rate for feature model, type is integer or float
-			lr_gm: Learning rate for graphical model(cage), type is integer or float
+			batch_size: Batch size used in each epoch during training, type should be integer
+			lr_fm: Learning rate for feature model, type is integer or float
+			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
 			path_log: Path to log file
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
-			start_len: A parameter used in validation refers to the least epoch after which validation checks need to be performed, type is integer, default is 5
+			start_len: A parameter used in validation refers to the least epoch after which validation checks need to be performed, type is integer, default is 7
 			stop_len: A parameter used in validation refers to the least number of continuous epochs of non incresing validation accuracy after which the training should be stopped, type is integer, default is 10
 			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
@@ -180,7 +171,7 @@ class JL:
 		assert type(return_gm) == np.bool
 		assert len(loss_func_mask) == 7
 		assert type(batch_size) == np.int or type(batch_size) == np.float
-		assert type(lr_feature) == np.int or type(lr_feature) == np.float
+		assert type(lr_fm) == np.int or type(lr_fm) == np.float
 		assert type(lr_gm) == np.int or type(lr_gm) == np.float
 		assert type(use_accuracy_score) == np.bool
 		assert type(n_epochs) == np.int or type(n_epochs) == np.float
@@ -198,7 +189,7 @@ class JL:
 
 		self.loss_func_mask = loss_func_mask
 		self.batch_size = int(batch_size)
-		self.lr_feature = lr_feature
+		self.lr_fm = lr_fm
 		self.lr_gm = lr_gm
 		self.n_epochs = int(n_epochs)
 		self.start_len = int(start_len)
@@ -253,7 +244,7 @@ class JL:
 
 		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
 
-		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = self.lr_feature)
+		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = self.lr_fm)
 		optimizer_gm = torch.optim.Adam([self.theta, self.pi], lr = self.lr_gm, weight_decay=0)
 		supervised_criterion = torch.nn.CrossEntropyLoss()
 
@@ -487,13 +478,13 @@ class JL:
 		else:
 			return (torch.nn.softmax(dim = 1)(self.feature_model(self.x_unsup)))
 
-	def fit_and_predict(self, loss_func_mask, batch_size, lr_feature, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	def fit_and_predict(self, loss_func_mask, batch_size, lr_fm, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro', need_strings = False):
 		'''
 		Args:
 			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
 			batch_size: Batch size, type should be integer
-			lr_feature: Learning rate for feature model, type is integer or float
+			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage), type is integer or float
 			path_log: Path to log file
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
@@ -515,11 +506,11 @@ class JL:
 		'''
 		assert type(need_strings) == np.bool
 		if return_gm:
-			proba_1, proba_2 = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_feature, lr_gm, path_log, return_gm, n_epochs, start_len,\
+			proba_1, proba_2 = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, path_log, return_gm, n_epochs, start_len,\
 	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
 			return get_predictions(proba_1, self.class_map, self.class_dict, need_strings), get_predictions(proba_2, self.class_map, self.class_dict, need_strings)
 		else:
-			proba = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_feature, lr_gm, path_log, return_gm, n_epochs, start_len,\
+			proba = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, path_log, return_gm, n_epochs, start_len,\
 	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
 			return get_predictions(proba, self.class_map, self.class_dict, need_strings)
 
@@ -561,7 +552,6 @@ class JL:
 
 		data = get_data(path_test, True, self.class_map)
 		x_test = data[0]
-		assert x_test.shape[1] == self.n_features
 
 		return (torch.nn.softmax(dim = 1)(self.feature_model(x_test)))
 

@@ -1,13 +1,13 @@
 import numpy as np
-import pickle, enum, json
-from typing import Any, Callable, List, Mapping, Optional
+import enum, json
+from typing import Optional
 
 from ..lf_set import LFSet
 from ..apply import LFApplier
 from ..analysis import LFAnalysis
-from ..lf import LabelingFunction
+from ..lf import ABSTAIN 
 from ..utils import dump_to_pickle
-from ..data_types import DataPoint, DataPoints
+from ..data_types import DataPoints
 
 
 class NoisyLabels:
@@ -104,7 +104,7 @@ class NoisyLabels:
             filename (str, optional): Name for pickle file. Defaults to None.
         """
         if filename is None:
-            filename = self.name+"_pickle"
+            filename = self.name+"_pickle.pkl"
         
         if (self._L is None or self._S is None):
             applier = LFApplier(lf_set = self._rules)
@@ -120,6 +120,7 @@ class NoisyLabels:
 
         m=(self._L!=ABSTAIN).astype(int)                                        # lf covers example or not 
         L=self._gold_labels                                                     # true labels
+        L = L.reshape(L.size,1)
         d=np.ones((num_inst, 1))                                                # belongs to labeled data or not
         r=self._R                                                               # exemplars
 
@@ -127,20 +128,8 @@ class NoisyLabels:
         n=np.array([lf._is_cont for lf in self._rules.get_lfs()], dtype=bool)   # lf continuous or not
         k=np.array([lf._label.value for lf in self._rules.get_lfs()])           # lf associated to which class
 
-        output = dict()
-        output["x"] = x
-        output["l"] = l
-        output["m"] = m
-        output["L"] = L
-        output["d"] = d
-        output["r"] = r
-        output["s"] = s
-        output["n"] = n
-        output["k"] = k
-        output["num_classes"] = self._num_classes
-        to_dump = [output]
-
-        dump_to_pickle(filename, to_dump)
+        output = [x,l,m,L,d,r,s,n,k,self._num_classes]
+        dump_to_pickle(filename, output)
 
 
 
