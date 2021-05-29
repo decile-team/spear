@@ -11,6 +11,7 @@ def sentences_to_elmo_sentence_embs(messages,batch_size=64):
   #message_lengths = [len(m.split()) for m in messages]
   module_url = "https://tfhub.dev/google/elmo/2"
   elmo = hub.Module(module_url,trainable=True)
+  print("module loaded")
   tf.logging.set_verbosity(tf.logging.ERROR)
   with tf.Session(config=sess_config) as session:
     session.run([tf.global_variables_initializer(), tf.tables_initializer()])
@@ -22,15 +23,18 @@ def sentences_to_elmo_sentence_embs(messages,batch_size=64):
       embeddings_batch = session.run(elmo(message_batch,signature="default",as_dict=True))["default"]
       #embeddings_batch = get_embeddings_list(embeddings_batch, length_batch, ELMO_EMBED_SIZE)
       message_embeddings.extend(embeddings_batch)
-  return message_embeddings
+  return np.array(message_embeddings)
 
-def load_data_to_numpy(file_name="../../data/SMS_SPAM/SMSSpamCollection"):
+
+def load_data_to_numpy(folder="../../data/SMS_SPAM/"):
     #SPAM = 1
     #HAM = 0
     #ABSTAIN = -1
     X = []
     Y = []
-    with open(file_name, 'r', encoding='latin1') as f:
+    raw = "SMSSpamCollection"
+    feat = "sms_embeddings.npy"
+    with open(folder+raw, 'r', encoding='latin1') as f:
         for line in f:
             yx = line.split("\t",1)
             if yx[0]=="spam":
@@ -40,10 +44,11 @@ def load_data_to_numpy(file_name="../../data/SMS_SPAM/SMSSpamCollection"):
             x = yx[1]
             X.append(x)
             Y.append(y)
-    
-    # X = np.array(X).reshape((len(X),1))
-    # Y = np.array(Y).reshape((len(Y),1))
-    X_feats=sentences_to_elmo_sentence_embs(X)
+    try:
+        X_feats = np.load(folder+feat)
+    else:
+        print("embeddings are absent in the input folder")
+        X_feats=sentences_to_elmo_sentence_embs(X)
     X = np.array(X)
     Y = np.array(Y)
     return X, X_feats, Y
