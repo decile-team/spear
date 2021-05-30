@@ -56,9 +56,14 @@ class JL:
 			temp_index+=1
 
 		self.x_unsup = torch.tensor(np.delete(data_U[0], excluding, axis=0)).double()
-		self.y_unsup = torch.tensor(np.delete(data_U[3], excluding, axis=0)).long()
+		# self.y_unsup = torch.tensor(np.delete(data_U[3], excluding, axis=0)).long()
+		self.y_unsup = torch.zeros((self.x_unsup).shape[0]).long()
 		self.l_unsup = torch.tensor(np.delete(data_U[2], excluding, axis=0)).long()
 		self.s_unsup = torch.tensor(np.delete(data_U[6], excluding, axis=0)).double()
+
+		self.x_unsup_original = torch.tensor(data_U[0]).double()
+		self.l_unsup_original = torch.tensor(data_U[2]).long()
+		self.s_unsup_original = torch.tensor(data_U[6]).double()
 
 		self.x_valid = torch.tensor(data_V[0]).double()
 		self.y_valid = data_V[3]
@@ -70,11 +75,12 @@ class JL:
 		self.l_test = torch.tensor(data_T[2]).long()
 		self.s_test = torch.tensor(data_T[6]).double()
 
-		self.y_unsup = (self.y_unsup).view(-1)
+		# self.y_unsup = (self.y_unsup).view(-1)
 		self.y_sup = (self.y_sup).view(-1)
 		self.y_valid = (self.y_valid).flatten()
 		self.y_test = (self.y_test).flatten()
 
+		self.n_features = self.x_sup.shape[1]
 		self.k = torch.tensor(data_L[8]).long() # LF's classes
 		self.n_lfs = self.l_sup.shape[1]
 		self.continuous_mask = torch.tensor(data_L[7]).double() # Mask for s/continuous_mask
@@ -100,7 +106,9 @@ class JL:
 		#	l: [num_instances, num_rules], 1 if LF is triggered, 0 else
 		#	s: [num_instances, num_rules], continuous score
 		#]
-		
+		assert self.x_sup.shape[1] == self.n_features and self.x_unsup.shape[1] == self.n_features \
+		 and self.x_valid.shape[1] == self.n_features and self.x_test.shape[1] == self.n_features
+
 		assert self.x_sup.shape[0] == self.y_sup.shape[0] and self.x_sup.shape[0] == self.l_sup.shape[0]\
 		 and self.l_sup.shape == self.s_sup.shape and self.l_sup.shape[1] == self.n_lfs
 		assert self.x_unsup.shape[0] == self.y_unsup.shape[0] and self.x_unsup.shape[0] == self.l_unsup.shape[0]\
@@ -110,7 +118,7 @@ class JL:
 		assert self.x_test.shape[0] == self.y_test.shape[0] and self.x_test.shape[0] == self.l_test.shape[0]\
 		 and self.l_test.shape == self.s_test.shape and self.l_test.shape[1] == self.n_lfs
 
-		# clip s
+		# clipping s
 		self.s_sup[self.s_sup > 0.999] = 0.999
 		self.s_sup[self.s_sup < 0.001] = 0.001
 		self.s_unsup[self.s_unsup > 0.999] = 0.999
@@ -145,7 +153,7 @@ class JL:
 		'''
 		Args:
 			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
-			batch_size: Batch size used in each epoch during training, type should be integer
+			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
@@ -165,7 +173,7 @@ class JL:
 		Return:
 			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances, num_classes), first one is through feature model, other one through graphical model.
 			Else; the return value is predicted labels of numpy array of shape (num_instances, num_classes) through feature model. For a given model i,j-th element is the probability of ith instance being the 
-			jth class(the jth value when sorted in ascending order of values in Enum) using that model
+			jth class(the jth value when sorted in ascending order of values in Enum) using that model. It is suggested to use the probailities of feature model
 		'''
 
 		assert type(return_gm) == np.bool
@@ -279,7 +287,7 @@ class JL:
 					loss_1=0
 
 				if(self.loss_func_mask[1]):
-					unsupervised_fm_probability = torch.nn.softmax(dim = 1)(self.feature_model(sample[0][unsupervised_indices]))
+					unsupervised_fm_probability = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0][unsupervised_indices]))
 					loss_2 = entropy(unsupervised_fm_probability)
 				else:
 					loss_2=0
@@ -309,7 +317,7 @@ class JL:
 						probs_graphical = probability(self.theta, self.pi,sample[2][unsupervised_indices],sample[3][unsupervised_indices],\
 							self.k, self.n_classes, self.continuous_mask, self.qc)
 					probs_graphical = (probs_graphical.t() / probs_graphical.sum(1)).t()
-					probs_fm = torch.nn.softmax(dim = 1)(self.feature_model(sample[0]))
+					probs_fm = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0]))
 					loss_6 = kl_divergence(probs_fm, probs_graphical)
 				else:
 					loss_6= 0
@@ -342,7 +350,7 @@ class JL:
 				gm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
 
 			#fm test
-			probs = torch.nn.softmax(dim = 1)(self.feature_model(self.x_test))
+			probs = torch.nn.Softmax(dim = 1)(self.feature_model(self.x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
 				fm_test_acc = accuracy_score(self.y_test, y_pred)
@@ -352,7 +360,7 @@ class JL:
 			fm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
 
 			#fm validation
-			probs = torch.nn.softmax(dim = 1)(self.feature_model(self.x_valid))
+			probs = torch.nn.Softmax(dim = 1)(self.feature_model(self.x_valid))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
 			if self.use_accuracy_score:
 				fm_valid_acc = accuracy_score(self.y_valid, y_pred)
@@ -451,13 +459,13 @@ class JL:
 		else:
 			print('best_epoch: {}'.format(best_epoch))
 		
-		print('best_gm_val_score:{}\tbest_fm_val_score:{}\n'.format(\
+		print('best_gm_val_score:{}\tbest_fm_val_score:{}'.format(\
 			best_score_gm_val, best_score_fm_val))
-		print('best_gm_test_score:{}\tbest_fm_test_score:{}\n'.format(\
+		print('best_gm_test_score:{}\tbest_fm_test_score:{}'.format(\
 			best_score_gm_test, best_score_fm_test))
-		print('best_gm_test_precision:{}\tbest_fm_test_precision:{}\n'.format(\
+		print('best_gm_test_precision:{}\tbest_fm_test_precision:{}'.format(\
 			best_prec_gm_test, best_prec_fm_test))
-		print('best_gm_test_recall:{}\tbest_fm_test_recall:{}\n'.format(\
+		print('best_gm_test_recall:{}\tbest_fm_test_recall:{}'.format(\
 			best_recall_gm_test, best_recall_fm_test))
 			
 
@@ -473,23 +481,24 @@ class JL:
 		(self.feature_model).eval()
 
 		if return_gm:
-			return (torch.nn.softmax(dim = 1)(self.feature_model(self.x_unsup))), \
-				probability(self.theta_optimal, self.pi_optimal, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)
+			return (torch.nn.Softmax(dim = 1)(self.feature_model(self.x_unsup))).detach().numpy(), \
+				(probability(self.theta_optimal, self.pi_optimal, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)).detach().numpy()
 		else:
-			return (torch.nn.softmax(dim = 1)(self.feature_model(self.x_unsup)))
+			return (torch.nn.Softmax(dim = 1)(self.feature_model(self.x_unsup))).detach().numpy()
 
-	def fit_and_predict(self, loss_func_mask, batch_size, lr_fm, lr_gm, path_log = None, return_gm = False, n_epochs = 100, start_len = 5,\
+	def fit_and_predict(self, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro', need_strings = False):
 		'''
 		Args:
 			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
-			lr_gm: Learning rate for graphical model(cage), type is integer or float
+			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
+			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
 			path_log: Path to log file
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
-			start_len: A parameter used in validation, type is integer, default is 5
+			start_len: A parameter used in validation, type is integer, default is 7
 			stop_len: A parameter used in validation, type is integer, default is 10
 			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
@@ -502,15 +511,15 @@ class JL:
 
 		Return:
 			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances, ), first one is through feature model, other one through graphical model.
-			Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model. 
+			Else; the return value is predicted labels of numpy array of shape (num_instances,) through feature model. It is suggested to use the probailities of feature model
 		'''
 		assert type(need_strings) == np.bool
 		if return_gm:
-			proba_1, proba_2 = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, path_log, return_gm, n_epochs, start_len,\
+			proba_1, proba_2 = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log, return_gm, n_epochs, start_len,\
 	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
 			return get_predictions(proba_1, self.class_map, self.class_dict, need_strings), get_predictions(proba_2, self.class_map, self.class_dict, need_strings)
 		else:
-			proba = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, path_log, return_gm, n_epochs, start_len,\
+			proba = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log, return_gm, n_epochs, start_len,\
 	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
 			return get_predictions(proba, self.class_map, self.class_dict, need_strings)
 
@@ -524,7 +533,7 @@ class JL:
 		
 		Return:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
-			[Note: no aggregration/algorithm-running will be done using the current input]
+			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
 		assert self.is_training_done
 
@@ -535,7 +544,7 @@ class JL:
 		assert (data[2]).shape[1] == self.n_lfs
 		m_test = torch.abs(torch.tensor(data[2]).long())
 
-		return probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
+		return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)).detach().numpy()
 
 	def predict_fm_proba(self, path_test):
 		'''
@@ -546,14 +555,15 @@ class JL:
 		
 		Return:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
-			[Note: no aggregration/algorithm-running will be done using the current input]
+			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
 		assert self.is_training_done
 
 		data = get_data(path_test, True, self.class_map)
 		x_test = data[0]
+		assert x_test.shape[1] == self.n_features
 
-		return (torch.nn.softmax(dim = 1)(self.feature_model(x_test)))
+		return (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(x_test).double()))).detach().numpy()
 
 	def predict_gm(self, path_test, need_strings = False):
 		'''
@@ -565,7 +575,7 @@ class JL:
 		
 		Return:
 			numpy.ndarray of shape (num_instances,) which are predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
-			[Note: no aggregration/algorithm-running will be done using the current input]
+			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
 		assert type(need_strings) == np.bool
 		return get_predictions(self.predict_gm_proba(path_test), self.class_map, self.class_dict, need_strings)
@@ -580,7 +590,7 @@ class JL:
 
 		Return:
 			numpy.ndarray of shape (num_instances,) which are predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
-			[Note: no aggregration/algorithm-running will be done using the current input]
+			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
 		assert type(need_strings) == np.bool
 		return get_predictions(self.predict_fm_proba(path_test), self.class_map, self.class_dict, need_strings)

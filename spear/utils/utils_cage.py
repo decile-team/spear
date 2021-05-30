@@ -15,7 +15,7 @@ def phi(theta, l):
 		l: [n_lfs]
 	
 	Return:
-		[n_classes, n_lfs], element wise product of input tensors(each row of theta dot product with l)
+		a tensor of shape [n_classes, n_lfs], element wise product of input tensors(each row of theta dot product with l)
 	'''
 	return theta * torch.abs(l).double()
 
@@ -50,7 +50,7 @@ def probability_l_y(theta, m, k, n_classes):
 		n_classes: num of classes/labels
 	
 	Return:
-		[n_instances, n_classes], the psi_theta value for each instance, for each class(true label y)
+		a tensor of shape [n_instances, n_classes], the psi_theta value for each instance, for each class(true label y)
 	'''
 	probability = torch.zeros((m.shape[0], n_classes))
 	z = calculate_normalizer(theta, k, n_classes)
@@ -65,6 +65,7 @@ def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 		Graphical model utils: Used to find probability involving the term psi_pi(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all continuous LFs
 
 	Args:
+		pi: [n_lfs], the parameters for the class y
 		s: [n_instances, n_lfs], s[i][j] is the continuous score of ith instance given by jth continuous LF
 		y: a value in [0, n_classes-1], representing true label, for which psi_pi is calculated
 		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
@@ -73,7 +74,7 @@ def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
 	
 	Return:
-		[n_instances], the psi_pi value for each instance, for the given label(true label y)
+		a tensor of shape [n_instances], the psi_pi value for each instance, for the given label(true label y)
 	'''
 	eq = torch.eq(k.view(-1, 1), y).double().t()
 	r = qc * eq.squeeze() + (1 - qc) * (1 - eq.squeeze())
@@ -81,8 +82,8 @@ def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 	probability = 1
 	for i in range(k.shape[0]):
 		temp = Beta(r[i] * params[i], params[i] * (1 - r[i]))
-		probability *= torch.exp(temp.log_prob(s[:, i].double())) * m[:, i].double() * continuous_mask[i] \
-		+ (1 - m[:, i]).double() + (1 - continuous_mask[i])
+		probability *=  torch.exp(temp.log_prob(s[:, i].double())) * m[:, i].double() * continuous_mask[i] \
+				 + (1 - m[:, i]).double() + (1 - continuous_mask[i])
 	return probability
 
 
@@ -101,7 +102,7 @@ def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
 	
 	Return:
-		[n_instances, n_classes], the probability for an instance being a particular class
+		a tensor of shape [n_instances, n_classes], the probability for an instance being a particular class
 	'''
 	p_l_y = probability_l_y(theta, m, k, n_classes)
 	p_s = torch.ones(s.shape[0], n_classes).double()

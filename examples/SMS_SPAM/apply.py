@@ -84,7 +84,7 @@ sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_L.pkl')
 sms_noisy_labels = NoisyLabels(name="sms",
                                data=X_U,
                                rules=rules,
-                               data_feats=X_feats_L,
+                               data_feats=X_feats_U,
                                labels_enum=ClassLabels,
                                num_classes=2)
 # L,S = sms_noisy_labels.get_labels()

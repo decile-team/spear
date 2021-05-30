@@ -21,7 +21,7 @@ def is_dict_trivial(dict):
 
 def get_data(path, check_shapes = True, class_map = None):
 	'''
-		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k
+		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k and an int n_classes
 			x: (num_instances, num_features), x[i][j] is jth feature of ith instance. Note that the dimension fo this array can vary depending on the dimension of input
 			
 			l: (num_instances, num_lfs), l[i][j] is the prediction of jth LF(co-domain: the values used in Enum) on ith instance. l[i][j] = None imply Abstain
@@ -34,13 +34,15 @@ def get_data(path, check_shapes = True, class_map = None):
 			
 			r: (num_instances, num_lfs), r[i][j] is 1 if ith instance is an exemplar for jth rule. Else it's 0
 			
-			s: (num_instances, num_lfs), s[i][j] is the continuous score of ith instance given by jth continuous LF
+			s: (num_instances, num_lfs), s[i][j] is the continuous score of ith instance given by jth continuous LF. If jth LF is not continuous, then s[i][j] is None
 			
 			n: (num_lfs,), n[i] is 1 if ith LF has continuous counter part, else n[i] is 0
 			
 			k: (num_lfs,), k[i] is the class of ith LF, co-domain: the values used in Enum
 
 			n_classes: total number of classes
+
+			In case the numpy array is not available, it is stored as np.zeros(0)
 
 	Args: 
 		path: path to pickle file with data in the format above
@@ -87,6 +89,7 @@ def get_data(path, check_shapes = True, class_map = None):
 		if not (data[3].shape[0] == 0):
 			data[3][data[3] == None] = data[9]
 
+	data[6][data[6] == None] = 0 # s will have None values if LF is not continuous
 	for i in range(9):
 		if i == 0 or data[i].shape == 0:
 			continue
@@ -111,6 +114,7 @@ def get_classes(path):
 	json_object = None
 	with open(path, 'r') as f:
 		json_object = json.load(f)
+	json_object = {int(index): value for index, value in json_object.items()}
 	return json_object
 
 def get_predictions(proba, class_map, class_dict, need_strings):
@@ -127,7 +131,7 @@ def get_predictions(proba, class_map, class_dict, need_strings):
 		numpy.ndarray of shape (num_instances,), where elements are class_names/class_numbers depending on need_strings is True/False, where the elements
 		represent the class of each instance
 	'''
-	final_labels = np.argmax(proba.detach().numpy(), 1) # this is actually labels_with_altered_class_values
+	final_labels = np.argmax(proba, 1) # this is actually labels_with_altered_class_values
 	if not(is_dict_trivial(class_map)):
 		remap_dict = {value:index for index, value in (class_map).items()}
 		final_labels = np.vectorize(remap_dict.get)(final_labels)

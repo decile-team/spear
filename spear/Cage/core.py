@@ -40,11 +40,8 @@ class Cage:
 		self.n_lfs = self.m.shape[1]
 		self.n_instances = data[0].shape[0]
 
-		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
-		(self.pi).requires_grad = True
-
-		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
-		(self.theta).requires_grad = True
+		self.pi, self.theta = None, None
+		self.is_training_done = False
 
 	def fit_and_predict_proba(self, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
 		'''
@@ -78,6 +75,12 @@ class Cage:
 		self.n_epochs = int(n_epochs)
 		self.lr = lr
 
+		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
+		(self.pi).requires_grad = True
+
+		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+		(self.theta).requires_grad = True
+
 		optimizer = optim.Adam([self.theta, self.pi], lr=self.lr, weight_decay=0)
 
 		file = None
@@ -107,13 +110,13 @@ class Cage:
 			if path_test != None and path_log != None:
 				file.write("Epoch: {}\taccuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
 			if epoch == self.n_epochs-1:
-				print("final_accuracy_score: {}\n".format(accuracy_score(y_true_test, y_pred)))
+				print("final_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
 			if (path_test != None and path_log != None) or epoch == self.n_epochs-1:
 				for temp in self.metric_avg:
 					if path_test != None and path_log != None:
 						file.write("Epoch: {}\taverage_metric: {}\tf1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
 					if epoch == self.n_epochs-1:
-						print("average_metric: {}\tf1_score: {}\n".format(temp, f1_score(y_true_test, y_pred, average = temp)))
+						print("average_metric: {}\tf1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
 
 			loss.backward()
 			optimizer.step()
@@ -121,7 +124,9 @@ class Cage:
 		if path_test != None and path_log != None:
 			file.close()
 
-		return probability(self.theta, self.pi, self.m, self.s, self.k, self.n_classes, self.n, self.qc)
+		self.is_training_done = True
+
+		return (probability(self.theta, self.pi, self.m, self.s, self.k, self.n_classes, self.n, self.qc)).detach().numpy()
 
 	def fit_and_predict(self, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01, need_strings = False):
 		'''
@@ -174,6 +179,7 @@ class Cage:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
+		assert self.is_training_done
 		data = get_data(path_test, True, self.class_map)
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
@@ -181,7 +187,7 @@ class Cage:
 		assert (data[2]).shape[1] == self.n_lfs
 		m_test = torch.abs(torch.tensor(data[2]).long())
 
-		return probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, self.qc)
+		return (probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, self.qc)).detach().numpy()
 
 	def predict(self, path_test, need_strings = False):
 		'''
@@ -196,4 +202,4 @@ class Cage:
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		assert type(need_strings) == np.bool
-		return get_predictions(self.predict_proba(path_test, path_test), self.class_map, self.class_dict, need_strings)
+		return get_predictions(self.predict_proba(path_test), self.class_map, self.class_dict, need_strings)
