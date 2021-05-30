@@ -46,7 +46,7 @@ def load_data_to_numpy(folder="../../data/SMS_SPAM/"):
             Y.append(y)
     try:
         X_feats = np.load(folder+feat)
-    else:
+    except:
         print("embeddings are absent in the input folder")
         X_feats=sentences_to_elmo_sentence_embs(X)
     X = np.array(X)

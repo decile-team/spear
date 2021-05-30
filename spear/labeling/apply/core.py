@@ -100,8 +100,11 @@ def apply_lfs_to_data_point(
     labels = []
     for j, lf in enumerate(lfs):
         y, z = f_caller(lf, x)
-        if (y==ABSTAIN):
+        if (y==ABSTAIN and z is None):
             continue
+        if (y==ABSTAIN and z is not None):
+            labels.append((index, j, y, z))
+            continue    
         labels.append((index, j, y.value, z))
     return labels
 
