@@ -48,22 +48,20 @@ class JL:
 		self.l_sup = torch.tensor(data_L[2]).long()
 		self.s_sup = torch.tensor(data_L[6]).double()
 
-		excluding = []
+		self.excluding = []
+		self.including = []
 		temp_index = 0
 		for temp in data_U[1]:
 			if(np.all(temp == int(self.n_classes)) ):
-				excluding.append(temp_index)
+				self.excluding.append(temp_index)
+			else:
+				self.including.append(temp_index)
 			temp_index+=1
 
-		self.x_unsup = torch.tensor(np.delete(data_U[0], excluding, axis=0)).double()
-		# self.y_unsup = torch.tensor(np.delete(data_U[3], excluding, axis=0)).long()
+		self.x_unsup = torch.tensor(np.delete(data_U[0], self.excluding, axis=0)).double()
 		self.y_unsup = torch.zeros((self.x_unsup).shape[0]).long()
-		self.l_unsup = torch.tensor(np.delete(data_U[2], excluding, axis=0)).long()
-		self.s_unsup = torch.tensor(np.delete(data_U[6], excluding, axis=0)).double()
-
-		self.x_unsup_original = torch.tensor(data_U[0]).double()
-		self.l_unsup_original = torch.tensor(data_U[2]).long()
-		self.s_unsup_original = torch.tensor(data_U[6]).double()
+		self.l_unsup = torch.tensor(np.delete(data_U[2], self.excluding, axis=0)).long()
+		self.s_unsup = torch.tensor(np.delete(data_U[6], self.excluding, axis=0)).double()
 
 		self.x_valid = torch.tensor(data_V[0]).double()
 		self.y_valid = data_V[3]
@@ -75,7 +73,6 @@ class JL:
 		self.l_test = torch.tensor(data_T[2]).long()
 		self.s_test = torch.tensor(data_T[6]).double()
 
-		# self.y_unsup = (self.y_unsup).view(-1)
 		self.y_sup = (self.y_sup).view(-1)
 		self.y_valid = (self.y_valid).flatten()
 		self.y_test = (self.y_test).flatten()
@@ -133,14 +130,6 @@ class JL:
 		self.x_train = torch.cat([self.x_sup, self.x_unsup])
 		self.y_train = torch.cat([self.y_sup, self.y_unsup])
 		self.supervised_mask = torch.cat([torch.ones(self.l_sup.shape[0]), torch.zeros(self.l_unsup.shape[0])])
-
-		##adding subsetselection here for testing. todo: has to be removed.
-		#indices = rand_subset(self.x_train.shape[0], len(self.x_sup))
-		#indices = unsup_subset(self.x_train, len(self.x_sup))
-		#
-		#self.supervised_mask = torch.zeros(self.x_train.shape[0])
-		#self.supervised_mask[indices] = 1
-		##
 
 		self.pi, self.theta = None, None
 		self.is_training_done = False
@@ -473,9 +462,9 @@ class JL:
 
 		# below prints and writes to file, the final test accuracies
 		# print("final_gm_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
-		# if path_log != None:
+		if path_log != None:
 		# 	file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
-		# 	file.close()
+			file.close()
 
 		(self.feature_model).load_state_dict(self.fm_optimal_params)
 		(self.feature_model).eval()
