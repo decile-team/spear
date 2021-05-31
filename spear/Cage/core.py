@@ -1,5 +1,7 @@
 import torch
 from torch import optim
+import pickle
+from os import path as check_path
 import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
@@ -15,11 +17,12 @@ class Cage:
 
 	Args:
 		path_json: Path to json file consisting of number to string(class name) map
-		path_pkl: Path to pickle file of input data in standard format
+		n_lfs: number of labelling functions used to generate pickle files
 
 	'''
-	def __init__(self, path_json, path_pkl):
-		assert type(path_pkl) == str and type(path_json) == str
+	def __init__(self, path_json, n_lfs):
+		assert type(path_json) == str
+		assert type(n_lfs) == np.int or type(n_lfs) == np.float
 
 		self.class_dict = get_classes(path_json)
 		self.class_list = list((self.class_dict).keys())
@@ -28,35 +31,59 @@ class Cage:
 
 		self.class_map = {index : value for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
-		data = get_data(path_pkl, True, self.class_map)
 
-		self.m = torch.abs(torch.tensor(data[2]).long())
-		self.s = torch.tensor(data[6]).double() # continuous score
-		self.n = torch.tensor(data[7]).double() # Mask for s/continuous_mask
-		self.k = torch.tensor(data[8]).long() # LF's classes
-		self.s[self.s > 0.999] = 0.999 # clip s
-		self.s[self.s < 0.001] = 0.001 # clip s
+		self.n_lfs = int(n_lfs)
+		self.n, self.k = None, None #continuous_mask, labels of LFs
 
-		self.n_lfs = self.m.shape[1]
-		self.n_instances = data[0].shape[0]
+		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
+		(self.pi).requires_grad = True
 
-		self.pi, self.theta = None, None
-		self.is_training_done = False
+		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+		(self.theta).requires_grad = True
 
-	def fit_and_predict_proba(self, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
+	def save_params(self, save_path):
+		'''
+			member function to save parameters of Cage
+
+		Args:
+			save_path: path to pickle file to save parameters
+		'''
+		file_ = open(save_path, 'wb')
+		pickle.dump(self.theta, file_)
+		pickle.dump(self.pi, file_)
+		file_.close()
+		return
+
+	def load_params(self, load_path):
+		'''
+			member function to load parameters to Cage
+
+		Args:
+			load_path: path to pickle file to load parameters
+		'''
+		check_path.exists(load_path)
+		file_ = open(load_path, 'rb')
+		self.theta = pickle.load(file_)
+		self.pi = pickle.load(file_)
+		file_.close()
+		return
+
+	def fit_and_predict_proba(self, path_pkl, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
 		'''
 		Args:
+			path_pkl: Path to pickle file of input data in standard format
 			path_test: Path to the pickle file containing test data in standard format
 			path_log: Path to log file, default value is None. No log is producede if path_test is None
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']
+			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']. Use None for not calculating f1_score
 			n_epochs:Number of epochs, default is 100
 			lr: Learning rate for torch.optim, default is 0.01
 
 		Return:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 		'''
+		assert  type(path_pkl) == str
 		assert (type(qt) == np.float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
 		 or (type(qt) == np.int and (qt == 0 or qt == 1))
 
@@ -68,20 +95,29 @@ class Cage:
 		assert type(n_epochs) == np.int or type(n_epochs) == np.float
 		assert type(lr) == np.int or type(lr) == np.float
 
+		data = get_data(path_pkl, True, self.class_map)
+		m = torch.abs(torch.tensor(data[2]).long())
+		s = torch.tensor(data[6]).double() # continuous score
+		if self.n == None:	
+			self.n = torch.tensor(data[7]).double() # Mask for s/continuous_mask
+		else:
+			assert torch.all(torch.tensor(data[7]).double().eq(self.n))
+		if self.k == None:
+			self.k = torch.tensor(data[8]).long() # LF's classes
+		else:
+			assert torch.all(torch.tensor(data[8]).long().eq(self.k))
+		s[s > 0.999] = 0.999 # clip s
+		s[s < 0.001] = 0.001 # clip s
 
-		self.qt = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
-		self.qc = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
-		self.metric_avg = list(set(metric_avg))
-		self.n_epochs = int(n_epochs)
-		self.lr = lr
+		assert self.n_lfs == m.shape[1]
+		assert self.n_classes == data[9]
 
-		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
-		(self.pi).requires_grad = True
-
-		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
-		(self.theta).requires_grad = True
-
-		optimizer = optim.Adam([self.theta, self.pi], lr=self.lr, weight_decay=0)
+		qt_ = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
+		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+		metric_avg_ = list(set(metric_avg))
+		n_epochs_ = int(n_epochs)
+		
+		optimizer = optim.Adam([self.theta, self.pi], lr=lr, weight_decay=0)
 
 		file = None
 		if path_test != None and path_log != None:
@@ -94,28 +130,29 @@ class Cage:
 			data = get_data(path_test, True, self.class_map)
 			m_test, y_true_test, s_test = data[2], data[3], data[6]
 			y_true_test = y_true_test.flatten()
-			assert data[9] == self.n_classes
+			assert self.n_lfs == m_test.shape[1]
+			assert self.n_classes == data[9]
 			assert torch.all(torch.tensor(data[7]).double().eq(self.n))
 			assert torch.all(torch.tensor(data[8]).long().eq(self.k))
 
 		assert np.all(np.logical_and(y_true_test >= 0, y_true_test < self.n_classes))
 
-		for epoch in range(self.n_epochs):
+		for epoch in range(n_epochs_):
 			optimizer.zero_grad()
-			loss = log_likelihood_loss(self.theta, self.pi, self.m, self.s, self.k, self.n_classes, self.n, self.qc)
-			prec_loss = precision_loss(self.theta, self.k, self.n_classes, self.qt)
+			loss = log_likelihood_loss(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_)
+			prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_)
 			loss += prec_loss
 
-			y_pred = self.__predict_specific(m_test, s_test)
+			y_pred = self.__predict_specific(m_test, s_test, qc_)
 			if path_test != None and path_log != None:
 				file.write("Epoch: {}\taccuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
-			if epoch == self.n_epochs-1:
+			if epoch == n_epochs_-1:
 				print("final_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
-			if (path_test != None and path_log != None) or epoch == self.n_epochs-1:
-				for temp in self.metric_avg:
+			if (path_test != None and path_log != None) or epoch == n_epochs_-1:
+				for temp in metric_avg_:
 					if path_test != None and path_log != None:
 						file.write("Epoch: {}\taverage_metric: {}\tf1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
-					if epoch == self.n_epochs-1:
+					if epoch == n_epochs_-1:
 						print("average_metric: {}\tf1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
 
 			loss.backward()
@@ -124,13 +161,12 @@ class Cage:
 		if path_test != None and path_log != None:
 			file.close()
 
-		self.is_training_done = True
+		return (probability(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_)).detach().numpy()
 
-		return (probability(self.theta, self.pi, self.m, self.s, self.k, self.n_classes, self.n, self.qc)).detach().numpy()
-
-	def fit_and_predict(self, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01, need_strings = False):
+	def fit_and_predict(self, path_pkl, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01, need_strings = False):
 		'''
 		Args:
+			path_pkl: Path to pickle file of input data in standard format
 			path_test: Path to the pickle file containing test data in standard format
 			path_log: Path to log file, default value is None. No log is producede if path_test is None
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
@@ -144,16 +180,17 @@ class Cage:
 			numpy.ndarray of shape (num_instances,) which are aggregated/predicted labels. Elements are numbers/strings depending on need_strings attribute is false/true resp.
 		'''
 		assert type(need_strings) == np.bool
-		proba = self.fit_and_predict_proba(path_test, path_log, qt, qc, metric_avg, n_epochs, lr)
+		proba = self.fit_and_predict_proba(path_pkl, path_test, path_log, qt, qc, metric_avg, n_epochs, lr)
 		return get_predictions(proba, self.class_map, self.class_dict, need_strings)
 
-	def __predict_specific(self, m_test, s_test):
+	def __predict_specific(self, m_test, s_test, qc_):
 		'''
 			Used to predict labels based on s_test and m_test
 
 		Args:
 			m_test: numpy arrays of shape (num_instances, num_rules), m_test[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 			s_test: numpy arrays of shape (num_instances, num_rules), s_test[i][j] is the continuous score of jth LF on ith instance
+			qc_: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1
 		
 		Return:
 			numpy.ndarray of shape (num_instances,) which are predicted labels. Note that here the class labels appearing may not be the ones used in the Enum
@@ -166,35 +203,45 @@ class Cage:
 		assert m_test.shape[1] == self.n_lfs
 		assert np.all(np.logical_or(m_test == 1, m_test == 0))
 		m_temp = torch.abs(torch.tensor(m_test).long())
-		return predict_gm_labels(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, self.qc)
+		return predict_gm_labels(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, qc_)
 
-	def predict_proba(self, path_test):
+	def predict_proba(self, path_test, qc = 0.85):
 		'''
 			Used to predict labels based on a pickle file with path path_test
 
 		Args:
 			path_test: Path to the pickle file containing test data set in standard format
-		
+			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
+
 		Return:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
-		assert self.is_training_done
+		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == np.int and (qc == 0 or qc == 1))
 		data = get_data(path_test, True, self.class_map)
+		assert (data[2]).shape[1] == self.n_lfs
+		assert self.n == None or torch.all(torch.tensor(data[7]).double().eq(self.n))
+		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
-		assert (data[2]).shape[1] == self.n_lfs
-		m_test = torch.abs(torch.tensor(data[2]).long())
+		m_test = torch.abs(torch.tensor(data[2]).long())	
 
-		return (probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, self.qc)).detach().numpy()
+		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+		if self.n == None or self.k == None:
+			print("Warning: Predict is used before training any paramters in Cage calss")
+			return (probability(self.theta, self.pi, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
+		else:
+			return (probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, qc_)).detach().numpy()
 
-	def predict(self, path_test, need_strings = False):
+	def predict(self, path_test, qc = 0.85, need_strings = False):
 		'''
 			Used to predict labels based on a pickle file with path path_test
 			
 		Args:
 			path_test: Path to the pickle file containing test data set in standard format
+			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 
 		Return:
@@ -202,4 +249,4 @@ class Cage:
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
 		assert type(need_strings) == np.bool
-		return get_predictions(self.predict_proba(path_test), self.class_map, self.class_dict, need_strings)
+		return get_predictions(self.predict_proba(path_test, qc), self.class_map, self.class_dict, need_strings)

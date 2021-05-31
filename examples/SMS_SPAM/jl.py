@@ -17,37 +17,41 @@ batch_size = 100
 lr_fm = 0.0005
 lr_gm = 0.01
 use_accuracy_score = False
-return_gm = True
+n_lfs = 16
+n_features = 1024
 
-
-jl = JL(path_json, L_path_pkl, U_path_pkl, V_path_pkl, T_path_pkl)
+jl = JL(path_json, n_lfs, n_features)
 
 #-----------FIT n PREDICT---------
-#only of below 4 snippets for fit and predict should be uncommented
 
 #---------------use of fit_and_predict_proba------------------
-# probs_fm, probs_gm = jl.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm)
-# labels = np.argmax(probs_fm, 1)
-# print("probs_fm shape: ", probs_fm.shape)
-# print("probs_gm shape: ", probs_gm.shape)
+return_gm = True
+probs_fm, probs_gm = jl.fit_and_predict_proba(L_path_pkl, U_path_pkl, V_path_pkl, T_path_pkl, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm)
+labels = np.argmax(probs_fm, 1)
+print("probs_fm shape: ", probs_fm.shape)
+print("probs_gm shape: ", probs_gm.shape)
 
 #---------------use of fit_and_predict_proba------------------
-# return_gm = False
-# probs_fm = jl.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm)
-# labels = np.argmax(probs_fm, 1)
-# print("probs_fm shape: ", probs_fm.shape)
+return_gm = False
+probs_fm = jl.fit_and_predict_proba(L_path_pkl, U_path_pkl, V_path_pkl, T_path_pkl, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm)
+labels = np.argmax(probs_fm, 1)
+print("probs_fm shape: ", probs_fm.shape)
 
-# #---------------use of fit_and_predict------------------
-# probs_fm, probs_gm = jl.fit_and_predict(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm, need_strings = False)
-# print("probs_fm shape: ", probs_fm.shape)
-# print("probs_gm shape: ", probs_gm.shape)
+#---------------use of fit_and_predict------------------
+return_gm = True
+probs_fm, probs_gm = jl.fit_and_predict(L_path_pkl, U_path_pkl, V_path_pkl, T_path_pkl, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm, need_strings = False)
+print("probs_fm shape: ", probs_fm.shape)
+print("probs_gm shape: ", probs_gm.shape)
 
-# #---------------use of fit_and_predict------------------
-probs_fm, probs_gm = jl.fit_and_predict(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm, need_strings = True)
+#---------------use of fit_and_predict------------------
+return_gm = True
+probs_fm, probs_gm = jl.fit_and_predict(L_path_pkl, U_path_pkl, V_path_pkl, T_path_pkl, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, log_path_1, return_gm, need_strings = True)
 print("probs_fm shape: ", probs_fm.shape)
 print("probs_gm shape: ", probs_gm.shape)
 
 
+jl.save_params('params/sms_jl_params.pkl')
+jl.load_params('params/sms_jl_params.pkl')
 
 
 #-----------PREDICT---------

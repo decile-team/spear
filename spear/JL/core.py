@@ -1,6 +1,8 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
+import pickle
+from os import path as check_path
 from copy import deepcopy
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
@@ -12,6 +14,24 @@ from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss,
 from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from .models.models import *
 
+#[Note: 
+	#1. Loss function number, Calculated over, Loss function:
+	#		1, L, Cross Entropy(prob_from_feature_model, true_labels)
+	#		2, U, Entropy(prob_from_feature_model)
+	#		3, U, Cross Entropy(prob_from_feature_model, prob_from_graphical_model)
+	#		4, L, Negative Log Likelihood
+	#		5, U, Negative Log Likelihood(marginalised over true labels)
+	#		6, L and U, KL Divergence(prob_feature_model, prob_graphical_model)
+	#		7, Quality guide
+	#
+	#2. each pickle file should follow the standard convention for data storage]
+	#
+	#3. shapes of x,y,l,s:
+	#	x: [num_instances, num_features], feature matrix
+	#	y: [num_instances, 1], true labels, if available
+	#	l: [num_instances, num_rules], 1 if LF is triggered, 0 else
+	#	s: [num_instances, num_rules], continuous score
+#]
 
 class JL:
 	'''
@@ -20,15 +40,19 @@ class JL:
 	
 	Args:
 		path_json: Path to json file containing the dictionary of number to string(class name) map
-		path_L: Path to pickle file of labelled instances
-		path_U: Path to pickle file of unlabelled instances
-		path_V: Path to pickle file of validation instances
-		path_T: Path to pickle file of test instances
-	'''
-	def __init__(self, path_json, path_L, path_U, path_V, path_T):
+		n_lfs: number of labelling functions used to generate pickle files
+		n_features: number of features for each instance in the first array of pickle file aka feature matrix
+		n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
+		feature_model: The model intended to be used for features, allowed values are 'lr'(Logistic Regression) or 'nn'(Neural network with 2 hidden layer) string, default is 'nn'
 
-		assert type(path_json) == str and type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
+	'''
+	def __init__(self, path_json, n_lfs, n_features, n_hidden = 512, feature_model = 'nn'):
 		torch.set_default_dtype(torch.float64)
+		assert type(path_json) == str
+		assert type(n_lfs) == np.int or type(n_lfs) == np.float
+		assert type(n_features) == np.int or type(n_features) == np.float
+		assert type(n_hidden) == np.int or type(n_hidden) == np.float
+		assert feature_model == 'lr' or feature_model == 'nn'
 		
 		self.class_dict = get_classes(path_json)
 		self.class_list = list((self.class_dict).keys())
@@ -38,109 +62,65 @@ class JL:
 		self.class_map = {index : value for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
 
-		data_L = get_data(path_L, True, self.class_map)
-		data_U = get_data(path_U, True, self.class_map)
-		data_V = get_data(path_V, True, self.class_map)
-		data_T = get_data(path_T, True, self.class_map)
+		self.n_lfs = int(n_lfs)
+		self.n_hidden = int(n_hidden)
+		self.feature_based_model = feature_model
+		self.n_features = n_features
+		self.k, self.continuous_mask = None, None
 
-		self.x_sup = torch.tensor(data_L[0]).double()
-		self.y_sup = torch.tensor(data_L[3]).long()
-		self.l_sup = torch.tensor(data_L[2]).long()
-		self.s_sup = torch.tensor(data_L[6]).double()
+		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
+		(self.pi).requires_grad = True
+		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+		(self.theta).requires_grad = True
 
-		self.excluding = []
-		self.including = []
-		temp_index = 0
-		for temp in data_U[1]:
-			if(np.all(temp == int(self.n_classes)) ):
-				self.excluding.append(temp_index)
-			else:
-				self.including.append(temp_index)
-			temp_index+=1
+		if self.feature_based_model == 'lr':
+			self.feature_model = LogisticRegression(self.n_features, self.n_classes)
+			self.feature_model_optimal = LogisticRegression(self.n_features, self.n_classes)
+		elif self.feature_based_model =='nn':
+			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes)
+			self.feature_model_optimal = DeepNet(self.n_features, self.n_hidden, self.n_classes)
 
-		self.x_unsup = torch.tensor(np.delete(data_U[0], self.excluding, axis=0)).double()
-		self.y_unsup = torch.zeros((self.x_unsup).shape[0]).long()
-		self.l_unsup = torch.tensor(np.delete(data_U[2], self.excluding, axis=0)).long()
-		self.s_unsup = torch.tensor(np.delete(data_U[6], self.excluding, axis=0)).double()
+		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
+		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
 
-		self.x_valid = torch.tensor(data_V[0]).double()
-		self.y_valid = data_V[3]
-		self.l_valid = torch.tensor(data_V[2]).long()
-		self.s_valid = torch.tensor(data_V[6]).double()
+	def save_params(self, save_path):
+		'''
+			member function to save parameters of JL
 
-		self.x_test = torch.tensor(data_T[0]).double()
-		self.y_test = data_T[3]
-		self.l_test = torch.tensor(data_T[2]).long()
-		self.s_test = torch.tensor(data_T[6]).double()
+		Args:
+			save_path: path to pickle file to save parameters
+		'''
+		file_ = open(save_path, 'wb')
+		pickle.dump(self.theta, file_)
+		pickle.dump(self.pi, file_)
+		pickle.dump((self.feature_model).state_dict(), file_)
+		file_.close()
+		return
 
-		self.y_sup = (self.y_sup).view(-1)
-		self.y_valid = (self.y_valid).flatten()
-		self.y_test = (self.y_test).flatten()
+	def load_params(self, load_path):
+		'''
+			member function to load parameters to JL
 
-		self.n_features = self.x_sup.shape[1]
-		self.k = torch.tensor(data_L[8]).long() # LF's classes
-		self.n_lfs = self.l_sup.shape[1]
-		self.continuous_mask = torch.tensor(data_L[7]).double() # Mask for s/continuous_mask
+		Args:
+			load_path: path to pickle file to load parameters
+		'''
+		check_path.exists(load_path)
+		file_ = open(load_path, 'rb')
+		self.theta = pickle.load(file_)
+		self.pi = pickle.load(file_)
+		fm_params = pickle.load(file_)
+		(self.feature_model).load_state_dict(fm_params)
+		file_.close()
+		return
 
-		assert np.all(data_L[8] == data_U[8]) and np.all(data_L[8] == data_V[8]) and np.all(data_L[8] == data_T[8])
-		assert np.all(data_L[7] == data_U[7]) and np.all(data_L[7] == data_V[7]) and np.all(data_L[7] == data_T[7])
-
-		#[Note: 
-		#1. Loss function number, Calculated over, Loss function:
-		#		1, L, Cross Entropy(prob_from_feature_model, true_labels)
-		#		2, U, Entropy(prob_from_feature_model)
-		#		3, U, Cross Entropy(prob_from_feature_model, prob_from_graphical_model)
-		#		4, L, Negative Log Likelihood
-		#		5, U, Negative Log Likelihood(marginalised over true labels)
-		#		6, L and U, KL Divergence(prob_feature_model, prob_graphical_model)
-		#		7, Quality guide
-		#
-		#2. each pickle file should follow the standard convention for data storage]
-		#
-		#3. shapes of x,y,l,s:
-		#	x: [num_instances, num_features], feature matrix
-		#	y: [num_instances, 1], true labels, if available
-		#	l: [num_instances, num_rules], 1 if LF is triggered, 0 else
-		#	s: [num_instances, num_rules], continuous score
-		#]
-		assert self.x_sup.shape[1] == self.n_features and self.x_unsup.shape[1] == self.n_features \
-		 and self.x_valid.shape[1] == self.n_features and self.x_test.shape[1] == self.n_features
-
-		assert self.x_sup.shape[0] == self.y_sup.shape[0] and self.x_sup.shape[0] == self.l_sup.shape[0]\
-		 and self.l_sup.shape == self.s_sup.shape and self.l_sup.shape[1] == self.n_lfs
-		assert self.x_unsup.shape[0] == self.y_unsup.shape[0] and self.x_unsup.shape[0] == self.l_unsup.shape[0]\
-		 and self.l_unsup.shape == self.s_unsup.shape and self.l_unsup.shape[1] == self.n_lfs
-		assert self.x_valid.shape[0] == self.y_valid.shape[0] and self.x_valid.shape[0] == self.l_valid.shape[0]\
-		 and self.l_valid.shape == self.s_valid.shape and self.l_valid.shape[1] == self.n_lfs
-		assert self.x_test.shape[0] == self.y_test.shape[0] and self.x_test.shape[0] == self.l_test.shape[0]\
-		 and self.l_test.shape == self.s_test.shape and self.l_test.shape[1] == self.n_lfs
-
-		# clipping s
-		self.s_sup[self.s_sup > 0.999] = 0.999
-		self.s_sup[self.s_sup < 0.001] = 0.001
-		self.s_unsup[self.s_unsup > 0.999] = 0.999
-		self.s_unsup[self.s_unsup < 0.001] = 0.001
-		self.s_valid[self.s_valid > 0.999] = 0.999
-		self.s_valid[self.s_valid < 0.001] = 0.001
-		self.s_test[self.s_test > 0.999] = 0.999
-		self.s_test[self.s_test < 0.001] = 0.001
-
-		self.l = torch.cat([self.l_sup, self.l_unsup])
-		self.s = torch.cat([self.s_sup, self.s_unsup])
-		self.x_train = torch.cat([self.x_sup, self.x_unsup])
-		self.y_train = torch.cat([self.y_sup, self.y_unsup])
-		self.supervised_mask = torch.cat([torch.ones(self.l_sup.shape[0]), torch.zeros(self.l_unsup.shape[0])])
-
-		self.pi, self.theta = None, None
-		self.is_training_done = False
-
-		self.pi_optimal, self.theta_optimal = None, None
-		self.fm_optimal_params = None
-
-	def fit_and_predict_proba(self, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
-	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro'):
+	def fit_and_predict_proba(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro'):
 		'''
 		Args:
+			path_L: Path to pickle file of labelled instances
+			path_U: Path to pickle file of unlabelled instances
+			path_V: Path to pickle file of validation instances
+			path_T: Path to pickle file of test instances
 			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
@@ -155,8 +135,6 @@ class JL:
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
-			feature_model: The model intended to be used for features, allowed values are 'lr'(Logistic Regression) or 'nn'(Neural network with 1 hidden layer) string, default is 'nn'
 			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
 
 		Return:
@@ -164,7 +142,7 @@ class JL:
 			Else; the return value is predicted labels of numpy array of shape (num_instances, num_classes) through feature model. For a given model i,j-th element is the probability of ith instance being the 
 			jth class(the jth value when sorted in ascending order of values in Enum) using that model. It is suggested to use the probailities of feature model
 		'''
-
+		assert type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
 		assert type(return_gm) == np.bool
 		assert len(loss_func_mask) == 7
 		assert type(batch_size) == np.int or type(batch_size) == np.float
@@ -179,84 +157,136 @@ class JL:
 		 or (type(qt) == np.int and (qt == 0 or qt == 1))
 		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
-		assert type(n_hidden) == np.int or type(n_hidden) == np.float
-		assert feature_model == 'lr' or feature_model == 'nn'
-		assert type(metric_avg) == str
+		assert metric_avg in ['micro', 'macro', 'samples','weighted', 'binary']
 
+		batch_size_ = int(batch_size)
+		n_epochs_ = int(n_epochs)
+		start_len_ = int(start_len)
+		stop_len_ = int(stop_len)
 
-		self.loss_func_mask = loss_func_mask
-		self.batch_size = int(batch_size)
-		self.lr_fm = lr_fm
-		self.lr_gm = lr_gm
-		self.n_epochs = int(n_epochs)
-		self.start_len = int(start_len)
-		self.stop_len = int(stop_len)
-		self.n_hidden = int(n_hidden)
-		self.feature_based_model = feature_model
-		self.metric_avg = metric_avg
+		score_used = "accuracy_score" if use_accuracy_score else "f1_score"
 
-		self.use_accuracy_score = use_accuracy_score
-		self.score_used = "accuracy_score" if self.use_accuracy_score else "f1_score"
+		assert start_len_ <= n_epochs_ and stop_len <= n_epochs_
 
-		assert self.start_len <= self.n_epochs and self.stop_len <= self.n_epochs
+		data_L = get_data(path_L, True, self.class_map)
+		data_U = get_data(path_U, True, self.class_map)
+		data_V = get_data(path_V, True, self.class_map)
+		data_T = get_data(path_T, True, self.class_map)
+
+		x_sup = torch.tensor(data_L[0]).double()
+		y_sup = torch.tensor(data_L[3]).long()
+		l_sup = torch.tensor(data_L[2]).long()
+		s_sup = torch.tensor(data_L[6]).double()
+
+		self.excluding = []
+		self.including = []
+		temp_index = 0
+		for temp in data_U[1]:
+			if(np.all(temp == int(self.n_classes)) ):
+				self.excluding.append(temp_index)
+			else:
+				self.including.append(temp_index)
+			temp_index+=1
+
+		x_unsup = torch.tensor(np.delete(data_U[0], self.excluding, axis=0)).double()
+		y_unsup = torch.zeros((x_unsup).shape[0]).long()
+		l_unsup = torch.tensor(np.delete(data_U[2], self.excluding, axis=0)).long()
+		s_unsup = torch.tensor(np.delete(data_U[6], self.excluding, axis=0)).double()
+
+		x_valid = torch.tensor(data_V[0]).double()
+		y_valid = data_V[3]
+		l_valid = torch.tensor(data_V[2]).long()
+		s_valid = torch.tensor(data_V[6]).double()
+
+		x_test = torch.tensor(data_T[0]).double()
+		y_test = data_T[3]
+		l_test = torch.tensor(data_T[2]).long()
+		s_test = torch.tensor(data_T[6]).double()
+
+		y_sup = (y_sup).view(-1)
+		y_valid = (y_valid).flatten()
+		y_test = (y_test).flatten()
+
+		assert self.n_features == x_sup.shape[1]
+		assert self.n_lfs == l_sup.shape[1]
+		if self. k == None:
+			self.k = torch.tensor(data_L[8]).long() # LF's classes
+		else:
+			assert torch.all(torch.tensor(data_L[8]).double().eq(self.k))
+		if self.continuous_mask == None:
+			self.continuous_mask = torch.tensor(data_L[7]).double() # Mask for s/continuous_mask
+		else:
+			assert torch.all(torch.tensor(data_L[7]).double().eq(self.continuous_mask))
+
+		assert np.all(data_L[8] == data_U[8]) and np.all(data_L[8] == data_V[8]) and np.all(data_L[8] == data_T[8])
+		assert np.all(data_L[7] == data_U[7]) and np.all(data_L[7] == data_V[7]) and np.all(data_L[7] == data_T[7])
+
+		assert x_sup.shape[1] == self.n_features and x_unsup.shape[1] == self.n_features \
+		 and x_valid.shape[1] == self.n_features and x_test.shape[1] == self.n_features
+		assert x_sup.shape[0] == y_sup.shape[0] and x_sup.shape[0] == l_sup.shape[0]\
+		 and l_sup.shape == s_sup.shape and l_sup.shape[1] == self.n_lfs
+		assert x_unsup.shape[0] == y_unsup.shape[0] and x_unsup.shape[0] == l_unsup.shape[0]\
+		 and l_unsup.shape == s_unsup.shape and l_unsup.shape[1] == self.n_lfs
+		assert x_valid.shape[0] == y_valid.shape[0] and x_valid.shape[0] == l_valid.shape[0]\
+		 and l_valid.shape == s_valid.shape and l_valid.shape[1] == self.n_lfs
+		assert x_test.shape[0] == y_test.shape[0] and x_test.shape[0] == l_test.shape[0]\
+		 and l_test.shape == s_test.shape and l_test.shape[1] == self.n_lfs
+
+		# clipping s
+		s_sup[s_sup > 0.999] = 0.999
+		s_sup[s_sup < 0.001] = 0.001
+		s_unsup[s_unsup > 0.999] = 0.999
+		s_unsup[s_unsup < 0.001] = 0.001
+		s_valid[s_valid > 0.999] = 0.999
+		s_valid[s_valid < 0.001] = 0.001
+		s_test[s_test > 0.999] = 0.999
+		s_test[s_test < 0.001] = 0.001
+
+		l = torch.cat([l_sup, l_unsup])
+		s = torch.cat([s_sup, s_unsup])
+		x_train = torch.cat([x_sup, x_unsup])
+		y_train = torch.cat([y_sup, y_unsup])
+		supervised_mask = torch.cat([torch.ones(l_sup.shape[0]), torch.zeros(l_unsup.shape[0])])
 
 		if is_qt:
-			self.qt = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
+			qt_ = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
 		else:
 			prec_lfs=[]
 			for i in range(self.n_lfs):
 				correct = 0
-				for j in range(len(self.y_valid)):
-					if self.y_valid[j] == self.l_valid[j][i]:
+				for j in range(len(y_valid)):
+					if y_valid[j] == l_valid[j][i]:
 						correct+=1
-				prec_lfs.append(correct/len(self.y_valid))
-			self.qt = torch.tensor(prec_lfs).double()
+				prec_lfs.append(correct/len(y_valid))
+			qt_ = torch.tensor(prec_lfs).double()
 
 		if is_qc:
-			self.qc = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+			qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 		else:
-			self.qc = torch.tensor(np.mean(self.s_valid, axis = 0))
-
-		if self.feature_based_model == 'lr':
-			self.feature_model = LogisticRegression(self.n_features, self.n_classes)
-		elif self.feature_based_model =='nn':
-			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes)
-
-		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
+			qc_ = torch.tensor(np.mean(s_valid, axis = 0))
 
 		file = None
 		if path_log != None:
 			file = open(path_log, "a+")
 			file.write("JL log:\n")
 
-		self.stopped_early = False
-
 		#Algo starting
-
-		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
-		(self.pi).requires_grad = True
-
-		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
-		(self.theta).requires_grad = True
-
-		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
-
-		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = self.lr_fm)
-		optimizer_gm = torch.optim.Adam([self.theta, self.pi], lr = self.lr_gm, weight_decay=0)
+		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = lr_fm)
+		optimizer_gm = torch.optim.Adam([self.theta, self.pi], lr = lr_gm, weight_decay=0)
 		supervised_criterion = torch.nn.CrossEntropyLoss()
 
-		dataset = TensorDataset(self.x_train, self.y_train, self.l, self.s, self.supervised_mask)
-		loader = DataLoader(dataset, batch_size = self.batch_size, shuffle = True, pin_memory = True)
+		dataset = TensorDataset(x_train, y_train, l, s, supervised_mask)
+		loader = DataLoader(dataset, batch_size = batch_size_, shuffle = True, pin_memory = True)
 
 		best_score_fm_test, best_score_gm_test, best_epoch, best_score_fm_val, best_score_gm_val = 0,0,0,0,0
 		best_prec_fm_test, best_recall_fm_test, best_prec_gm_test, best_recall_gm_test= 0,0,0,0
 
 		gm_test_acc, fm_test_acc = -1, -1
 
-		self.stopped_early = False
+		stopped_early = False
 		stop_early_fm, stop_early_gm = [], []
 
-		for epoch in range(self.n_epochs):
+		for epoch in range(n_epochs_):
 			
 			self.feature_model.train()
 
@@ -267,54 +297,54 @@ class JL:
 				supervised_indices = sample[4].nonzero().view(-1)
 				unsupervised_indices = (1-sample[4]).nonzero().squeeze()
 
-				if(self.loss_func_mask[0]):
+				if(loss_func_mask[0]):
 					if len(supervised_indices) > 0:
 						loss_1 = supervised_criterion(self.feature_model(sample[0][supervised_indices]), sample[1][supervised_indices])
 					else:
 						loss_1 = 0
 				else:
-					loss_1=0
+					loss_1 = 0
 
-				if(self.loss_func_mask[1]):
+				if(loss_func_mask[1]):
 					unsupervised_fm_probability = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0][unsupervised_indices]))
 					loss_2 = entropy(unsupervised_fm_probability)
 				else:
-					loss_2=0
+					loss_2 = 0
 
-				if(self.loss_func_mask[2]):
-					y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, self.qc)
+				if(loss_func_mask[2]):
+					y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_)
 					loss_3 = supervised_criterion(self.feature_model(sample[0][unsupervised_indices]), torch.tensor(y_pred_unsupervised))
 				else:
 					loss_3 = 0
 
-				if (self.loss_func_mask[3] and len(supervised_indices) > 0):
-					loss_4 = log_likelihood_loss_supervised(self.theta, self.pi, sample[1][supervised_indices], sample[2][supervised_indices], sample[3][supervised_indices], self.k, self.n_classes, self.continuous_mask, self.qc)
+				if (loss_func_mask[3] and len(supervised_indices) > 0):
+					loss_4 = log_likelihood_loss_supervised(self.theta, self.pi, sample[1][supervised_indices], sample[2][supervised_indices], sample[3][supervised_indices], self.k, self.n_classes, self.continuous_mask, qc_)
 				else:
 					loss_4 = 0
 
-				if(self.loss_func_mask[4]):
-					loss_5 = log_likelihood_loss(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, self.qc)
+				if(loss_func_mask[4]):
+					loss_5 = log_likelihood_loss(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_)
 				else:
-					loss_5 =0
+					loss_5 = 0
 
-				if(self.loss_func_mask[5]):
+				if(loss_func_mask[5]):
 					if(len(supervised_indices) >0):
 						supervised_indices = supervised_indices.tolist()
 						probs_graphical = probability(self.theta, self.pi, torch.cat([sample[2][unsupervised_indices], sample[2][supervised_indices]]),\
-						torch.cat([sample[3][unsupervised_indices],sample[3][supervised_indices]]), self.k, self.n_classes, self.continuous_mask, self.qc)
+						torch.cat([sample[3][unsupervised_indices],sample[3][supervised_indices]]), self.k, self.n_classes, self.continuous_mask, qc_)
 					else:
 						probs_graphical = probability(self.theta, self.pi,sample[2][unsupervised_indices],sample[3][unsupervised_indices],\
-							self.k, self.n_classes, self.continuous_mask, self.qc)
+							self.k, self.n_classes, self.continuous_mask, qc_)
 					probs_graphical = (probs_graphical.t() / probs_graphical.sum(1)).t()
 					probs_fm = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0]))
 					loss_6 = kl_divergence(probs_fm, probs_graphical)
 				else:
-					loss_6= 0
+					loss_6 = 0
 
-				if(self.loss_func_mask[6]):
-					prec_loss = precision_loss(self.theta, self.k, self.n_classes, self.qt)
+				if(loss_func_mask[6]):
+					prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_)
 				else:
-					prec_loss =0
+					prec_loss = 0
 
 				loss = loss_1 + loss_2 + loss_3 + loss_4 + loss_5 + loss_6 + prec_loss
 				if loss != 0:
@@ -323,45 +353,45 @@ class JL:
 					optimizer_fm.step()
 
 			#gm test
-			y_pred = predict_gm_labels(self.theta, self.pi, self.l_test, self.s_test, self.k, self.n_classes, self.continuous_mask, self.qc)
-			if self.use_accuracy_score:
-				gm_test_acc = accuracy_score(self.y_test, y_pred)
+			y_pred = predict_gm_labels(self.theta, self.pi, l_test, s_test, self.k, self.n_classes, self.continuous_mask, qc_)
+			if use_accuracy_score:
+				gm_test_acc = accuracy_score(y_test, y_pred)
 			else:
-				gm_test_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			gm_test_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			gm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+				gm_test_acc = f1_score(y_test, y_pred, average = metric_avg)
+			gm_test_prec = prec_score(y_test, y_pred, average = metric_avg)
+			gm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
 
 			#gm validation
-			y_pred = predict_gm_labels(self.theta, self.pi, self.l_valid, self.s_valid, self.k, self.n_classes, self.continuous_mask, self.qc)
-			if self.use_accuracy_score:
-				gm_valid_acc = accuracy_score(self.y_valid, y_pred)
+			y_pred = predict_gm_labels(self.theta, self.pi, l_valid, s_valid, self.k, self.n_classes, self.continuous_mask, qc_)
+			if use_accuracy_score:
+				gm_valid_acc = accuracy_score(y_valid, y_pred)
 			else:
-				gm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
+				gm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
 
 			#fm test
-			probs = torch.nn.Softmax(dim = 1)(self.feature_model(self.x_test))
+			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
-			if self.use_accuracy_score:
-				fm_test_acc = accuracy_score(self.y_test, y_pred)
+			if use_accuracy_score:
+				fm_test_acc = accuracy_score(y_test, y_pred)
 			else:
-				fm_test_acc = f1_score(self.y_test, y_pred, average = self.metric_avg)
-			fm_test_prec = prec_score(self.y_test, y_pred, average = self.metric_avg)
-			fm_test_recall = recall_score(self.y_test, y_pred, average = self.metric_avg)
+				fm_test_acc = f1_score(y_test, y_pred, average = metric_avg)
+			fm_test_prec = prec_score(y_test, y_pred, average = metric_avg)
+			fm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
 
 			#fm validation
-			probs = torch.nn.Softmax(dim = 1)(self.feature_model(self.x_valid))
+			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_valid))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
-			if self.use_accuracy_score:
-				fm_valid_acc = accuracy_score(self.y_valid, y_pred)
+			if use_accuracy_score:
+				fm_valid_acc = accuracy_score(y_valid, y_pred)
 			else:
-				fm_valid_acc = f1_score(self.y_valid, y_pred, average = self.metric_avg)
+				fm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
 
 			if path_log != None:
-				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(self.score_used, epoch, gm_valid_acc, fm_valid_acc))
+				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
 				if epoch % 5 == 0:
-					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(self.score_used, epoch, gm_test_acc, fm_test_acc))
+					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(score_used, epoch, gm_test_acc, fm_test_acc))
 
-			if epoch > self.start_len and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
+			if epoch > start_len_ and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
 					if best_score_gm_test < gm_test_acc or best_score_fm_test < fm_test_acc:
 						best_epoch = epoch
@@ -396,7 +426,7 @@ class JL:
 					stop_early_fm = []
 					stop_early_gm = []
 
-			if epoch > self.start_len and fm_valid_acc >= best_score_fm_val and fm_valid_acc >= best_score_gm_val:
+			if epoch > start_len_ and fm_valid_acc >= best_score_fm_val and fm_valid_acc >= best_score_gm_val:
 				if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
 					if best_score_fm_test < fm_test_acc or best_score_gm_test < gm_test_acc:
 						best_epoch = epoch
@@ -431,9 +461,9 @@ class JL:
 					stop_early_fm = []
 					stop_early_gm = []
 
-			if len(stop_early_fm) > self.stop_len and len(stop_early_gm) > self.stop_len and (all(best_score_fm_val >= k for k in stop_early_fm) or \
+			if len(stop_early_fm) > stop_len_ and len(stop_early_gm) > stop_len_ and (all(best_score_fm_val >= k for k in stop_early_fm) or \
 			all(best_score_gm_val >= k for k in stop_early_gm)):
-				self.stopped_early = True
+				stopped_early = True
 				break
 			else:
 				stop_early_fm.append(fm_valid_acc)
@@ -441,9 +471,8 @@ class JL:
 
 		#epoch for loop ended
 
-		self.is_training_done = True
 
-		if self.stopped_early:
+		if stopped_early:
 			print('early stopping... best_epoch: {}'.format(best_epoch))
 		else:
 			print('best_epoch: {}'.format(best_epoch))
@@ -466,19 +495,23 @@ class JL:
 		# 	file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
 			file.close()
 
-		(self.feature_model).load_state_dict(self.fm_optimal_params)
-		(self.feature_model).eval()
+		(self.feature_model_optimal).load_state_dict(self.fm_optimal_params)
+		(self.feature_model_optimal).eval()
 
 		if return_gm:
-			return (torch.nn.Softmax(dim = 1)(self.feature_model(self.x_unsup))).detach().numpy(), \
-				(probability(self.theta_optimal, self.pi_optimal, self.l_unsup, self.s_unsup, self.k, self.n_classes, self.continuous_mask, self.qc)).detach().numpy()
+			return (torch.nn.Softmax(dim = 1)(self.feature_model_optimal(torch.tensor(data_U[0]).double()) )).detach().numpy(), \
+				(probability(self.theta_optimal, self.pi_optimal, torch.tensor(data_U[2]).long(), torch.tensor(data_U[6]).double(), self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
 		else:
-			return (torch.nn.Softmax(dim = 1)(self.feature_model(self.x_unsup))).detach().numpy()
+			return (torch.nn.Softmax(dim = 1)(self.feature_model_optimal(torch.tensor(data_U[0]).double()) )).detach().numpy()
 
-	def fit_and_predict(self, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
-	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, n_hidden = 512, feature_model = 'nn', metric_avg = 'macro', need_strings = False):
+	def fit_and_predict(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro', need_strings = False):
 		'''
 		Args:
+			path_L: Path to pickle file of labelled instances
+			path_U: Path to pickle file of unlabelled instances
+			path_V: Path to pickle file of validation instances
+			path_T: Path to pickle file of test instances
 			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
@@ -493,8 +526,6 @@ class JL:
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
-			feature_model: The model intended to be used for features, allowed values are 'lr'(Logistic Regression) or 'nn'(Neural network with 1 hidden layer) string, default is 'nn'
 			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 
@@ -504,36 +535,46 @@ class JL:
 		'''
 		assert type(need_strings) == np.bool
 		if return_gm:
-			proba_1, proba_2 = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log, return_gm, n_epochs, start_len,\
-	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
+			proba_1, proba_2 = self.fit_and_predict_proba(path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log, return_gm, n_epochs, start_len,\
+	 		stop_len, is_qt, is_qc, qt, qc, metric_avg)
 			return get_predictions(proba_1, self.class_map, self.class_dict, need_strings), get_predictions(proba_2, self.class_map, self.class_dict, need_strings)
 		else:
-			proba = self.fit_and_predict_proba(loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log, return_gm, n_epochs, start_len,\
-	 		stop_len, is_qt, is_qc, qt, qc, n_hidden, feature_model, metric_avg)
+			proba = self.fit_and_predict_proba(path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log, return_gm, n_epochs, start_len,\
+	 		stop_len, is_qt, is_qc, qt, qc, metric_avg)
 			return get_predictions(proba, self.class_map, self.class_dict, need_strings)
 
 	
-	def predict_gm_proba(self, path_test):
+	def predict_gm_proba(self, path_test, qc = 0.85):
 		'''
 			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)
 
 		Args:
 			path_test: Path to the pickle file containing test data set
+			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 		
 		Return:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
-		assert self.is_training_done
+		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == np.int and (qc == 0 or qc == 1))
 
 		data = get_data(path_test, True, self.class_map)
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
 		assert (data[2]).shape[1] == self.n_lfs
+		assert (data[0].shape)[1] == self.n_features
+		assert self.continuous_mask == None or torch.all(torch.tensor(data[7]).double().eq(self.continuous_mask))
+		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
 		m_test = torch.abs(torch.tensor(data[2]).long())
+		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 
-		return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, self.qc)).detach().numpy()
+		if self.continuous_mask == None or self.k == None:
+			print("Warning: Predict is used before training any paramters in JL calss")
+			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
+		else:
+			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
 
 	def predict_fm_proba(self, path_test):
 		'''
@@ -546,20 +587,22 @@ class JL:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
-		assert self.is_training_done
-
 		data = get_data(path_test, True, self.class_map)
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 
-		return (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(x_test).double()))).detach().numpy()
+		(self.feature_model_optimal).load_state_dict(self.fm_optimal_params)
+		(self.feature_model_optimal).eval()
 
-	def predict_gm(self, path_test, need_strings = False):
+		return (torch.nn.Softmax(dim = 1)(self.feature_model_optimal(torch.tensor(x_test).double()))).detach().numpy()
+
+	def predict_gm(self, path_test, qc = 0.85, need_strings = False):
 		'''
 			Used to find the predicted labels based on the trained parameters of graphical model(CAGE)
 
 		Args:
 			path_test: Path to the pickle file containing test data set
+			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 		
 		Return:
@@ -567,7 +610,7 @@ class JL:
 			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
 		assert type(need_strings) == np.bool
-		return get_predictions(self.predict_gm_proba(path_test), self.class_map, self.class_dict, need_strings)
+		return get_predictions(self.predict_gm_proba(path_test, qc), self.class_map, self.class_dict, need_strings)
 
 	def predict_fm(self, path_test, need_strings = False):
 		'''
