@@ -37,6 +37,22 @@ class JL:
 	'''
 	Joint_Learning class:
 		[Note: from here on, feature model(fm) and feature-based classification model are used interchangeably. graphical model(gm) and CAGE algorithm terms are used interchangeably]
+
+		Loss function number, Calculated over, Loss function: (useful for loss_func_mask in fin_and_predict_proba and fit_and_predict functions)
+
+			1, L, Cross Entropy(prob_from_feature_model, true_labels)
+
+			2, U, Entropy(prob_from_feature_model)
+
+			3, U, Cross Entropy(prob_from_feature_model, prob_from_graphical_model)
+
+			4, L, Negative Log Likelihood
+
+			5, U, Negative Log Likelihood(marginalised over true labels)
+
+			6, L and U, KL Divergence(prob_feature_model, prob_graphical_model)
+
+			7, Quality guide
 	
 	Args:
 		path_json: Path to json file containing the dictionary of number to string(class name) map
@@ -131,7 +147,7 @@ class JL:
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
-			path_log: Path to log file to append log
+			path_log: Path to log file to append log. Default is None which prints accuracies/f1_scores is printed to terminal
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
 			start_len: A parameter used in validation refers to the least epoch after which validation checks need to be performed, type is integer, default is 7
@@ -526,7 +542,7 @@ class JL:
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
-			path_log: Path to log file to append log
+			path_log: Path to log file to append log. Default is None which prints accuracies/f1_scores is printed to terminal
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
 			start_len: A parameter used in validation, type is integer, default is 7

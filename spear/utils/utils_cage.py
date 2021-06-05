@@ -8,7 +8,7 @@ from torch.distributions.beta import Beta
 
 def phi(theta, l):
 	'''
-		Graphical model utils: A helper function
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: A helper function
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -22,7 +22,7 @@ def phi(theta, l):
 
 def calculate_normalizer(theta, k, n_classes):
 	'''
-		Graphical model utils: Used to find Z(the normaliser) in CAGE. Eq(4) in :cite:p:`2020:CAGE`
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find Z(the normaliser) in CAGE. Eq(4) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -41,7 +41,7 @@ def calculate_normalizer(theta, k, n_classes):
 
 def probability_l_y(theta, m, k, n_classes):
 	'''
-		Graphical model utils: Used to find probability involving the term psi_theta(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all LFs
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find probability involving the term psi_theta(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all LFs
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -62,7 +62,7 @@ def probability_l_y(theta, m, k, n_classes):
 
 def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 	'''
-		Graphical model utils: Used to find probability involving the term psi_pi(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all continuous LFs
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find probability involving the term psi_pi(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all continuous LFs
 
 	Args:
 		pi: [n_lfs], the parameters for the class y
@@ -89,7 +89,7 @@ def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 
 def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		Graphical model utils: Used to find probability of given instances for all possible true labels(y's). Eq(1) in :cite:p:`2020:CAGE`
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find probability of given instances for all possible true labels(y's). Eq(1) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -113,7 +113,7 @@ def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 
 def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		Graphical model utils: Negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -134,7 +134,7 @@ def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 
 def precision_loss(theta, k, n_classes, a): 
 	'''
-		Graphical model utils: Negative of the regularizer term in Eq(9) in :cite:p:`2020:CAGE`
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Negative of the regularizer term in Eq(9) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -163,7 +163,7 @@ def precision_loss(theta, k, n_classes, a):
 
 def predict_gm_labels(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		Graphical model utils: Used to predict the labels after the training is done
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to predict the labels after the training is done
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters

@@ -42,7 +42,7 @@ LFAnalysis
 
 Noisy Labels
 ---------------
-.. automodule:: spear.labeling.noisy_labels.core
+.. automodule:: spear.labeling.prelabels.core
 	:members: NoisyLabels
 
 ----

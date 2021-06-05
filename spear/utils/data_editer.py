@@ -7,6 +7,15 @@ import numpy as np
 from os import path as check_path
 
 def is_dict_trivial(dict):
+	'''	
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)checks if the dictionary have key and value equal values for all keys except if its null
+
+	Args:
+		dict: the dictionary
+	
+	Return:
+		True if all keys(which are not None) are equal to respective values. False otherwise
+	'''
 	for key, value in dict.items():
 		if not(key == None):
 			try:
@@ -119,7 +128,7 @@ def get_classes(path):
 
 def get_predictions(proba, class_map, class_dict, need_strings):
 	'''
-		This function takes probaility of instances being a class and gives what class each instance belongs to, using the maximum of probabilities
+		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)This function takes probaility of instances being a class and gives what class each instance belongs to, using the maximum of probabilities
 
 	Args:
 		proba: probability numpy.ndarray of shape (num_instances, num_classes)
