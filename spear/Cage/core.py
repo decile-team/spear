@@ -123,6 +123,8 @@ class Cage:
 		if path_test != None and path_log != None:
 			file = open(path_log, "a+")
 			file.write("CAGE log:\n")
+		elif path_test != None:
+			print("CAGE log:")
 
 		y_true_test = None
 		s_test, m_test = None, None
@@ -145,15 +147,19 @@ class Cage:
 
 			y_pred = self.__predict_specific(m_test, s_test, qc_)
 			if path_test != None and path_log != None:
-				file.write("Epoch: {}\taccuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
+				file.write("Epoch: {}\ttest_accuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
+			elif path_test != None:
+				print("Epoch: {}\ttest_accuracy_score: {}".format(epoch, accuracy_score(y_true_test, y_pred)))
 			if epoch == n_epochs_-1:
-				print("final_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
+				print("final_test_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
 			if (path_test != None and path_log != None) or epoch == n_epochs_-1:
 				for temp in metric_avg_:
 					if path_test != None and path_log != None:
-						file.write("Epoch: {}\taverage_metric: {}\tf1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+						file.write("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+					elif path_test != None:
+						print("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
 					if epoch == n_epochs_-1:
-						print("average_metric: {}\tf1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
+						print("test_average_metric: {}\tfinal_test_f1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
 
 			loss.backward()
 			optimizer.step()
@@ -230,7 +236,7 @@ class Cage:
 
 		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 		if self.n == None or self.k == None:
-			print("Warning: Predict is used before training any paramters in Cage calss")
+			print("Warning: Predict is used before training any paramters in Cage class. Hope you have loaded parameters.")
 			return (probability(self.theta, self.pi, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
 		else:
 			return (probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, qc_)).detach().numpy()

@@ -131,7 +131,7 @@ class JL:
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
-			path_log: Path to log file
+			path_log: Path to log file to append log
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
 			start_len: A parameter used in validation refers to the least epoch after which validation checks need to be performed, type is integer, default is 7
@@ -271,6 +271,8 @@ class JL:
 		if path_log != None:
 			file = open(path_log, "a+")
 			file.write("JL log:\n")
+		else:
+			print("JL log:")
 
 		#Algo starting
 		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = lr_fm)
@@ -392,6 +394,10 @@ class JL:
 				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
 				if epoch % 5 == 0:
 					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(score_used, epoch, gm_test_acc, fm_test_acc))
+			else:
+				print("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
+				if epoch % 5 == 0:
+					print("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}".format(score_used, epoch, gm_test_acc, fm_test_acc))
 
 			if epoch > start_len_ and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
@@ -520,7 +526,7 @@ class JL:
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
-			path_log: Path to log file
+			path_log: Path to log file to append log
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
 			start_len: A parameter used in validation, type is integer, default is 7
@@ -574,7 +580,7 @@ class JL:
 		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 
 		if self.continuous_mask == None or self.k == None:
-			print("Warning: Predict is used before training any paramters in JL calss")
+			print("Warning: Predict is used before training any paramters in JL class. Hope you have loaded parameters.")
 			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
 		else:
 			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()

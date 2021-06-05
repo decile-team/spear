@@ -1,50 +1,24 @@
 import sys
 sys.path.append('../../')
 
-import re
 import numpy as np
 
 from spear.labeling import PreLabels
 
 
 from lfs import rules, ClassLabels
-from utils import load_data_to_numpy
+from utils import load_data_to_numpy, get_various_data
 
 X, X_feats, Y = load_data_to_numpy()
 
-test_size = 200
 validation_size = 100
+test_size = 200
 L_size = 100
-# U_size = X.size - L_size - validation_size - test_size
-U_size = 300
+U_size = X.size - L_size - validation_size - test_size
+# U_size = 300
 
-
-index = np.arange(X.size)
-index = np.random.permutation(index)
-X = X[index]
-Y = Y[index]
-X_feats = X_feats[index]
-
-X_V = X[-validation_size:]
-Y_V = Y[-validation_size:]
-X_feats_V = X_feats[-validation_size:]
-R_V = np.zeros((validation_size,len(rules.get_lfs())))
-
-X_T = X[-(validation_size+test_size):-validation_size]
-Y_T = Y[-(validation_size+test_size):-validation_size]
-X_feats_T = X_feats[-(validation_size+test_size):-validation_size]
-R_T = np.zeros((test_size,len(rules.get_lfs())))
-
-X_L = X[-(validation_size+test_size+L_size):-(validation_size+test_size)]
-Y_L = Y[-(validation_size+test_size+L_size):-(validation_size+test_size)]
-X_feats_L = X_feats[-(validation_size+test_size+L_size):-(validation_size+test_size)]
-R_L = np.zeros((L_size,len(rules.get_lfs())))
-
-# X_U = X[:-(validation_size+test_size+L_size)]
-X_U = X[:U_size]
-X_feats_U = X_feats[:U_size]
-# Y_U = Y[:-(validation_size+test_size+L_size)]
-R_U = np.zeros((U_size,len(rules.get_lfs())))
+X_V,Y_V,X_feats_V,R_V, X_T,Y_T,X_feats_T,R_T, X_L,Y_L,X_feats_L,R_L, X_U,X_feats_U,R_U = get_various_data(X,Y,\
+    X_feats, len(rules.get_lfs()),validation_size,test_size,L_size,U_size)
 
 
 sms_noisy_labels = PreLabels(name="sms",
