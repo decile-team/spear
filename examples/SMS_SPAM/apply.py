@@ -4,7 +4,7 @@ sys.path.append('../../')
 import re
 import numpy as np
 
-from spear.labeling import NoisyLabels
+from spear.labeling import PreLabels
 
 
 from lfs import rules, ClassLabels
@@ -15,8 +15,8 @@ X, X_feats, Y = load_data_to_numpy()
 test_size = 200
 validation_size = 100
 L_size = 100
-U_size = X.size - L_size - validation_size - test_size
-# U_size = 300
+# U_size = X.size - L_size - validation_size - test_size
+U_size = 300
 
 
 index = np.arange(X.size)
@@ -47,7 +47,7 @@ X_feats_U = X_feats[:U_size]
 R_U = np.zeros((U_size,len(rules.get_lfs())))
 
 
-sms_noisy_labels = NoisyLabels(name="sms",
+sms_noisy_labels = PreLabels(name="sms",
                                data=X_V,
                                gold_labels=Y_V,
                                data_feats=X_feats_V,
@@ -59,7 +59,7 @@ sms_noisy_labels = NoisyLabels(name="sms",
 sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_V.pkl')
 sms_noisy_labels.generate_json('data_pipeline/sms_json.json') #JSON
 
-sms_noisy_labels = NoisyLabels(name="sms",
+sms_noisy_labels = PreLabels(name="sms",
                                data=X_T,
                                gold_labels=Y_T,
                                data_feats=X_feats_T,
@@ -70,7 +70,7 @@ sms_noisy_labels = NoisyLabels(name="sms",
 # analyse = sms_noisy_labels.analyse_lfs(plot=True)
 sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_T.pkl')
 
-sms_noisy_labels = NoisyLabels(name="sms",
+sms_noisy_labels = PreLabels(name="sms",
                                data=X_L,
                                gold_labels=Y_L,
                                data_feats=X_feats_L,
@@ -81,7 +81,7 @@ sms_noisy_labels = NoisyLabels(name="sms",
 # analyse = sms_noisy_labels.analyse_lfs(plot=True)
 sms_noisy_labels.generate_pickle('data_pipeline/sms_pickle_L.pkl')
 
-sms_noisy_labels = NoisyLabels(name="sms",
+sms_noisy_labels = PreLabels(name="sms",
                                data=X_U,
                                rules=rules,
                                data_feats=X_feats_U,

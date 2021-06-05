@@ -10,7 +10,7 @@ from ..utils import dump_to_pickle
 from ..data_types import DataPoints
 
 
-class NoisyLabels:
+class PreLabels:
     """Generate noisy lables, continuous score  from lf's applied on data  
 
     Args:
@@ -31,7 +31,7 @@ class NoisyLabels:
         num_classes = -1,
         exemplars: DataPoints=np.array([]),
     ) -> None:       
-        """Instantiates NoisyLabels class with dataset and set of LFs to noisily label the dataset
+        """Instantiates PreLabels class with dataset and set of LFs to noisily label the dataset
         """
         self.name = name
         self._data = data
