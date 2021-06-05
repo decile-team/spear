@@ -75,10 +75,8 @@ class JL:
 
 		if self.feature_based_model == 'lr':
 			self.feature_model = LogisticRegression(self.n_features, self.n_classes)
-			self.feature_model_optimal = LogisticRegression(self.n_features, self.n_classes)
 		elif self.feature_based_model =='nn':
 			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes)
-			self.feature_model_optimal = DeepNet(self.n_features, self.n_hidden, self.n_classes)
 
 		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
@@ -94,6 +92,9 @@ class JL:
 		pickle.dump(self.theta, file_)
 		pickle.dump(self.pi, file_)
 		pickle.dump((self.feature_model).state_dict(), file_)
+		pickle.dump(self.theta_optimal, file_)
+		pickle.dump(self.pi_optimal, file_)
+		pickle.dump((self.fm_optimal_params), file_)
 		file_.close()
 		return
 
@@ -104,12 +105,16 @@ class JL:
 		Args:
 			load_path: path to pickle file to load parameters
 		'''
-		check_path.exists(load_path)
+		assert check_path.exists(load_path)
 		file_ = open(load_path, 'rb')
 		self.theta = pickle.load(file_)
 		self.pi = pickle.load(file_)
 		fm_params = pickle.load(file_)
 		(self.feature_model).load_state_dict(fm_params)
+
+		self.theta_optimal = pickle.load(file_)
+		self.pi_theta = pickle.load(file_)
+		self.fm_optimal_params = pickle.load(file_)
 		file_.close()
 		return
 
@@ -178,20 +183,17 @@ class JL:
 		l_sup = torch.tensor(data_L[2]).long()
 		s_sup = torch.tensor(data_L[6]).double()
 
-		self.excluding = []
-		self.including = []
+		excluding = []
 		temp_index = 0
 		for temp in data_U[1]:
 			if(np.all(temp == int(self.n_classes)) ):
-				self.excluding.append(temp_index)
-			else:
-				self.including.append(temp_index)
+				excluding.append(temp_index)
 			temp_index+=1
 
-		x_unsup = torch.tensor(np.delete(data_U[0], self.excluding, axis=0)).double()
+		x_unsup = torch.tensor(np.delete(data_U[0], excluding, axis=0)).double()
 		y_unsup = torch.zeros((x_unsup).shape[0]).long()
-		l_unsup = torch.tensor(np.delete(data_U[2], self.excluding, axis=0)).long()
-		s_unsup = torch.tensor(np.delete(data_U[6], self.excluding, axis=0)).double()
+		l_unsup = torch.tensor(np.delete(data_U[2], excluding, axis=0)).long()
+		s_unsup = torch.tensor(np.delete(data_U[6], excluding, axis=0)).double()
 
 		x_valid = torch.tensor(data_V[0]).double()
 		y_valid = data_V[3]
@@ -495,14 +497,15 @@ class JL:
 		# 	file.write("final_test_acc: {}\tfinal_fm_test_acc: {}\n".format(gm_test_acc, fm_test_acc))
 			file.close()
 
-		(self.feature_model_optimal).load_state_dict(self.fm_optimal_params)
-		(self.feature_model_optimal).eval()
+		(self.feature_model).load_state_dict(self.fm_optimal_params)
+		(self.feature_model).eval()
+		fm_predictions = (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(data_U[0]).double()) )).detach().numpy()
+		(self.feature_model).train()
 
 		if return_gm:
-			return (torch.nn.Softmax(dim = 1)(self.feature_model_optimal(torch.tensor(data_U[0]).double()) )).detach().numpy(), \
-				(probability(self.theta_optimal, self.pi_optimal, torch.tensor(data_U[2]).long(), torch.tensor(data_U[6]).double(), self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
+			return fm_predictions, (probability(self.theta_optimal, self.pi_optimal, torch.tensor(data_U[2]).long(), torch.tensor(data_U[6]).double(), self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
 		else:
-			return (torch.nn.Softmax(dim = 1)(self.feature_model_optimal(torch.tensor(data_U[0]).double()) )).detach().numpy()
+			return fm_predictions
 
 	def fit_and_predict(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
 	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro', need_strings = False):
@@ -591,10 +594,12 @@ class JL:
 		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 
-		(self.feature_model_optimal).load_state_dict(self.fm_optimal_params)
-		(self.feature_model_optimal).eval()
+		(self.feature_model).load_state_dict(self.fm_optimal_params)
+		(self.feature_model).eval()
+		fm_predictions = (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(x_test).double()))).detach().numpy()
+		(self.feature_model).train()
 
-		return (torch.nn.Softmax(dim = 1)(self.feature_model_optimal(torch.tensor(x_test).double()))).detach().numpy()
+		return fm_predictions
 
 	def predict_gm(self, path_test, qc = 0.85, need_strings = False):
 		'''

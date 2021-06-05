@@ -15,8 +15,8 @@ X, X_feats, Y = load_data_to_numpy()
 test_size = 200
 validation_size = 100
 L_size = 100
-# U_size = X.size - L_size - validation_size - test_size
-U_size = 300
+U_size = X.size - L_size - validation_size - test_size
+# U_size = 300
 
 
 index = np.arange(X.size)

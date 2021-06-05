@@ -87,7 +87,7 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 
 	return indices, data
 
-def insert_in_pkl(path, path_save, np_array, index):
+def replace_in_pkl(path, path_save, np_array, index):
 	'''
 		A function to insert the true labels, after labeling the instances, to the pickle file
 
@@ -104,17 +104,11 @@ def insert_in_pkl(path, path_save, np_array, index):
 	data = []
 	with open(path, 'rb') as file:
 		for i in range(9):
-			if i == 0:
-				data.append(pickle.load(file))
-			elif i == 6:
-				data.append(pickle.load(file).astype(np.float32))
-			else:
-				data.append(pickle.load(file).astype(np.int32))
-
+			data.append(pickle.load(file))
 			assert type(data[i]) == np.ndarray
 		data.append(pickle.load(file))
 
-	assert np_array.shape == data[index].shape
+	assert data[index].shape[0] == 0 or np_array.shape == data[index].shape
 
 	save_file = open(path_save, 'wb')
 	for i in range(10):
@@ -138,7 +132,7 @@ def insert_true_labels(path, path_save, labels):
 	Return:
 		No return value. A pickle file is generated at path_save
 	'''
-	insert_in_pkl(path, path_save, labels, 3)
+	replace_in_pkl(path, path_save, labels, 3)
 
 	return
 

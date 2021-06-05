@@ -61,7 +61,7 @@ class Cage:
 		Args:
 			load_path: path to pickle file to load parameters
 		'''
-		check_path.exists(load_path)
+		assert check_path.exists(load_path)
 		file_ = open(load_path, 'rb')
 		self.theta = pickle.load(file_)
 		self.pi = pickle.load(file_)
