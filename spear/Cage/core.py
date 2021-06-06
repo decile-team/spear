@@ -73,7 +73,7 @@ class Cage:
 		Args:
 			path_pkl: Path to pickle file of input data in standard format
 			path_test: Path to the pickle file containing test data in standard format
-			path_log: Path to log file, default value is None. No log is producede if path_test is None
+			path_log: Path to log file. No log is produced if path_test is None. Default is None which prints accuracies/f1_scores is printed to terminal
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']. Use None for not calculating f1_score
@@ -174,7 +174,7 @@ class Cage:
 		Args:
 			path_pkl: Path to pickle file of input data in standard format
 			path_test: Path to the pickle file containing test data in standard format
-			path_log: Path to log file, default value is None. No log is producede if path_test is None
+			path_log: Path to log file. No log is produced if path_test is None. Default is None which prints accuracies/f1_scores is printed to terminal
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']
