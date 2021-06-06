@@ -45,8 +45,8 @@ cage.load_params('params/sms_cage_params.pkl')
 #-----------PREDICT---------
 
 #---------------use of predict_proba------------------
-# probs_test = cage.predict_proba(T_path_pkl)
-# print("probs_test shape: ",probs_test.shape)
+probs_test = cage.predict_proba(T_path_pkl)
+print("probs_test shape: ",probs_test.shape)
 
 #---------------use of predict------------------
 labels_test = cage.predict(T_path_pkl, need_strings = False)

@@ -3,9 +3,9 @@ import numpy as np
 import torch
 from sklearn.metrics.pairwise import euclidean_distances
 import pickle
-from os import path
+from os import path as check_path
 
-from ..utils.data_editer import get_data, get_classes
+from ..utils.data_editor import get_data, get_classes
 from ..utils.utils_cage import  predict_gm_labels
 from ..utils.utils_jl import find_indices, get_similarity_kernel
 
@@ -23,24 +23,24 @@ def rand_subset(n_all, n_instances):
 	assert type(n_all) == np.int or type(n_all) == np.float
 	assert type(n_instances) == np.int or type(n_instances) == np.float
 	assert np.int(n_all) > np.int(n_instances)
-	return np.random.choice(int(n_all), int(n_instances), replace = False)
+	return np.sort(np.random.choice(int(n_all), int(n_instances), replace = False))
 
 def unsup_subset(x_train, n_unsup):
 	'''
 		A function for unsupervised subset selection(the subset to be labeled)
 	Args:
-		x_train: A torch.Tensor of shape [n_instances, n_features].All the data, intended to be used for training
+		x_train: A numpy.ndarray of shape (n_instances, n_features). All the data, intended to be used for training
 		n_unsup: number of instances to be found during unsupervised subset selection, type is integer
 	
 	Return:
 		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,x_train.shape[0])), the result of subset selection
 	'''
 	assert x_train.shape[0] > int(n_unsup)
-	assert type(x_train) == torch.Tensor
+	assert type(x_train) == np.ndarray
 	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
-	x_sub = fl.fit_transform(x_train)
-	indices = find_indices(x_train, x_sub)
-	return indices
+	x_sub = fl.fit_transform(torch.from_numpy(x_train))
+	indices = find_indices(torch.from_numpy(x_train), x_sub)
+	return np.sort(indices)
 
 def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	'''
@@ -67,12 +67,12 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	class_map[None] = n_classes
 
 	data = get_data(path_pkl, True, class_map)
-	m = data[2]
+	m = torch.abs(torch.tensor(data[2]).long())
+	s = torch.tensor(data[6]).double() # continuous score
 	assert m.shape[0] > int(n_sup)
-	s = data[6]
-	k = data[8]
+	k = torch.tensor(data[8]).long() # LF's classes
 	n_lfs = m.shape[1]
-	continuous_mask = data[7]
+	continuous_mask = torch.tensor(data[7]).double() # Mask for s/continuous_mask
 	qc_temp = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 	params_1 = torch.ones((n_classes, n_lfs)).double() # initialisation of gm parameters, refer section 3.4 in the JL paper
 	params_2 = torch.ones((n_classes, n_lfs)).double()
@@ -83,9 +83,9 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	sim_mat = kernel * similarity
 	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, metric = 'precomputed', n_samples = n_sup)
 	sim_sub = fl.fit_transform(sim_mat)
-	indices = find_indices(sim_mat, sim_sub)
+	indices = find_indices(torch.from_numpy(sim_mat), torch.from_numpy(sim_sub))
 
-	return indices, data
+	return np.sort(indices), data
 
 def replace_in_pkl(path, path_save, np_array, index):
 	'''
@@ -100,7 +100,7 @@ def replace_in_pkl(path, path_save, np_array, index):
 		No return value. A pickle file is generated at path_save
 	'''
 	assert type(index) == np.int and index >=0 and index < 9
-	assert path.exists(path) #path is imported from os above
+	assert check_path.exists(path) #path is imported from os above
 	data = []
 	with open(path, 'rb') as file:
 		for i in range(9):
@@ -113,9 +113,9 @@ def replace_in_pkl(path, path_save, np_array, index):
 	save_file = open(path_save, 'wb')
 	for i in range(10):
 		if i == index:
-			pickle.dump(data[i], save_file)
-		else:
 			pickle.dump(np_array, save_file)
+		else:
+			pickle.dump(data[i], save_file)
 	save_file.close()
 
 	return
@@ -127,12 +127,30 @@ def insert_true_labels(path, path_save, labels):
 	Args:
 		path: Path to the pickle file containing all the data in standard format
 		path_save: Path to save the pickle file after replacing the 'L'(true labels numpy array) of data in path pickle file
-		labels: The true labels of the data in pickle file
+		labels: The true labels of the data in pickle file. numpy.ndarray of shape (num_instances, 1)
 
 	Return:
 		No return value. A pickle file is generated at path_save
 	'''
-	replace_in_pkl(path, path_save, labels, 3)
+	assert check_path.exists(path) #path is imported from os above
+	data = []
+	with open(path, 'rb') as file:
+		for i in range(9):
+			data.append(pickle.load(file))
+			assert type(data[i]) == np.ndarray
+		data.append(pickle.load(file))
+
+	assert labels.shape[0] == data[0].shape[0] and labels.shape[1] == 1
+
+	save_file = open(path_save, 'wb')
+	for i in range(10):
+		if i == 3:
+			pickle.dump(labels, save_file)
+		elif i == 4:
+			pickle.dump(np.ones([labels.size ,1]), save_file)
+		else:
+			pickle.dump(data[i], save_file)
+	save_file.close()
 
 	return
 
@@ -177,14 +195,18 @@ def sup_subset_save_files(path_json, path_pkl, path_save_L, path_save_U, n_sup, 
 	save_file_U = open(path_save_U, 'wb')
 
 	for i in range(10):
-		if i < 9:
-			pickle.dump(data[i][indices], save_file_L)
-			pickle.dump(data[i][false_mask], save_file_U)
-		elif i == 9:
-			pickle.dump(data[9], save_file_L)
-			pickle.dump(data[9], save_file_U)
+		if i < 7:
+			if data[i].shape[0] == 0:
+				pickle.dump(data[i], save_file_L)
+				pickle.dump(data[i], save_file_U)
+			else:
+				pickle.dump(data[i][indices], save_file_L)
+				pickle.dump(data[i][false_mask], save_file_U)
+		elif i >= 7:
+			pickle.dump(data[i], save_file_L)
+			pickle.dump(data[i], save_file_U)
 
 	save_file_L.close()
 	save_file_U.close()
 
-	return
+	return indices

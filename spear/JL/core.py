@@ -9,7 +9,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
 
-from ..utils.data_editer import get_data, get_classes, get_predictions
+from ..utils.data_editor import get_data, get_classes, get_predictions
 from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
 from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from .models.models import *
@@ -38,7 +38,7 @@ class JL:
 	Joint_Learning class:
 		[Note: from here on, feature model(fm) and feature-based classification model are used interchangeably. graphical model(gm) and CAGE algorithm terms are used interchangeably]
 
-		Loss function number, Calculated over, Loss function: (useful for loss_func_mask in fin_and_predict_proba and fit_and_predict functions)
+		Loss function number, Calculated over, Loss function: (useful for loss_func_mask in fit_and_predict_proba and fit_and_predict functions)
 
 			1, L, Cross Entropy(prob_from_feature_model, true_labels)
 

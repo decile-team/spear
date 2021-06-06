@@ -57,7 +57,7 @@ def find_indices(data, data_sub):
 		(NOT AVAILABLE IN SPEAR LIBRARY)A helper function for subset selection
 
 	Args:
-		data: the complete data
+		data: the complete data, torch tensor of shape [num_instances, num_classes]
 		data_sub: the subset of 'data' whose indices are to be found. Should be of same shape as 'data'
 	
 	Return:

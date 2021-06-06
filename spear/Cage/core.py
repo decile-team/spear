@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
-from ..utils.data_editer import get_data, get_classes, get_predictions
+from ..utils.data_editor import get_data, get_classes, get_predictions
 from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
 
 class Cage:
