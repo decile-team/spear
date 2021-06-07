@@ -15,9 +15,9 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 master_doc = 'index'
-autodoc_mock_imports = ["torch", "sklearn", "spear.utils_jl", "spear.models", "tensorflow", "snorkel", 
-"spear.my_checkmate", "spear.my_checkpoints","spear.my_config", "spear.my_data_feeder_utils", "spear.my_data_types",  
-"spear.my_gen_cross_entropy_utils", "spear.my_pr_utils", "spear.my_test", "spear.my_train", "spear.my_utils"]
+autodoc_mock_imports = ["torch", "sklearn", "utils_jl", "models", "tensorflow", "snorkel", 
+"my_checkmate", "my_checkpoints","my_config", "my_data_feeder_utils", "my_data_types",  
+"my_gen_cross_entropy_utils", "my_pr_utils", "my_test", "my_train", "my_utils"]
 
 # -- Project information -----------------------------------------------------
 
