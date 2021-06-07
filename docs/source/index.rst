@@ -1,11 +1,11 @@
+
+Welcome to SPEAR's documentation!
+==================================
+SPEAR:: Semi-Supervised Data Programming
 .. SPEAR(DECILE) documentation master file, created by
    sphinx-quickstart on Sat Apr 17 15:41:01 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
-
-
-SPEAR(DECILE) documentation!
-========================================
 
 .. toctree::
    :maxdepth: 5
