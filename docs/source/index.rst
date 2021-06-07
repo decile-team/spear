@@ -6,7 +6,7 @@
 
 Welcome to SPEAR's documentation!
 ==================================
-SPEAR:: Semi-Supervised Data Programming
+SPEAR: Semi-Supervised Data Programming
 
 .. toctree::
    :maxdepth: 5
