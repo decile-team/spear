@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../spear'))
 
 master_doc = 'index'
 autodoc_mock_imports = ["torch", "sklearn", "utils_jl", "models", "tensorflow", "snorkel", 
