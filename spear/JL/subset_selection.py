@@ -185,7 +185,7 @@ def sup_subset_save_files(path_json, path_pkl, path_save_L, path_save_U, n_sup, 
 		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 
 	Return:
-		No return value. Instead two .pkl files are created.
+		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,num_instances)), the result of subset selection. Also two pickle files are saved at path_save_L and path_save_U
 	'''
 	indices, data = sup_subset(path_json, path_pkl, n_sup, qc)
 
