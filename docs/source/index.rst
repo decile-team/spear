@@ -4,8 +4,9 @@
    contain the root `toctree` directive.
 
 
-SPEAR(DECILE) documentation!
-========================================
+Welcome to SPEAR's documentation!
+==================================
+SPEAR: Semi-Supervised Data Programming
 
 .. toctree::
    :maxdepth: 5
