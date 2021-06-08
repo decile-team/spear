@@ -8,7 +8,7 @@ from torch.distributions.beta import Beta
 
 def phi(theta, l):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: A helper function
+		Graphical model utils: A helper function
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -22,7 +22,7 @@ def phi(theta, l):
 
 def calculate_normalizer(theta, k, n_classes):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find Z(the normaliser) in CAGE. Eq(4) in :cite:p:`2020:CAGE`
+		Graphical model utils: Used to find Z(the normaliser) in CAGE. Eq(4) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -41,7 +41,7 @@ def calculate_normalizer(theta, k, n_classes):
 
 def probability_l_y(theta, m, k, n_classes):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find probability involving the term psi_theta(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all LFs
+		Graphical model utils: Used to find probability involving the term psi_theta(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all LFs
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -62,7 +62,7 @@ def probability_l_y(theta, m, k, n_classes):
 
 def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find probability involving the term psi_pi(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all continuous LFs
+		Graphical model utils: Used to find probability involving the term psi_pi(in Eq(1) in :cite:p:`2020:CAGE`), the potential function for all continuous LFs
 
 	Args:
 		pi: [n_lfs], the parameters for the class y
@@ -89,7 +89,7 @@ def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 
 def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to find probability of given instances for all possible true labels(y's). Eq(1) in :cite:p:`2020:CAGE`
+		Graphical model utils: Used to find probability of given instances for all possible true labels(y's). Eq(1) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -113,7 +113,7 @@ def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 
 def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
+		Graphical model utils: Negative of log likelihood loss. Negative of Eq(6) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -126,7 +126,7 @@ def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
 	
 	Return:
-		a real value, summation over (the log of probability for an instance, marginalised over y(true labels))
+		a real value, negative of summation over (the log of probability for an instance, marginalised over y(true labels))
 	'''
 	eps = 1e-8
 	return - torch.log(probability(theta, pi, m, s, k, n_classes, continuous_mask, qc).sum(1) + eps).sum() / s.shape[0]
@@ -134,7 +134,7 @@ def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 
 def precision_loss(theta, k, n_classes, a): 
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Negative of the regularizer term in Eq(9) in :cite:p:`2020:CAGE`
+		Graphical model utils: Negative of the regularizer term in Eq(9) in :cite:p:`2020:CAGE`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -163,7 +163,7 @@ def precision_loss(theta, k, n_classes, a):
 
 def predict_gm_labels(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Graphical model utils: Used to predict the labels after the training is done
+		Graphical model utils: Used to predict the labels after the training is done
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters

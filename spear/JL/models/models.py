@@ -2,7 +2,7 @@ import torch.nn as nn
 
 class LogisticRegression(nn.Module):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Class for Logistic Regression, used in Joint learning class/Algorithm
+		Class for Logistic Regression, used in Joint learning class/Algorithm
 
 	Args:
 		input_size: number of features
@@ -21,7 +21,7 @@ class LogisticRegression(nn.Module):
 
 class DeepNet(nn.Module):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)Class for Deep neural network, used in Joint learning class/Algorithm
+		Class for Deep neural network, used in Joint learning class/Algorithm
 		
 	Args:
 		input_size: number of features

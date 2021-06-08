@@ -19,8 +19,8 @@ autodoc_mock_imports = ["torch", "sklearn", "utils_jl", "models", "tensorflow", 
 # -- Project information -----------------------------------------------------
 
 project = 'SPEAR(DECILE)'
-copyright = '2021, Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna'
-author = 'Ganesh_Sir, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna'
+copyright = '2021, Ganesh_Ramakrishnan, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna'
+author = 'Ganesh_Ramakrishnan, Ayush_Maheshwari, Guttu_Sai_Abhishek, Harshad_Ingole, Parth_Laturia, Vineeth_Dorna'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'

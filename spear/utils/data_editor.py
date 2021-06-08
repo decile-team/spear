@@ -8,7 +8,7 @@ from os import path as check_path
 
 def is_dict_trivial(dict):
 	'''	
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)checks if the dictionary have key and value equal values for all keys except if its null
+		checks if the dictionary have key and value equal values for all keys except if its null
 
 	Args:
 		dict: the dictionary
@@ -128,7 +128,7 @@ def get_classes(path):
 
 def get_predictions(proba, class_map, class_dict, need_strings):
 	'''
-		(NOT AVAILABLE AS PART OF SPEAR LIBRARY)This function takes probaility of instances being a class and gives what class each instance belongs to, using the maximum of probabilities
+		This function takes probaility of instances being a class and gives what class each instance belongs to, using the maximum of probabilities
 
 	Args:
 		proba: probability numpy.ndarray of shape (num_instances, num_classes)
