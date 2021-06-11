@@ -35,9 +35,9 @@ class LabelingFunction:
         self._pre = pre or []
         self._cont_scorer = cont_scorer
         if self._cont_scorer is None:
-            self._is_cont=False
+            self._is_cont=0
         else:
-            self._is_cont=True
+            self._is_cont=1
 
     def _preprocess_data_point(self, x: DataPoint) -> DataPoint:
         """Preprocesses input by applying each preprocessing function in succession
