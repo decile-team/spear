@@ -66,6 +66,9 @@ class Cage:
 		self.theta = pickle.load(file_)
 		self.pi = pickle.load(file_)
 		file_.close()
+
+		assert (self.pi).shape == (self.n_classes, self.n_lfs)
+		assert (self.theta).shape == (self.n_classes, self.n_lfs)
 		return
 
 	def fit_and_predict_proba(self, path_pkl, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
@@ -122,9 +125,9 @@ class Cage:
 		file = None
 		if path_test != None and path_log != None:
 			file = open(path_log, "a+")
-			file.write("CAGE log:\n")
+			file.write("CAGE log:\tn_classes: {}\tn_LFs: {}\tn_epochs: {}\tlr: {}\n".format(self.n_classes, self.n_lfs, n_epochs, lr))
 		elif path_test != None:
-			print("CAGE log:")
+			print("CAGE log:\tn_classes: {}\tn_LFs: {}\tn_epochs: {}\tlr: {}".format(self.n_classes, self.n_lfs, n_epochs, lr))
 
 		y_true_test = None
 		s_test, m_test = None, None
@@ -226,7 +229,7 @@ class Cage:
 		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
 		data = get_data(path_test, True, self.class_map)
-		assert (data[2]).shape[1] == self.n_lfs
+		assert (data[2]).shape[1] == self.n_lfs and data[9] == self.n_classes
 		assert self.n == None or torch.all(torch.tensor(data[7]).double().eq(self.n))
 		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
 		s_test = torch.tensor(data[6]).double()
