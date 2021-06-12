@@ -141,7 +141,7 @@ class JL:
 		return
 
 	def fit_and_predict_proba(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
-	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro'):
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'binary'):
 		'''
 		Args:
 			path_L: Path to pickle file of labelled instances
@@ -162,7 +162,7 @@ class JL:
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
+			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'binary'
 
 		Return:
 			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances, num_classes), first one is through feature model, other one through graphical model.
@@ -184,7 +184,7 @@ class JL:
 		 or (type(qt) == np.int and (qt == 0 or qt == 1))
 		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
-		assert metric_avg in ['micro', 'macro', 'samples','weighted', 'binary']
+		assert metric_avg in ['micro', 'macro', 'samples', 'weighted', 'binary']
 
 		batch_size_ = int(batch_size)
 		n_epochs_ = int(n_epochs)
@@ -549,7 +549,7 @@ class JL:
 			return fm_predictions
 
 	def fit_and_predict(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
-	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro', need_strings = False):
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'binary', need_strings = False):
 		'''
 		Args:
 			path_L: Path to pickle file of labelled instances
@@ -570,7 +570,7 @@ class JL:
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
+			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'binary'
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 
 		Return:
