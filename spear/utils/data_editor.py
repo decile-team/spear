@@ -8,7 +8,7 @@ from os import path as check_path
 
 def is_dict_trivial(dict):
 	'''	
-		checks if the dictionary have key and value equal values for all keys except if its null
+		A helper function that checks if the dictionary have key and value equal values for all keys except if its null
 
 	Args:
 		dict: the dictionary
