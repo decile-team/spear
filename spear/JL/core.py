@@ -63,6 +63,10 @@ class JL:
 
 	'''
 	def __init__(self, path_json, n_lfs, n_features, n_hidden = 512, feature_model = 'nn'):
+		use_cuda = torch.cuda.is_available()
+		self.device = torch.device("cuda" if use_cuda else "cpu")
+		torch.backends.cudnn.benchmark = True
+
 		torch.set_default_dtype(torch.float64)
 		assert type(path_json) == str
 		assert type(n_lfs) == np.int or type(n_lfs) == np.float
