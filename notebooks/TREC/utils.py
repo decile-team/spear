@@ -27,12 +27,8 @@ def sentences_to_elmo_sentence_embs(messages,batch_size=64):
 
 
 def load_data_to_numpy(folder="../../data_/TREC/",file_name="train.txt"):
-    label_map = {"DESC": "DESCRIPTION",
-                "ENTY": "ENTITY",
-                "HUM": "HUMAN",
-                "ABBR": "ABBREVIATION",
-                "LOC": "LOCATION",
-                "NUM": "NUMERIC"}
+    label_map = {"DESC": "0", "ENTY": "1", "HUM": "2", "ABBR": "3", "LOC": "4",
+           "NUM": "5"}
     
     X, Y =  [], []
     data_file = folder+file_name
