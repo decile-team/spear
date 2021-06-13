@@ -1,0 +1,68 @@
+ENTITY	( |^)(name|name)[^\w]* (\w+ ){0,1}(a)[^\w]*( |$)	Name a canine cartoon character other than Huckleberry Hound to have a voice by Daws Butler .
+DESCRIPTION	( |^)(how|how)[^\w]* (\w+ ){0,1}(does|to|can|should|would|could|will|do|do)[^\w]*( |$)	How do you throw a housewarming party ?
+DESCRIPTION	( |^)(what|what)[^\w]* (\w+ ){0,1}(is|is)[^\w]* ([^\s]+ )*(hypertension|hypertension)[^\w]*( |$)	What is the medical condition of hypertension ?
+LOCATION	( |^)(which|where|what|what)[^\w]* ([^\s]+ )*(near|close to|far|around|surrounds|surrounds)[^\w]*( |$)	What ocean surrounds the Madeira Islands ?
+HUMAN	( |^)(which|who|what|what)[^\w]* ([^\s]+ )*(person|man|woman|human|poet|poet)[^\w]*( |$)	What 2th-century American poet wrote a four-volume biography of Abraham Lincoln ?
+ENTITY	( |^)(what|what)[^\w]* (\w+ ){0,1}(.*er|fastener|fastener)[^\w]* ([^\s]+ )*(played|play|run|study |studied|patent|patent)[^\w]*( |$)	What fastener did Whitcomb Judson patent in 1893 ?
+DESCRIPTION	( |^)(how|how)[^\w]* (\w+ ){0,1}(do|do)[^\w]* (\w+ ){0,1}(you|you)[^\w]*( |$)	How do you find out what is allowed to claim as a contibution for income tax purposes ?
+HUMAN	( |^)(who|what|what)[^\w]* (\w+ ){0,1}(person|man|woman|human|president|president)[^\w]*( |$)	What president also became a supreme court justice ?
+NUMERIC	( |^)(how|how)[^\w]* (\w+ ){0,1}(much|many|many)[^\w]*( |$)	How many hearts does an octopus have ?
+LOCATION	( |^)(which|what|where|where)[^\w]* ([^\s]+ )*(situated|located|located)[^\w]*( |$)	Where is Microsoft 's corporate headquarters located ?
+HUMAN	( |^)(who|who)[^\w]* ([^\s]+ )*(man|woman|human|person|person)[^\w]*( |$)	Who is the richest person in the world ?
+ENTITY	( |^)(which|what|what)[^\w]* ([^\s]+ )*(team|group|groups|teams|teams)[^\w]*( |$)	What 's the most common nickname of U.S. college football teams ?
+LOCATION	( |^)(where|where)[^\w]* ([^\s]+ )*(stand|stand)[^\w]*( |$)	Where must a soccer goalie stand to be permitted to handle the ball ?
+DESCRIPTION	( |^)(what|what)[^\w]* ([^\s]+ )*(mean|meant|meant)[^\w]*( |$)	What is meant by `` capital market '' ?
+ENTITY	( |^)(what|what)[^\w]* (\w+ ){0,1}(kind|kind)[^\w]*( |$)	What kind of sport is often associated with hooligans ?
+NUMERIC	( |^)(what|what)[^\w]* (\w+ ){0,1}(amount|number|percentage|percentage)[^\w]*( |$)	What percentage of the body is muscle ?
+LOCATION	( |^)(capital|capital)[^\w]* (\w+ ){0,1}(of|of)[^\w]*( |$)	What is the capital of Uruguay ?
+DESCRIPTION	( |^)(why|why)[^\w]* (\w+ ){0,1}(does|should |shall|could|would|will|can|do|do)[^\w]*( |$)	Why do recipe books recommend starting with cold water when you boil something ?
+ENTITY	( |^)(composed|made|made)[^\w]* (\w+ ){0,1}(from|through|using|by|of|of)[^\w]*( |$)	What was paper made of in the late 16th century ?
+LOCATION	( |^)(where|which|what|what)[^\w]* (\w+ ){0,1}(island|island)[^\w]*( |$)	What island group is Guadalcanal a part of ?
+HUMAN	( |^)(who|who)[^\w]* (\w+ ){0,1}(owner|leads|governs|pays|owns|owns)[^\w]*( |$)	Who owns CNN ?
+DESCRIPTION	( |^)(what|what)[^\w]* (\w+ ){0,1}(is|is)[^\w]* (\w+ ){0,1}(tetrinet|tetrinet)[^\w]*( |$)	What is Tetrinet ?
+HUMAN	( |^)(who|who)[^\w]* (\w+ ){0,1}(found|discovered|made|built|build|invented|invented)[^\w]*( |$)	Who invented volleyball ?
+ENTITY	( |^)(what|what)[^\w]* ([^\s]+ )*(called|called)[^\w]*( |$)	What are the historical trials following World War II called ?
+DESCRIPTION	( |^)(unusual|unusual)[^\w]*( |$)	What was unusual about Alexandra 's appearance in Josie and the Pussycats ?
+DESCRIPTION	( |^)(what|what)[^\w]* ([^\s]+ )*(origin|origin)[^\w]*( |$)	What is the origin of the term soda jerk ?
+LOCATION	( |^)(country|country)[^\w]*( |$)	What country lies directly south of Detroit ?
+LOCATION	( |^)(where|where)[^\w]*( |$)	Where did Wile E. Coyote always get his devices ?
+NUMERIC	( |^)(which|what|what)[^\w]* ([^\s]+ )*(time|day|month|hours|minute|seconds|year|date|date)[^\w]*( |$)	What was the date of CNN 's first broadcast ?
+DESCRIPTION	( |^)(why|why)[^\w]* (\w+ ){0,1}(does|doesn|doesn)[^\w]*( |$)	Why doesn 't www.answers.com have any answers to my questions ?
+HUMAN	( |^)(queen|king|king)[^\w]*( |$)	What king was forced to agree to the Magna Carta ?
+NUMERIC	( |^)(year|year)[^\w]*( |$)	What year did the United States pass the Copyright law ?
+ENTITY	( |^)(novel|novel)[^\w]*( |$)	What 1956 Grace Metalious novel was on the best-seller list for two years ?
+DESCRIPTION	( |^)(used|used)[^\w]* (\w+ ){0,1}(for|for)[^\w]*( |$)	What is the S&P 500 used for ?
+NUMERIC	( |^)(when|when)[^\w]* (\w+ ){0,1}(did|do|does|was|was)[^\w]*( |$)	When was Yemen reunified ?
+DESCRIPTION	( |^)(what|what)[^\w]* (\w+ ){0,1}(kind|kind)[^\w]*( |$)	Winnie the Pooh is what kind of animal ?
+NUMERIC	( |^)(how|how)[^\w]* (\w+ ){0,1}(old|far|long|tall|wide|short|small|close|long|long)[^\w]*( |$)	How long would it take to get from Earth to Mars ?
+NUMERIC	( |^)(speed|speed)[^\w]*( |$)	What is the speed of the Mississippi River ?
+ABBREVIATION	( |^)(abbreviation|abbreviation)[^\w]*( |$)	CNN is the abbreviation for what ?
+NUMERIC	( |^)(how|how)[^\w]* (\w+ ){0,1}(much|many|many)[^\w]*( |$)	How many visitors go to the Vatican each year ?
+NUMERIC	( |^)(what|what)[^\w]* ([^\s]+ )*(percentage|share|number|population|population)[^\w]*( |$)	What is the population of Japan ?
+DESCRIPTION	( |^)(explain|describe|what|what)[^\w]*( |$)	What are the 10 plagues of Egypt ?
+LOCATION	( |^)(located|located)[^\w]*( |$)	What country is located at 13 degrees North latitude and 10 degrees East longitude ?
+ENTITY	( |^)(thing|instance|object|object)[^\w]*( |$)	What is a 2-sided object called ?
+HUMAN	( |^)(who|who)[^\w]*( |$)	Who was the lawyer for Randy Craft ?
+ENTITY	( |^)(fear|fear)[^\w]* (\w+ ){0,1}(of|of)[^\w]*( |$)	What is a fear of insanity ?
+DESCRIPTION	( |^)(explain|describe|how|how)[^\w]* (\w+ ){0,1}(can|can)[^\w]*( |$)	How can you be happy ?
+HUMAN	( |^)(who|who)[^\w]* (\w+ ){0,1}(worked|lived|guarded|watched|played|ate|slept|portrayed|served|served)[^\w]*( |$)	Who served as inspiration for the schoolteacher portrayed by Robin Williams in `` Dead Poets Society '' ?
+NUMERIC	( |^)(what|what)[^\w]* (\w+ ){0,1}(part|division|ratio|percentage|percentage)[^\w]*( |$)	Of children between the ages of two and eleven , what percentage watch `` The Simpsons '' ?
+DESCRIPTION	( |^)(explain|describe|what|what)[^\w]* ([^\s]+ )*(mean|mean)[^\w]*( |$)	What does the word terrorism mean ?
+DESCRIPTION	( |^)(what|what)[^\w]* ([^\s]+ )*(demands|take|take)[^\w]*( |$)	What does it take to become a lawyer ?
+HUMAN	( |^)(who|who)[^\w]* (\w+ ){0,1}(is|will|was|was)[^\w]* ([^\s]+ )*(leader|citizen|captain|nationalist|hero|actor|actress|star|gamer|player|lawyer|president|president)[^\w]*( |$)	Who was the 1st U.S. President ?
+ENTITY	( |^)(name|name)[^\w]*( |$)	What other name were the `` Little Rascals '' known as ?
+DESCRIPTION	( |^)(how|what|what)[^\w]* (\w+ ){0,1}(do|does|does)[^\w]*( |$)	What does idle mean ?
+DESCRIPTION	( |^)(enumerate|list out|name|name)[^\w]* (\w+ ){0,1}(the|the)[^\w]* (\w+ ){0,1}(various|various)[^\w]*( |$)	Name the various super-teams to which the Angel has belonged .
+NUMERIC	( |^)(at|in|in)[^\w]* (\w+ ){0,1}(which|how many|what|what)[^\w]* (\w+ ){0,1}(age|year|year)[^\w]*( |$)	In what year did the Bounty mutiny happen ?
+ENTITY	( |^)(which|what|what)[^\w]* (\w+ ){0,1}(play|game|movie|book|book)[^\w]*( |$)	What book is the follow-up to Future Shock ?
+HUMAN	( |^)(who|what|what)[^\w]* ([^\s]+ )*(lives|lives)[^\w]*( |$)	What detective lives on Punchbowl Hill and has 11 children ?
+ENTITY	( |^)(which|what|what)[^\w]* ([^\s]+ )*(organization|trust|company|company)[^\w]*( |$)	What bread company used to feature stickers of the Cisco Kid on the ends of their packages ?
+NUMERIC	( |^)(latitude|latitude)[^\w]* ([^\s]+ )*(longitude|longitude)[^\w]*( |$)	What is the latitude and longitude of El Paso , Texas ?
+HUMAN	( |^)(called|alias|nicknamed|nicknamed)[^\w]*( |$)	Who was nicknamed The Little Corporal ?
+HUMAN	( |^)(which|who|who)[^\w]* (\w+ ){0,1}(is|will|are|was|was)[^\w]* ([^\s]+ )*(engineer|actor|actress|player|lawyer|model|captain|team|doctor|doctor)[^\w]*( |$)	Who was the first doctor to successfully transplant a liver ?
+LOCATION	( |^)(where|where)[^\w]*( |$)	Where is Kings Canyon ?
+NUMERIC	( |^)(by how|how|how)[^\w]* (\w+ ){0,1}(much|many|many)[^\w]*( |$)	How many people were executed for Abraham Lincoln 's assassination ?
+NUMERIC	( |^)(how|how)[^\w]* (\w+ ){0,1}(many|many)[^\w]*( |$)	How many flavors of ice cream does Howard Johnson 's have ?
+LOCATION	( |^)(where|where)[^\w]* (\w+ ){0,1}(was|is|is)[^\w]*( |$)	Where is Trinidad ?
+ENTITY	( |^)(what|what)[^\w]* (\w+ ){0,1}(is|is)[^\w]* ([^\s]+ )*(surname|address|name|name)[^\w]*( |$)	What is the name of a Greek god ?
+ABBREVIATION	( |^)(what|what)[^\w]* (\w+ ){0,1}(does|does)[^\w]* ([^\s]+ )*(stand for)[^\w]*( |$)	What does NASA stand for ?

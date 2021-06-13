@@ -171,7 +171,7 @@ class JL:
 		'''
 		assert type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
 		assert type(return_gm) == np.bool
-		assert len(loss_func_mask) == 7
+# 		assert len(loss_func_mask) == 7
 		assert type(batch_size) == np.int or type(batch_size) == np.float
 		assert type(lr_fm) == np.int or type(lr_fm) == np.float
 		assert type(lr_gm) == np.int or type(lr_gm) == np.float
