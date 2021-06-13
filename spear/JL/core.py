@@ -97,6 +97,9 @@ class JL:
 			self.feature_model = LogisticRegression(self.n_features, self.n_classes).to(device = self.device)
 		elif self.feature_based_model =='nn':
 			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes).to(device = self.device)
+		else:
+			print('Error: JL class - unrecognised feature_model in initialisation')
+			exit(1)
 
 		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 		self.pi_optimal, self.theta_optimal = (self.pi).cpu().detach().clone(), (self.theta).cpu().detach().clone()
@@ -115,6 +118,11 @@ class JL:
 		pickle.dump(self.theta_optimal, file_)
 		pickle.dump(self.pi_optimal, file_)
 		pickle.dump((self.fm_optimal_params), file_)
+		pickle.dump(self.n_classes, file_)
+		pickle.dump(self.n_lfs, file_)
+		pickle.dump(self.n_features, file_)
+		pickle.dump(self.n_hidden, file_)
+		pickle.dump(self.feature_based_model, file_)
 		file_.close()
 		return
 
@@ -135,6 +143,16 @@ class JL:
 		self.theta_optimal = pickle.load(file_)
 		self.pi_optimal = pickle.load(file_)
 		self.fm_optimal_params = pickle.load(file_)
+
+		assert self.n_classes == pickle.load(file_)
+		assert self.n_lfs == pickle.load(file_)
+		assert self.n_features == pickle.load(file_)
+		temp_n_hidden = pickle.load(file_)
+		temp_feature_based_model = pickle.load(file_)
+		assert self.feature_based_model == temp_feature_based_model
+		if temp_feature_based_model == 'nn':
+			assert self.n_hidden == temp_n_hidden
+		
 		file_.close()
 
 		assert (self.pi).shape == (self.n_classes, self.n_lfs)
