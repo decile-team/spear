@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
+from tqdm import tqdm
 import pickle
 from os import path as check_path
 from copy import deepcopy
@@ -338,7 +339,7 @@ class JL:
 		stopped_epoch = -1
 		stop_early_fm, stop_early_gm = [], []
 
-		for epoch in range(n_epochs_):
+		for epoch in tqdm(range(n_epochs_)):
 			
 			self.feature_model.train()
 

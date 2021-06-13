@@ -3,6 +3,7 @@ from torch import optim
 import pickle
 from os import path as check_path
 import numpy as np
+from tqdm import tqdm
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
@@ -150,7 +151,7 @@ class Cage:
 
 		assert np.all(np.logical_and(y_true_test >= 0, y_true_test < self.n_classes))
 
-		for epoch in range(n_epochs_):
+		for epoch in tqdm(range(n_epochs_)):
 			optimizer.zero_grad()
 			loss = log_likelihood_loss(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_, self.device)
 			prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
