@@ -67,18 +67,22 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	class_map = {index : value for index, value in enumerate(class_list)}
 	class_map[None] = n_classes
 
-	data = get_data(path_pkl, True, class_map)
-	m = torch.abs(torch.tensor(data[2]).long())
-	s = torch.tensor(data[6]).double() # continuous score
-	assert m.shape[0] > int(n_sup)
-	k = torch.tensor(data[8]).long() # LF's classes
-	n_lfs = m.shape[1]
-	continuous_mask = torch.tensor(data[7]).double() # Mask for s/continuous_mask
-	qc_temp = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
-	params_1 = torch.ones((n_classes, n_lfs)).double() # initialisation of gm parameters, refer section 3.4 in the JL paper
-	params_2 = torch.ones((n_classes, n_lfs)).double()
+	use_cuda = torch.cuda.is_available()
+	device = torch.device("cuda" if use_cuda else "cpu")
+	torch.backends.cudnn.benchmark = True
 
-	y_train_pred = predict_gm_labels(params_1, params_2, m, s, k, n_classes, continuous_mask, qc_temp)
+	data = get_data(path_pkl, True, class_map)
+	m = torch.abs(torch.tensor(data[2], device = device).long())
+	s = torch.tensor(data[6], device = device).double() # continuous score
+	assert m.shape[0] > int(n_sup)
+	k = torch.tensor(data[8], device = device).long() # LF's classes
+	n_lfs = m.shape[1]
+	continuous_mask = torch.tensor(data[7], device = device).double() # Mask for s/continuous_mask
+	qc_temp = torch.tensor(qc, device = device).double() if type(qc) == np.ndarray else qc
+	params_1 = torch.ones((n_classes, n_lfs), device = device).double() # initialisation of gm parameters, refer section 3.4 in the JL paper
+	params_2 = torch.ones((n_classes, n_lfs), device = device).double()
+
+	y_train_pred = predict_gm_labels(params_1, params_2, m, s, k, n_classes, continuous_mask, qc_temp, device)
 	kernel = get_similarity_kernel(y_train_pred)
 	similarity = euclidean_distances(data[0])
 	sim_mat = kernel * similarity

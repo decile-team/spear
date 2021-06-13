@@ -63,17 +63,17 @@ class JL:
 
 	'''
 	def __init__(self, path_json, n_lfs, n_features, n_hidden = 512, feature_model = 'nn'):
-		use_cuda = torch.cuda.is_available()
-		self.device = torch.device("cuda" if use_cuda else "cpu")
-		torch.backends.cudnn.benchmark = True
-
-		torch.set_default_dtype(torch.float64)
 		assert type(path_json) == str
 		assert type(n_lfs) == np.int or type(n_lfs) == np.float
 		assert type(n_features) == np.int or type(n_features) == np.float
 		assert type(n_hidden) == np.int or type(n_hidden) == np.float
 		assert feature_model == 'lr' or feature_model == 'nn'
 		
+		use_cuda = torch.cuda.is_available()
+		self.device = torch.device("cuda" if use_cuda else "cpu")
+		torch.backends.cudnn.benchmark = True
+		torch.set_default_dtype(torch.float64)
+
 		self.class_dict = get_classes(path_json)
 		self.class_list = list((self.class_dict).keys())
 		self.class_list.sort()
@@ -88,18 +88,18 @@ class JL:
 		self.n_features = n_features
 		self.k, self.continuous_mask = None, None
 
-		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
+		self.pi = torch.ones((self.n_classes, self.n_lfs), device = self.device).double()
 		(self.pi).requires_grad = True
-		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+		self.theta = torch.ones((self.n_classes, self.n_lfs), device = self.device).double()
 		(self.theta).requires_grad = True
 
 		if self.feature_based_model == 'lr':
-			self.feature_model = LogisticRegression(self.n_features, self.n_classes)
+			self.feature_model = LogisticRegression(self.n_features, self.n_classes).to(device = self.device)
 		elif self.feature_based_model =='nn':
-			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes)
+			self.feature_model = DeepNet(self.n_features, self.n_hidden, self.n_classes).to(device = self.device)
 
 		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
-		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
+		self.pi_optimal, self.theta_optimal = (self.pi).cpu().detach().clone(), (self.theta).cpu().detach().clone()
 
 	def save_params(self, save_path):
 		'''
@@ -133,7 +133,7 @@ class JL:
 		(self.feature_model).load_state_dict(fm_params)
 
 		self.theta_optimal = pickle.load(file_)
-		self.pi_theta = pickle.load(file_)
+		self.pi_optimal = pickle.load(file_)
 		self.fm_optimal_params = pickle.load(file_)
 		file_.close()
 
@@ -240,13 +240,13 @@ class JL:
 		assert self.n_features == x_sup.shape[1]
 		assert self.n_lfs == l_sup.shape[1]
 		if self. k == None:
-			self.k = torch.tensor(data_L[8]).long() # LF's classes
+			self.k = torch.tensor(data_L[8], device = self.device).long() # LF's classes
 		else:
-			assert torch.all(torch.tensor(data_L[8]).double().eq(self.k))
+			assert torch.all(torch.tensor(data_L[8], device = self.device).double().eq(self.k))
 		if self.continuous_mask == None:
-			self.continuous_mask = torch.tensor(data_L[7]).double() # Mask for s/continuous_mask
+			self.continuous_mask = torch.tensor(data_L[7], device = self.device).double() # Mask for s/continuous_mask
 		else:
-			assert torch.all(torch.tensor(data_L[7]).double().eq(self.continuous_mask))
+			assert torch.all(torch.tensor(data_L[7], device = self.device).double().eq(self.continuous_mask))
 
 		assert np.all(data_L[8] == data_U[8]) and np.all(data_L[8] == data_V[8]) and np.all(data_L[8] == data_T[8])
 		assert np.all(data_L[7] == data_U[7]) and np.all(data_L[7] == data_V[7]) and np.all(data_L[7] == data_T[7])
@@ -279,7 +279,7 @@ class JL:
 		supervised_mask = torch.cat([torch.ones(l_sup.shape[0]), torch.zeros(l_unsup.shape[0])])
 
 		if is_qt:
-			qt_ = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
+			qt_ = torch.tensor(qt, device = self.device).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs, device = self.device).double() * qt)
 		else:
 			prec_lfs=[]
 			for i in range(self.n_lfs):
@@ -291,9 +291,9 @@ class JL:
 			qt_ = torch.tensor(prec_lfs).double()
 
 		if is_qc:
-			qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+			qc_ = torch.tensor(qc, device = self.device).double() if type(qc) == np.ndarray else qc
 		else:
-			qc_ = torch.tensor(np.mean(s_valid, axis = 0))
+			qc_ = torch.tensor(np.mean(s_valid, axis = 0), device = self.device)
 
 		file = None
 		if path_log != None:
@@ -328,6 +328,9 @@ class JL:
 				optimizer_fm.zero_grad()
 				optimizer_gm.zero_grad()
 
+				for i in range(len(sample)):
+					sample[i] = sample[i].to(device = self.device)
+
 				supervised_indices = sample[4].nonzero().view(-1)
 				unsupervised_indices = (1-sample[4]).nonzero().squeeze()
 
@@ -346,18 +349,18 @@ class JL:
 					loss_2 = 0
 
 				if(loss_func_mask[2]):
-					y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_)
-					loss_3 = supervised_criterion(self.feature_model(sample[0][unsupervised_indices]), torch.tensor(y_pred_unsupervised))
+					y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+					loss_3 = supervised_criterion(self.feature_model(sample[0][unsupervised_indices]), torch.tensor(y_pred_unsupervised, device = self.device))
 				else:
 					loss_3 = 0
 
 				if (loss_func_mask[3] and len(supervised_indices) > 0):
-					loss_4 = log_likelihood_loss_supervised(self.theta, self.pi, sample[1][supervised_indices], sample[2][supervised_indices], sample[3][supervised_indices], self.k, self.n_classes, self.continuous_mask, qc_)
+					loss_4 = log_likelihood_loss_supervised(self.theta, self.pi, sample[1][supervised_indices], sample[2][supervised_indices], sample[3][supervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
 				else:
 					loss_4 = 0
 
 				if(loss_func_mask[4]):
-					loss_5 = log_likelihood_loss(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_)
+					loss_5 = log_likelihood_loss(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
 				else:
 					loss_5 = 0
 
@@ -365,10 +368,10 @@ class JL:
 					if(len(supervised_indices) >0):
 						supervised_indices = supervised_indices.tolist()
 						probs_graphical = probability(self.theta, self.pi, torch.cat([sample[2][unsupervised_indices], sample[2][supervised_indices]]),\
-						torch.cat([sample[3][unsupervised_indices],sample[3][supervised_indices]]), self.k, self.n_classes, self.continuous_mask, qc_)
+						torch.cat([sample[3][unsupervised_indices],sample[3][supervised_indices]]), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
 					else:
 						probs_graphical = probability(self.theta, self.pi,sample[2][unsupervised_indices],sample[3][unsupervised_indices],\
-							self.k, self.n_classes, self.continuous_mask, qc_)
+							self.k, self.n_classes, self.continuous_mask, qc_, self.device)
 					probs_graphical = (probs_graphical.t() / probs_graphical.sum(1)).t()
 					probs_fm = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0]))
 					loss_6 = kl_divergence(probs_fm, probs_graphical)
@@ -376,7 +379,7 @@ class JL:
 					loss_6 = 0
 
 				if(loss_func_mask[6]):
-					prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_)
+					prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
 				else:
 					prec_loss = 0
 
@@ -387,7 +390,7 @@ class JL:
 					optimizer_fm.step()
 
 			#gm test
-			y_pred = predict_gm_labels(self.theta, self.pi, l_test, s_test, self.k, self.n_classes, self.continuous_mask, qc_)
+			y_pred = predict_gm_labels(self.theta, self.pi, l_test.to(device = self.device), s_test.to(device = self.device), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
 			if use_accuracy_score:
 				gm_test_acc = accuracy_score(y_test, y_pred)
 			else:
@@ -396,7 +399,7 @@ class JL:
 			gm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
 
 			#gm validation
-			y_pred = predict_gm_labels(self.theta, self.pi, l_valid, s_valid, self.k, self.n_classes, self.continuous_mask, qc_)
+			y_pred = predict_gm_labels(self.theta, self.pi, l_valid.to(device = self.device), s_valid.to(device = self.device), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
 			if use_accuracy_score:
 				gm_valid_acc = accuracy_score(y_valid, y_pred)
 			else:
@@ -405,8 +408,8 @@ class JL:
 			(self.feature_model).eval()
 
 			#fm test
-			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_test))
-			y_pred = np.argmax(probs.detach().numpy(), 1)
+			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_test.to(device = self.device)))
+			y_pred = np.argmax(probs.cpu().detach().numpy(), 1)
 			if use_accuracy_score:
 				fm_test_acc = accuracy_score(y_test, y_pred)
 			else:
@@ -415,8 +418,8 @@ class JL:
 			fm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
 
 			#fm validation
-			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_valid))
-			y_pred = np.argmax(probs.detach().numpy(), 1)
+			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_valid.to(device = self.device)))
+			y_pred = np.argmax(probs.cpu().detach().numpy(), 1)
 			if use_accuracy_score:
 				fm_valid_acc = accuracy_score(y_valid, y_pred)
 			else:
@@ -437,8 +440,8 @@ class JL:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
 					if best_score_gm_test < gm_test_acc or best_score_fm_test < fm_test_acc:
 						best_epoch = epoch
-						self.pi_optimal = (self.pi).detach().clone()
-						self.theta_optimal = (self.theta).detach().clone()
+						self.pi_optimal = (self.pi).cpu().detach().clone()
+						self.theta_optimal = (self.theta).cpu().detach().clone()
 						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 						best_score_fm_val = fm_valid_acc
@@ -452,8 +455,8 @@ class JL:
 						best_recall_gm_test  = gm_test_recall
 				else:
 					best_epoch = epoch
-					self.pi_optimal = (self.pi).detach().clone()
-					self.theta_optimal = (self.theta).detach().clone()
+					self.pi_optimal = (self.pi).cpu().detach().clone()
+					self.theta_optimal = (self.theta).cpu().detach().clone()
 					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 					best_score_fm_val = fm_valid_acc
@@ -472,8 +475,8 @@ class JL:
 				if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
 					if best_score_fm_test < fm_test_acc or best_score_gm_test < gm_test_acc:
 						best_epoch = epoch
-						self.pi_optimal = (self.pi).detach().clone()
-						self.theta_optimal = (self.theta).detach().clone()
+						self.pi_optimal = (self.pi).cpu().detach().clone()
+						self.theta_optimal = (self.theta).cpu().detach().clone()
 						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 						best_score_fm_val = fm_valid_acc
@@ -487,8 +490,8 @@ class JL:
 						best_recall_gm_test  = gm_test_recall
 				else:
 					best_epoch = epoch
-					self.pi_optimal = (self.pi).detach().clone()
-					self.theta_optimal = (self.theta).detach().clone()
+					self.pi_optimal = (self.pi).cpu().detach().clone()
+					self.theta_optimal = (self.theta).cpu().detach().clone()
 					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 					
 					best_score_fm_val = fm_valid_acc
@@ -544,11 +547,12 @@ class JL:
 
 		(self.feature_model).load_state_dict(self.fm_optimal_params)
 		(self.feature_model).eval()
-		fm_predictions = (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(data_U[0]).double()) )).detach().numpy()
+		fm_predictions = (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(data_U[0], device = self.device).double()) )).cpu().detach().numpy()
 		(self.feature_model).train()
 
 		if return_gm:
-			return fm_predictions, (probability(self.theta_optimal, self.pi_optimal, torch.tensor(data_U[2]).long(), torch.tensor(data_U[6]).double(), self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
+			return fm_predictions, (probability(self.theta_optimal, self.pi_optimal, torch.tensor(data_U[2], device = self.device).long(), torch.tensor(data_U[6], device = self.device).double(), \
+				self.k, self.n_classes, self.continuous_mask, qc_, self.device)).cpu().detach().numpy()
 		else:
 			return fm_predictions
 
@@ -608,22 +612,22 @@ class JL:
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
 
 		data = get_data(path_test, True, self.class_map)
-		s_test = torch.tensor(data[6]).double()
+		s_test = torch.tensor(data[6], device = self.device).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
 		assert (data[2]).shape[1] == self.n_lfs and data[9] == self.n_classes
 		assert (data[0].shape)[1] == self.n_features
-		assert self.continuous_mask == None or torch.all(torch.tensor(data[7]).double().eq(self.continuous_mask))
-		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
-		m_test = torch.abs(torch.tensor(data[2]).long())
-		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+		temp_k = torch.tensor(data[8], device = self.device).long()
+		assert self.k == None or torch.all(temp_k.eq(self.k))
+		temp_continuous_mask = torch.tensor(data[7], device = self.device).double()
+		assert self.continuous_mask == None or torch.all(temp_continuous_mask.eq(self.continuous_mask))
+		m_test = torch.abs(torch.tensor(data[2], device = self.device).long())
+		qc_ = torch.tensor(qc, device = self.device).double() if type(qc) == np.ndarray else qc
 
 		if self.continuous_mask == None or self.k == None:
 			print("Warning: Predict is used before training any paramters in JL class. Hope you have loaded parameters.")
-			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
-		else:
-			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
-
+		return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, temp_k, self.n_classes, temp_continuous_mask, qc_, self.device)).cpu().detach().numpy()
+		
 	def predict_fm_proba(self, x_test):
 		'''
 			Used to find the predicted labels based on the trained parameters of feature model
@@ -637,9 +641,12 @@ class JL:
 		'''
 		assert x_test.shape[1] == self.n_features
 
+		if self.continuous_mask == None or self.k == None:
+			print("Warning: Predict is used before training any paramters in JL class. Hope you have loaded parameters.")
+
 		(self.feature_model).load_state_dict(self.fm_optimal_params)
 		(self.feature_model).eval()
-		fm_predictions = (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(x_test).double()))).detach().numpy()
+		fm_predictions = (torch.nn.Softmax(dim = 1)(self.feature_model(torch.tensor(x_test, device = self.device).double()))).cpu().detach().numpy()
 		(self.feature_model).train()
 
 		return fm_predictions
