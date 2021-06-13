@@ -9,7 +9,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
 
-from ..utils.data_editer import get_data, get_classes, get_predictions
+from ..utils.data_editor import get_data, get_classes, get_predictions
 from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
 from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from .models.models import *
@@ -37,6 +37,22 @@ class JL:
 	'''
 	Joint_Learning class:
 		[Note: from here on, feature model(fm) and feature-based classification model are used interchangeably. graphical model(gm) and CAGE algorithm terms are used interchangeably]
+
+		Loss function number | Calculated over | Loss function: (useful for loss_func_mask in fit_and_predict_proba and fit_and_predict functions)
+
+			1, L, Cross Entropy(prob_from_feature_model, true_labels)
+
+			2, U, Entropy(prob_from_feature_model)
+
+			3, U, Cross Entropy(prob_from_feature_model, prob_from_graphical_model)
+
+			4, L, Negative Log Likelihood
+
+			5, U, Negative Log Likelihood(marginalised over true labels)
+
+			6, L and U, KL Divergence(prob_feature_model, prob_graphical_model)
+
+			7, _,  Quality guide
 	
 	Args:
 		path_json: Path to json file containing the dictionary of number to string(class name) map
@@ -116,31 +132,37 @@ class JL:
 		self.pi_theta = pickle.load(file_)
 		self.fm_optimal_params = pickle.load(file_)
 		file_.close()
+
+		assert (self.pi).shape == (self.n_classes, self.n_lfs)
+		assert (self.theta).shape == (self.n_classes, self.n_lfs)
+		assert (self.pi_optimal).shape == (self.n_classes, self.n_lfs)
+		assert (self.theta_optimal).shape == (self.n_classes, self.n_lfs)
+
 		return
 
 	def fit_and_predict_proba(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
-	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro'):
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'binary'):
 		'''
 		Args:
 			path_L: Path to pickle file of labelled instances
 			path_U: Path to pickle file of unlabelled instances
 			path_V: Path to pickle file of validation instances
 			path_T: Path to pickle file of test instances
-			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
+			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
-			path_log: Path to log file
+			path_log: Path to log file to append log. Default is None which prints accuracies/f1_scores is printed to terminal
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
-			start_len: A parameter used in validation refers to the least epoch after which validation checks need to be performed, type is integer, default is 7
-			stop_len: A parameter used in validation refers to the least number of continuous epochs of non incresing validation accuracy after which the training should be stopped, type is integer, default is 10
+			start_len: A parameter used in validation, refers to the least epoch after which validation checks need to be performed, type is integer, default is 7
+			stop_len: A parameter used in validation, refers to the least number of continuous epochs of non incresing validation accuracy after which the training should be stopped, type is integer, default is 10
 			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
+			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'binary'
 
 		Return:
 			If return_gm is True; the return value is two predicted labels of numpy array of shape (num_instances, num_classes), first one is through feature model, other one through graphical model.
@@ -162,7 +184,7 @@ class JL:
 		 or (type(qt) == np.int and (qt == 0 or qt == 1))
 		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
-		assert metric_avg in ['micro', 'macro', 'samples','weighted', 'binary']
+		assert metric_avg in ['micro', 'macro', 'samples', 'weighted', 'binary']
 
 		batch_size_ = int(batch_size)
 		n_epochs_ = int(n_epochs)
@@ -177,6 +199,8 @@ class JL:
 		data_U = get_data(path_U, True, self.class_map)
 		data_V = get_data(path_V, True, self.class_map)
 		data_T = get_data(path_T, True, self.class_map)
+
+		assert data_L[9] == self.n_classes and data_U[9] == data_L[9] and data_V[9] == data_L[9] and data_T[9] == data_L[9]
 
 		x_sup = torch.tensor(data_L[0]).double()
 		y_sup = torch.tensor(data_L[3]).long()
@@ -270,7 +294,11 @@ class JL:
 		file = None
 		if path_log != None:
 			file = open(path_log, "a+")
-			file.write("JL log:\n")
+			file.write("JL log:\tn_classes: {}\tn_LFs: {}\tn_features: {}\tn_hidden: {}\tfeature_model:{}\tlr_fm: {}\tlr_gm:{}\tuse_accuracy_score: {}\tn_epochs:{}\tstart_len: {}\tstop_len:{}\n".format(\
+				self.n_classes, self.n_lfs, self.n_features, self.n_hidden, self.feature_based_model, lr_fm, lr_gm, use_accuracy_score, n_epochs, start_len, stop_len))
+		else:
+			print("JL log:\tn_classes: {}\tn_LFs: {}\tn_features: {}\tn_hidden: {}\tfeature_model:{}\tlr_fm: {}\tlr_gm:{}\tuse_accuracy_score: {}\tn_epochs:{}\tstart_len: {}\tstop_len:{}".format(\
+				self.n_classes, self.n_lfs, self.n_features, self.n_hidden, self.feature_based_model, lr_fm, lr_gm, use_accuracy_score, n_epochs, start_len, stop_len))
 
 		#Algo starting
 		optimizer_fm = torch.optim.Adam(self.feature_model.parameters(), lr = lr_fm)
@@ -285,7 +313,7 @@ class JL:
 
 		gm_test_acc, fm_test_acc = -1, -1
 
-		stopped_early = False
+		stopped_epoch = -1
 		stop_early_fm, stop_early_gm = [], []
 
 		for epoch in range(n_epochs_):
@@ -370,6 +398,8 @@ class JL:
 			else:
 				gm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
 
+			(self.feature_model).eval()
+
 			#fm test
 			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_test))
 			y_pred = np.argmax(probs.detach().numpy(), 1)
@@ -388,10 +418,16 @@ class JL:
 			else:
 				fm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
 
+			(self.feature_model).train()
+
 			if path_log != None:
 				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
 				if epoch % 5 == 0:
 					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(score_used, epoch, gm_test_acc, fm_test_acc))
+			else:
+				print("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
+				if epoch % 5 == 0:
+					print("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}".format(score_used, epoch, gm_test_acc, fm_test_acc))
 
 			if epoch > start_len_ and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
@@ -465,7 +501,7 @@ class JL:
 
 			if len(stop_early_fm) > stop_len_ and len(stop_early_gm) > stop_len_ and (all(best_score_fm_val >= k for k in stop_early_fm) or \
 			all(best_score_gm_val >= k for k in stop_early_gm)):
-				stopped_early = True
+				stopped_epoch = epoch
 				break
 			else:
 				stop_early_fm.append(fm_valid_acc)
@@ -474,10 +510,15 @@ class JL:
 		#epoch for loop ended
 
 
-		if stopped_early:
-			print('early stopping... best_epoch: {}'.format(best_epoch))
-		else:
+		if stopped_epoch == -1:
 			print('best_epoch: {}'.format(best_epoch))
+		else:
+			print('early stopping at epoch: {}\tbest_epoch: {}'.format(stopped_epoch, best_epoch))
+
+		if use_accuracy_score:
+			print('score used: accuracy_score')
+		else:
+			print('score used: f1_score')
 		
 		print('best_gm_val_score:{}\tbest_fm_val_score:{}'.format(\
 			best_score_gm_val, best_score_fm_val))
@@ -508,28 +549,28 @@ class JL:
 			return fm_predictions
 
 	def fit_and_predict(self, path_L, path_U, path_V, path_T, loss_func_mask, batch_size, lr_fm, lr_gm, use_accuracy_score, path_log = None, return_gm = False, n_epochs = 100, start_len = 7,\
-	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'macro', need_strings = False):
+	 stop_len = 10, is_qt = True, is_qc = True, qt = 0.9, qc = 0.85, metric_avg = 'binary', need_strings = False):
 		'''
 		Args:
 			path_L: Path to pickle file of labelled instances
 			path_U: Path to pickle file of unlabelled instances
 			path_V: Path to pickle file of validation instances
 			path_T: Path to pickle file of test instances
-			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`2020:JL`
+			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
 			use_accuracy_score: The score to use for termination condition on validation set. True for accuracy_score, False for f1_score
-			path_log: Path to log file
+			path_log: Path to log file to append log. Default is None which prints accuracies/f1_scores is printed to terminal
 			return_gm: Return the predictions of graphical model? the allowed values are True, False. Default value is False
 			n_epochs: Number of epochs in each run, type is integer, default is 100
-			start_len: A parameter used in validation, type is integer, default is 7
-			stop_len: A parameter used in validation, type is integer, default is 10
+			start_len: A parameter used in validation, refers to the least epoch after which validation checks need to be performed, type is integer, default is 7
+			stop_len: A parameter used in validation, refers to the least number of continuous epochs of non incresing validation accuracy after which the training should be stopped, type is integer, default is 10
 			is_qt: True if quality guide is available(and will be provided in 'qt' argument). False if quality guide is intended to be found from validation instances. Default is True
 			is_qc: True if quality index is available(and will be provided in 'qc' argument). False if quality index is intended to be found from validation instances. Default is True
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'macro'
+			metric_avg: Average metric to be used in calculating f1_score/precision/recall, default is 'binary'
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 
 		Return:
@@ -566,7 +607,7 @@ class JL:
 		s_test = torch.tensor(data[6]).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
-		assert (data[2]).shape[1] == self.n_lfs
+		assert (data[2]).shape[1] == self.n_lfs and data[9] == self.n_classes
 		assert (data[0].shape)[1] == self.n_features
 		assert self.continuous_mask == None or torch.all(torch.tensor(data[7]).double().eq(self.continuous_mask))
 		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
@@ -574,24 +615,22 @@ class JL:
 		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 
 		if self.continuous_mask == None or self.k == None:
-			print("Warning: Predict is used before training any paramters in JL calss")
+			print("Warning: Predict is used before training any paramters in JL class. Hope you have loaded parameters.")
 			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
 		else:
 			return (probability(self.theta_optimal, self.pi_optimal, m_test, s_test, self.k, self.n_classes, self.continuous_mask, qc_)).detach().numpy()
 
-	def predict_fm_proba(self, path_test):
+	def predict_fm_proba(self, x_test):
 		'''
 			Used to find the predicted labels based on the trained parameters of feature model
 
 		Args:
-			path_test: Path to the pickle file containing test data set
+			x_test: numpy array of shape (num_instances, num_features) containing data whose labels are to be predicted
 		
 		Return:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
-		data = get_data(path_test, True, self.class_map)
-		x_test = data[0]
 		assert x_test.shape[1] == self.n_features
 
 		(self.feature_model).load_state_dict(self.fm_optimal_params)
@@ -617,12 +656,12 @@ class JL:
 		assert type(need_strings) == np.bool
 		return get_predictions(self.predict_gm_proba(path_test, qc), self.class_map, self.class_dict, need_strings)
 
-	def predict_fm(self, path_test, need_strings = False):
+	def predict_fm(self, x_test, need_strings = False):
 		'''
 			Used to find the predicted labels based on the trained parameters of feature model
 
 		Args:
-			path_test: Path to the pickle file containing test data set
+			x_test: numpy array of shape (num_instances, num_features) containing data whose labels are to be predicted
 			need_strings: If True, the output will be in the form of strings(class names). Else it is in the form of class values(given to classes in Enum). Default is False
 
 		Return:
@@ -630,6 +669,6 @@ class JL:
 			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
 		assert type(need_strings) == np.bool
-		return get_predictions(self.predict_fm_proba(path_test), self.class_map, self.class_dict, need_strings)
+		return get_predictions(self.predict_fm_proba(x_test), self.class_map, self.class_dict, need_strings)
 
 

@@ -31,12 +31,12 @@ print("probs shape: ", probs.shape)
 print("labels shape: ",labels.shape)
 
 #---------------use of fit_and_predict------------------
-# labels = cage.fit_and_predict(U_path_pkl, T_path_pkl, log_path_1, need_strings=False)
-# print("labels shape: ", labels.shape)
+labels = cage.fit_and_predict(U_path_pkl, T_path_pkl, log_path_1, need_strings=False)
+print("labels shape: ", labels.shape)
 
 #---------------use of fit_and_predict------------------
-# labels_strings = cage.fit_and_predict(U_path_pkl, T_path_pkl, log_path_1, need_strings=True)
-# print("labels_strings shape: ", labels_strings.shape)
+labels_strings = cage.fit_and_predict(U_path_pkl, T_path_pkl, log_path_1, need_strings=True)
+print("labels_strings shape: ", labels_strings.shape)
 
 
 cage.save_params('params/sms_cage_params.pkl')
@@ -45,8 +45,8 @@ cage.load_params('params/sms_cage_params.pkl')
 #-----------PREDICT---------
 
 #---------------use of predict_proba------------------
-# probs_test = cage.predict_proba(T_path_pkl)
-# print("probs_test shape: ",probs_test.shape)
+probs_test = cage.predict_proba(T_path_pkl)
+print("probs_test shape: ",probs_test.shape)
 
 #---------------use of predict------------------
 labels_test = cage.predict(T_path_pkl, need_strings = False)

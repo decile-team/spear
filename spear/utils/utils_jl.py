@@ -6,7 +6,7 @@ from .utils_cage import probability
 
 def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc):
 	'''
-		Joint Learning utils: Negative log likelihood loss, used in loss 4 in :cite:p:`2020:JL`
+		Joint Learning utils: Negative log likelihood loss, used in loss 4 in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 
 	Args:
 		theta: [n_classes, n_lfs], the parameters
@@ -27,7 +27,7 @@ def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_
 
 def entropy(probabilities):
 	'''
-		Joint Learning utils: Entropy, Used in loss 2 in :cite:p:`2020:JL`
+		Joint Learning utils: Entropy, Used in loss 2 in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 
 	Args:
 		probabilities: [num_unsup_instances, num_classes], probabilities[i][j] is probability of ith instance being jth class
@@ -40,7 +40,7 @@ def entropy(probabilities):
 
 def kl_divergence(probs_p, probs_q):
 	'''
-		Joint Learning utils: KL divergence of two probabilities, used in loss 6 in :cite:p:`2020:JL`
+		Joint Learning utils: KL divergence of two probabilities, used in loss 6 in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 		
 	Args:
 		probs_p: [num_instances, num_classes]
@@ -57,7 +57,7 @@ def find_indices(data, data_sub):
 		A helper function for subset selection
 
 	Args:
-		data: the complete data
+		data: the complete data, torch tensor of shape [num_instances, num_classes]
 		data_sub: the subset of 'data' whose indices are to be found. Should be of same shape as 'data'
 	
 	Return:
