@@ -17,6 +17,7 @@ def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		a real value, summation over (the log of probability for an instance)
