@@ -246,7 +246,7 @@ class Cage:
 		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 		if self.n == None or self.k == None:
 			print("Warning: Predict is used before training any paramters in Cage class. Hope you have loaded parameters.")
-		return (probability(self.theta, self.pi, m_test, s_test, temp_k, self.n_classes, temp_n, qc_, self.device)).detach().numpy()
+		return (probability(self.theta, self.pi, m_test, s_test, temp_k, self.n_classes, temp_n, qc_, self.device)).cpu().detach().numpy()
 		
 	def predict(self, path_test, qc = 0.85, need_strings = False):
 		'''
