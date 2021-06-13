@@ -1,5 +1,5 @@
 torch==1.8.0
 apricot_select==0.6.1
 numpy==1.13.3
-apricot==0.2
+apricot-select==0.6
 scikit_learn==0.24.2
