@@ -26,7 +26,7 @@ def sentences_to_elmo_sentence_embs(messages,batch_size=64):
   return np.array(message_embeddings)
 
 
-def load_data_to_numpy(folder="../../data/TREC/",file_name="train.txt"):
+def load_data_to_numpy(folder="../../data_/TREC/",file_name="train.txt"):
     label_map = {"DESC": "DESCRIPTION",
                 "ENTY": "ENTITY",
                 "HUM": "HUMAN",
