@@ -13,7 +13,8 @@ def phi(theta, l, device):
 	Args:
 		theta: [n_classes, n_lfs], the parameters
 		l: [n_lfs]
-	
+		device: 'cuda' if drivers are available, else 'cpu'
+
 	Return:
 		a tensor of shape [n_classes, n_lfs], element wise product of input tensors(each row of theta dot product with l)
 	'''
@@ -28,6 +29,7 @@ def calculate_normalizer(theta, k, n_classes, device):
 		theta: [n_classes, n_lfs], the parameters
 		k: [n_lfs], labels corresponding to LFs
 		n_classes: num of classes/labels
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		a real value, representing the normaliser
@@ -48,6 +50,7 @@ def probability_l_y(theta, m, k, n_classes, device):
 		m: [n_instances, n_lfs], m[i][j] is 1 if jth LF is triggered on ith instance, else it is 0
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		a tensor of shape [n_instances, n_classes], the psi_theta value for each instance, for each class(true label y)
@@ -100,6 +103,7 @@ def probability(theta, pi, m, s, k, n_classes, continuous_mask, qc, device):
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		a tensor of shape [n_instances, n_classes], the probability for an instance being a particular class
@@ -124,6 +128,7 @@ def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc, devi
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		a real value, negative of summation over (the log of probability for an instance, marginalised over y(true labels))
@@ -141,6 +146,7 @@ def precision_loss(theta, k, n_classes, a, device):
 		k: [n_lfs], k[i] is the class of ith LF, range: 0 to num_classes-1
 		n_classes: num of classes/labels
 		a: [n_lfs], a[i] is the quality guide for ith LF. Value(s) must be between 0 and 1
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		a real value, negative of regularizer term
@@ -174,6 +180,7 @@ def predict_gm_labels(theta, pi, m, s, k, n_classes, continuous_mask, qc, device
 		n_classes: num of classes/labels
 		continuous_mask: [n_lfs], continuous_mask[i] is 1 if ith LF has continuous counter part, else it is 0
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
+		device: 'cuda' if drivers are available, else 'cpu'
 	
 	Return:
 		numpy.ndarray of shape (n_instances,), the predicted class for an instance
