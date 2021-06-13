@@ -51,7 +51,7 @@ def get_data(path, check_shapes = True, class_map = None):
 
 			n_classes: total number of classes
 
-			In case the numpy array is not available, it is stored as np.zeros(0)
+			In case the numpy array is not available(can be possible for x, L, d, r, s), it is stored as numpy.zeros(0)
 
 	Args: 
 		path: path to pickle file with data in the format above
@@ -79,7 +79,7 @@ def get_data(path, check_shapes = True, class_map = None):
 		assert (data[4].shape == (data[1].shape[0],1)) or (data[4].shape[0] == 0) #d, l
 		assert data[7].shape == (data[1].shape[1],) #n, l
 		assert data[8].shape == (data[1].shape[1],) #k, l
-		assert data[1].shape[0] == data[0].shape[0] #x, l
+		assert (data[0].shape[0] == 0) or data[1].shape[0] == data[0].shape[0] #x, l
 		assert np.all(np.logical_or(data[2] == 0, data[2] == 1)) #m
 		assert (data[4].shape[0] == 0) or (np.all(np.logical_or(data[4] == 0, data[4] == 1))) #d
 		assert (data[5].shape[0] == 0) or (np.all(np.logical_or(data[5] == 0, data[5] == 1)) )#r
