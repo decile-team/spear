@@ -55,6 +55,8 @@ class Cage:
 		file_ = open(save_path, 'wb')
 		pickle.dump(self.theta, file_)
 		pickle.dump(self.pi, file_)
+		pickle.dump(self.n_classes, file_)
+		pickle.dump(self.n_lfs, file_)
 		file_.close()
 		return
 
@@ -69,6 +71,8 @@ class Cage:
 		file_ = open(load_path, 'rb')
 		self.theta = pickle.load(file_)
 		self.pi = pickle.load(file_)
+		assert self.n_classes == pickle.load(file_)
+		assert self.n_lfs == pickle.load(file_)
 		file_.close()
 
 		assert (self.pi).shape == (self.n_classes, self.n_lfs)

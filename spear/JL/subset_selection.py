@@ -38,9 +38,14 @@ def unsup_subset(x_train, n_unsup):
 	'''
 	assert x_train.shape[0] > int(n_unsup)
 	assert type(x_train) == np.ndarray
+	
+	use_cuda = torch.cuda.is_available()
+	device = torch.device("cuda" if use_cuda else "cpu")
+	torch.backends.cudnn.benchmark = True
+
 	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
-	x_sub = fl.fit_transform(torch.from_numpy(x_train))
-	indices = find_indices(torch.from_numpy(x_train), x_sub)
+	x_sub = fl.fit_transform(torch.from_numpy(x_train).to(device=device))
+	indices = find_indices(torch.from_numpy(x_train).to(device=device), x_sub)
 	return np.sort(indices)
 
 def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
@@ -88,7 +93,7 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	sim_mat = kernel * similarity
 	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, metric = 'precomputed', n_samples = n_sup)
 	sim_sub = fl.fit_transform(sim_mat)
-	indices = find_indices(torch.from_numpy(sim_mat), torch.from_numpy(sim_sub))
+	indices = find_indices(torch.from_numpy(sim_mat).to(device=device), torch.from_numpy(sim_sub).to(device=device))
 
 	return np.sort(indices), data
 
