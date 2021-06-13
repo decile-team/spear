@@ -4,13 +4,15 @@
    contain the root `toctree` directive.
 
 
-SPEAR(DECILE) documentation!
-========================================
+Welcome to SPEAR's documentation!
+==================================
+SPEAR: Semi-Supervised Data Programming
 
 .. toctree::
    :maxdepth: 5
    :caption: Contents:
 
+We present SPEAR, an open-source python library for data programming with semi-supervision. The package implements several recent data programming approaches including facility to programmatically label and build training data. SPEAR facilitates weak supervision, either pre-defined, in the form of rules/heuristics and associate 'noisy' labels(or prelabels) to the training dataset. These noisy labels are aggregated to assign labels to the unlabeled data for downstream tasks. Several label aggregation approaches have been proposed that aggregate the noisy labels and then train the 'noisily' labeled set in a cascaded manner, while other approaches 'jointly' aggregates and trains the model. In the python package, we integrate several cascade and joint data-programming approaches while providing facility to define rules. The code and tutorial notebooks are available at \url{https://github.com/decile-team/spear}
 
 Labeling
 ================================
@@ -40,10 +42,10 @@ LFAnalysis
 .. automodule:: spear.labeling.analysis.core
 	:members: LFAnalysis
 
-Noisy Labels
+Pre Labels
 ---------------
-.. automodule:: spear.labeling.noisy_labels.core
-	:members: NoisyLabels
+.. automodule:: spear.labeling.prelabels.core
+	:members: PreLabels
 
 ----
 
@@ -60,7 +62,7 @@ CAGE
 Joint Learning(JL)
 ==================
 
-:cite:t:`2020:JL`
+:cite:t:`DBLP:journals/corr/abs-2008-09887`
 
 	From here on, Feature model(fm) imply Feature based classification model
 
@@ -69,14 +71,29 @@ Joint Learning(JL)
 
 ----
 
+Subset Selection
+==================
+
+Uses facilityLocation from :cite:t:`JMLR:v21:19-467`
+
+
+.. automodule:: spear.JL.subset_selection
+	:members:
+
+----
+
 CAGE, JL - UTILS
 ==================
+
+Note: The arguments whose shapes are mentioned in '[....]' are torch tensors.
 
 Data loaders
 ---------------
 
-.. automodule:: spear.utils.data_editer
+.. automodule:: spear.utils.data_editor
 	:members:
+
+----
 
 CAGE and JL utils
 ------------------
@@ -86,11 +103,15 @@ CAGE and JL utils
 .. automodule:: spear.utils.utils_cage
 	:members:
 
+----
+
 JL utils
 ---------
 
 .. automodule:: spear.utils.utils_jl
 	:members:
+
+----
 
 Feature-based Models
 ---------------------
@@ -100,7 +121,7 @@ Feature-based Models
 
 ----
 
-IMPLYLOSS
+ImplyLoss
 ============
 
 Implyloss Checkmate

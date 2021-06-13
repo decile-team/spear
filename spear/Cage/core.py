@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
-from ..utils.data_editer import get_data, get_classes, get_predictions
+from ..utils.data_editor import get_data, get_classes, get_predictions
 from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
 
 class Cage:
@@ -66,6 +66,9 @@ class Cage:
 		self.theta = pickle.load(file_)
 		self.pi = pickle.load(file_)
 		file_.close()
+
+		assert (self.pi).shape == (self.n_classes, self.n_lfs)
+		assert (self.theta).shape == (self.n_classes, self.n_lfs)
 		return
 
 	def fit_and_predict_proba(self, path_pkl, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01):
@@ -73,7 +76,7 @@ class Cage:
 		Args:
 			path_pkl: Path to pickle file of input data in standard format
 			path_test: Path to the pickle file containing test data in standard format
-			path_log: Path to log file, default value is None. No log is producede if path_test is None
+			path_log: Path to log file. No log is produced if path_test is None. Default is None which prints accuracies/f1_scores is printed to terminal
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']. Use None for not calculating f1_score
@@ -122,7 +125,9 @@ class Cage:
 		file = None
 		if path_test != None and path_log != None:
 			file = open(path_log, "a+")
-			file.write("CAGE log:\n")
+			file.write("CAGE log:\tn_classes: {}\tn_LFs: {}\tn_epochs: {}\tlr: {}\n".format(self.n_classes, self.n_lfs, n_epochs, lr))
+		elif path_test != None:
+			print("CAGE log:\tn_classes: {}\tn_LFs: {}\tn_epochs: {}\tlr: {}".format(self.n_classes, self.n_lfs, n_epochs, lr))
 
 		y_true_test = None
 		s_test, m_test = None, None
@@ -145,15 +150,19 @@ class Cage:
 
 			y_pred = self.__predict_specific(m_test, s_test, qc_)
 			if path_test != None and path_log != None:
-				file.write("Epoch: {}\taccuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
+				file.write("Epoch: {}\ttest_accuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
+			elif path_test != None:
+				print("Epoch: {}\ttest_accuracy_score: {}".format(epoch, accuracy_score(y_true_test, y_pred)))
 			if epoch == n_epochs_-1:
-				print("final_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
+				print("final_test_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
 			if (path_test != None and path_log != None) or epoch == n_epochs_-1:
 				for temp in metric_avg_:
 					if path_test != None and path_log != None:
-						file.write("Epoch: {}\taverage_metric: {}\tf1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+						file.write("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+					elif path_test != None:
+						print("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
 					if epoch == n_epochs_-1:
-						print("average_metric: {}\tf1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
+						print("test_average_metric: {}\tfinal_test_f1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
 
 			loss.backward()
 			optimizer.step()
@@ -168,7 +177,7 @@ class Cage:
 		Args:
 			path_pkl: Path to pickle file of input data in standard format
 			path_test: Path to the pickle file containing test data in standard format
-			path_log: Path to log file, default value is None. No log is producede if path_test is None
+			path_log: Path to log file. No log is produced if path_test is None. Default is None which prints accuracies/f1_scores is printed to terminal
 			qt: Quality guide of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.9
 			qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
 			metric_avg: List of average metric to be used in calculating f1_score, default is ['binary']
@@ -220,7 +229,7 @@ class Cage:
 		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
 		data = get_data(path_test, True, self.class_map)
-		assert (data[2]).shape[1] == self.n_lfs
+		assert (data[2]).shape[1] == self.n_lfs and data[9] == self.n_classes
 		assert self.n == None or torch.all(torch.tensor(data[7]).double().eq(self.n))
 		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
 		s_test = torch.tensor(data[6]).double()
@@ -230,7 +239,7 @@ class Cage:
 
 		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 		if self.n == None or self.k == None:
-			print("Warning: Predict is used before training any paramters in Cage calss")
+			print("Warning: Predict is used before training any paramters in Cage class. Hope you have loaded parameters.")
 			return (probability(self.theta, self.pi, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
 		else:
 			return (probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, qc_)).detach().numpy()

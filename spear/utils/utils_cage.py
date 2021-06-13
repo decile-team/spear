@@ -126,7 +126,7 @@ def log_likelihood_loss(theta, pi, m, s, k, n_classes, continuous_mask, qc):
 		qc: a float value OR [n_lfs], qc[i] quality index for ith LF. Value(s) must be between 0 and 1
 	
 	Return:
-		a real value, summation over (the log of probability for an instance, marginalised over y(true labels))
+		a real value, negative of summation over (the log of probability for an instance, marginalised over y(true labels))
 	'''
 	eps = 1e-8
 	return - torch.log(probability(theta, pi, m, s, k, n_classes, continuous_mask, qc).sum(1) + eps).sum() / s.shape[0]

@@ -1,1 +1,1 @@
-from .data_editer import get_data, get_classes, get_enum
+from .data_editor import get_data, get_classes, get_enum
