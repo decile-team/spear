@@ -45,7 +45,7 @@ def unsup_subset(x_train, n_unsup):
 
 def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	'''
-		A helper function for supervised subset selection(the subset to be labeled) whcih just returns indices
+		A helper function for supervised subset selection(the subset to be labeled) which just returns indices
 	
 	Args:
 		path_json: Path to json file of number to string(class name) map
