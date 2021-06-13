@@ -24,6 +24,10 @@ class Cage:
 		assert type(path_json) == str
 		assert type(n_lfs) == np.int or type(n_lfs) == np.float
 
+		use_cuda = torch.cuda.is_available()
+		self.device = torch.device("cuda" if use_cuda else "cpu")
+		torch.backends.cudnn.benchmark = True
+
 		self.class_dict = get_classes(path_json)
 		self.class_list = list((self.class_dict).keys())
 		self.class_list.sort()
@@ -35,10 +39,10 @@ class Cage:
 		self.n_lfs = int(n_lfs)
 		self.n, self.k = None, None #continuous_mask, labels of LFs
 
-		self.pi = torch.ones((self.n_classes, self.n_lfs)).double()
+		self.pi = torch.ones((self.n_classes, self.n_lfs), device = self.device).double()
 		(self.pi).requires_grad = True
 
-		self.theta = torch.ones((self.n_classes, self.n_lfs)).double()
+		self.theta = torch.ones((self.n_classes, self.n_lfs), device = self.device).double()
 		(self.theta).requires_grad = True
 
 	def save_params(self, save_path):
@@ -99,24 +103,24 @@ class Cage:
 		assert type(lr) == np.int or type(lr) == np.float
 
 		data = get_data(path_pkl, True, self.class_map)
-		m = torch.abs(torch.tensor(data[2]).long())
-		s = torch.tensor(data[6]).double() # continuous score
+		m = torch.abs(torch.tensor(data[2], device = self.device).long())
+		s = torch.tensor(data[6], device = self.device).double() # continuous score
 		if self.n == None:	
-			self.n = torch.tensor(data[7]).double() # Mask for s/continuous_mask
+			self.n = torch.tensor(data[7], device = self.device).double() # Mask for s/continuous_mask
 		else:
-			assert torch.all(torch.tensor(data[7]).double().eq(self.n))
+			assert torch.all(torch.tensor(data[7], device = self.device).double().eq(self.n))
 		if self.k == None:
-			self.k = torch.tensor(data[8]).long() # LF's classes
+			self.k = torch.tensor(data[8], device = self.device).long() # LF's classes
 		else:
-			assert torch.all(torch.tensor(data[8]).long().eq(self.k))
+			assert torch.all(torch.tensor(data[8], device = self.device).long().eq(self.k))
 		s[s > 0.999] = 0.999 # clip s
 		s[s < 0.001] = 0.001 # clip s
 
 		assert self.n_lfs == m.shape[1]
 		assert self.n_classes == data[9]
 
-		qt_ = torch.tensor(qt).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs).double() * qt)
-		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
+		qt_ = torch.tensor(qt, device = self.device).double() if type(qt) == np.ndarray else (torch.ones(self.n_lfs, device = self.device).double() * qt)
+		qc_ = torch.tensor(qc, device = self.device).double() if type(qc) == np.ndarray else qc
 		metric_avg_ = list(set(metric_avg))
 		n_epochs_ = int(n_epochs)
 		
@@ -137,29 +141,29 @@ class Cage:
 			y_true_test = y_true_test.flatten()
 			assert self.n_lfs == m_test.shape[1]
 			assert self.n_classes == data[9]
-			assert torch.all(torch.tensor(data[7]).double().eq(self.n))
-			assert torch.all(torch.tensor(data[8]).long().eq(self.k))
+			assert torch.all(torch.tensor(data[7], device = self.device).double().eq(self.n))
+			assert torch.all(torch.tensor(data[8], device = self.device).long().eq(self.k))
 
 		assert np.all(np.logical_and(y_true_test >= 0, y_true_test < self.n_classes))
 
 		for epoch in range(n_epochs_):
 			optimizer.zero_grad()
-			loss = log_likelihood_loss(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_)
-			prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_)
+			loss = log_likelihood_loss(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_, self.device)
+			prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
 			loss += prec_loss
 
-			y_pred = self.__predict_specific(m_test, s_test, qc_)
-			if path_test != None and path_log != None:
-				file.write("Epoch: {}\ttest_accuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
-			elif path_test != None:
-				print("Epoch: {}\ttest_accuracy_score: {}".format(epoch, accuracy_score(y_true_test, y_pred)))
-			if epoch == n_epochs_-1:
-				print("final_test_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
-			if (path_test != None and path_log != None) or epoch == n_epochs_-1:
+			if path_test != None:
+				y_pred = self.__predict_specific(m_test, s_test, qc_)
+				if path_log != None:
+					file.write("Epoch: {}\ttest_accuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
+				else:
+					print("Epoch: {}\ttest_accuracy_score: {}".format(epoch, accuracy_score(y_true_test, y_pred)))
+				if epoch == n_epochs_-1:
+					print("final_test_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
 				for temp in metric_avg_:
-					if path_test != None and path_log != None:
+					if path_log != None:
 						file.write("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
-					elif path_test != None:
+					else:
 						print("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
 					if epoch == n_epochs_-1:
 						print("test_average_metric: {}\tfinal_test_f1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
@@ -170,7 +174,7 @@ class Cage:
 		if path_test != None and path_log != None:
 			file.close()
 
-		return (probability(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_)).detach().numpy()
+		return (probability(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_, self.device)).cpu().detach().numpy()
 
 	def fit_and_predict(self, path_pkl, path_test = None, path_log = None, qt = 0.9, qc = 0.85, metric_avg = ['binary'], n_epochs = 100, lr = 0.01, need_strings = False):
 		'''
@@ -205,14 +209,14 @@ class Cage:
 			numpy.ndarray of shape (num_instances,) which are predicted labels. Note that here the class labels appearing may not be the ones used in the Enum
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
-		s_temp = torch.tensor(s_test).double()
+		s_temp = torch.tensor(s_test, device = self.device).double()
 		s_temp[s_temp > 0.999] = 0.999
 		s_temp[s_temp < 0.001] = 0.001
 		assert m_test.shape == s_test.shape
 		assert m_test.shape[1] == self.n_lfs
 		assert np.all(np.logical_or(m_test == 1, m_test == 0))
-		m_temp = torch.abs(torch.tensor(m_test).long())
-		return predict_gm_labels(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, qc_)
+		m_temp = torch.abs(torch.tensor(m_test, device = self.device).long())
+		return predict_gm_labels(self.theta, self.pi, m_temp, s_temp, self.k, self.n_classes, self.n, qc_, self.device)
 
 	def predict_proba(self, path_test, qc = 0.85):
 		'''
@@ -230,20 +234,20 @@ class Cage:
 		 or (type(qc) == np.int and (qc == 0 or qc == 1))
 		data = get_data(path_test, True, self.class_map)
 		assert (data[2]).shape[1] == self.n_lfs and data[9] == self.n_classes
-		assert self.n == None or torch.all(torch.tensor(data[7]).double().eq(self.n))
-		assert self.k == None or torch.all(torch.tensor(data[8]).long().eq(self.k))
-		s_test = torch.tensor(data[6]).double()
+		temp_k = torch.tensor(data[8], device = self.device).long()
+		assert self.k == None or torch.all(temp_k.eq(self.k))
+		temp_n = torch.tensor(data[7], device = self.device).double()
+		assert self.n == None or torch.all(temp_n.eq(self.n))
+		s_test = torch.tensor(data[6], device = self.device).double()
 		s_test[s_test > 0.999] = 0.999
 		s_test[s_test < 0.001] = 0.001
-		m_test = torch.abs(torch.tensor(data[2]).long())	
+		m_test = torch.abs(torch.tensor(data[2], device = self.device).long())	
 
 		qc_ = torch.tensor(qc).double() if type(qc) == np.ndarray else qc
 		if self.n == None or self.k == None:
 			print("Warning: Predict is used before training any paramters in Cage class. Hope you have loaded parameters.")
-			return (probability(self.theta, self.pi, m_test, s_test, torch.tensor(data[8]).long(), self.n_classes, torch.tensor(data[7]).double(), qc_)).detach().numpy()
-		else:
-			return (probability(self.theta, self.pi, m_test, s_test, self.k, self.n_classes, self.n, qc_)).detach().numpy()
-
+		return (probability(self.theta, self.pi, m_test, s_test, temp_k, self.n_classes, temp_n, qc_, self.device)).detach().numpy()
+		
 	def predict(self, path_test, qc = 0.85, need_strings = False):
 		'''
 			Used to predict labels based on a pickle file with path path_test

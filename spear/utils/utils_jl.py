@@ -4,7 +4,7 @@ import numpy as np
 
 from .utils_cage import probability
 
-def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc):
+def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc, device):
 	'''
 		Joint Learning utils: Negative log likelihood loss, used in loss 4 in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 
@@ -21,7 +21,7 @@ def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_
 	Return:
 		a real value, summation over (the log of probability for an instance)
 	'''
-	prob = probability(theta, pi, m, s, k, n_classes, continuous_mask, qc)
+	prob = probability(theta, pi, m, s, k, n_classes, continuous_mask, qc, device)
 	prob = (prob.t() / prob.sum(1)).t()
 	return nn.NLLLoss()(log(prob), y)
 
