@@ -33,9 +33,23 @@ You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about be
 * SPEAR
 
 # Quick Links
-* [DECILE website](https://decile.org)
 * [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
+* [DECILE website](https://decile.org)
 * [SPEAR documentation](https://spear-decile.readthedocs.io/)
 * [SubModLib - Summarize massive datasets using submodular optimization](https://github.com/decile-team/submodlib)
 * [DISTIL- Deep Diversified Interactive Learning](https://github.com/decile-team/distil)
 * [CORDS- COResets and Data Subset Selection](https://github.com/decile-team/cords)
+
+## Acknowledgment
+SPEAR takes inspiration, builds upon, and uses pieces of code from several open source codebases. These include [Snorkel](https://github.com/snorkel-team/snorkel) & [Imply Loss](https://github.com/awasthiabhijeet/Learning-From-Rules). Also, DISTIL uses [Apricot](https://github.com/jmschrei/apricot) for submodular optimization.
+
+## Team
+SPEAR is created and maintained by [Ayush](https://cse.iitb.ac.in/~ayusham), [Abhishek]( https://www.cse.iitb.ac.in/~gsaiabhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/) and [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your active learning research, and feel free to use it for your commercial projects. We will add the major contributors here.
+
+## Publications
+
+[1] Maheshwari, Ayush, et al. "Data Programming using Semi-Supervision and Subset Selection." arXiv preprint arXiv:2008.09887 (2020).
+
+[2] Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. "Data Programming using Continuous and Quality-Guided Labeling Functions." arXiv preprint arXiv:1911.09860 (2019).
+
+[3] Sahay, Atul, et al. "Rule augmented unsupervised constituency parsing." arXiv preprint arXiv:2105.10193 (2021).
