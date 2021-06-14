@@ -17,6 +17,21 @@ SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
 ```git clone https://github.com/decile-team/spear/```
 ```pip install -r requirements.txt```
 
+## Labelling Functions (LFs)
+* discrete LFs - Users can define LFs that return discrete labels
+* continuous LFs - return continuous scores to assign labels
+
+## Approaches Implemented
+You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about below approaches
+* Only-L 
+* L + Umaj
+* Learning to Reweight
+* L + USnorkel
+* Posterior Regularization
+* Imply Loss
+* CAGE
+* SPEAR
+
 # Quick Links
 * [DECILE website](https://decile.org)
 * [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
