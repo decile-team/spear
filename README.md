@@ -51,8 +51,8 @@ SPEAR is created and maintained by [Ayush](https://cse.iitb.ac.in/~ayusham), [Ab
 
 ## Publications
 
-[1] Maheshwari, Ayush, et al. "Data Programming using Semi-Supervision and Subset Selection." arXiv preprint arXiv:2008.09887 (2020).
+[1] Maheshwari, Ayush, et al. "Data Programming using Semi-Supervision and Subset Selection.", In Findings of ACL (Long Paper) 2021.
 
-[2] Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. "Data Programming using Continuous and Quality-Guided Labeling Functions." arXiv preprint arXiv:1911.09860 (2019).
+[2] Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. "Data Programming using Continuous and Quality-Guided Labeling Functions." In AAAI 2020.
 
-[3] Sahay, Atul, et al. "Rule augmented unsupervised constituency parsing." arXiv preprint arXiv:2105.10193 (2021).
+[3] Sahay, Atul, et al. "Rule augmented unsupervised constituency parsing." In Findings of ACL (Short Paper) 2021.
