@@ -1,7 +1,8 @@
 from my_data_types import f_d, f_d_U
 from my_utils import *
-# import metrics_utils
 import my_utils, my_data_types
+
+# import metrics_utils
 import json
 import time
 import tensorflow.compat.v1 as tf
@@ -22,7 +23,8 @@ class HLSTrain():
 	Func Desc:
 	This Class is designed to train the HLS model using the Implyloss Algorithm
 	'''
-	def __init__(self, hls, config=None):
+	def __init__(self, hls, 
+		f_d_metrics_pickle, f_d_U_metrics_pickle, f_d_adam_lr, f_d_U_adam_lr, early_stopping_p, f_d_primary_metric, mode, data_dir):
 		'''
 		Func Desc:
 		Initializes the class member variables using the arguments provided
@@ -30,16 +32,21 @@ class HLSTrain():
 		Input:
 		self
 		hls - the hls model
-		config
 
 		Sets:
 		hls
-		config
 		f_d_metrics_pickle
 		'''
 		self.hls = hls
-		self.config = config
-		self.f_d_metrics_pickle = config.f_d_metrics_pickle #file path where metrics of trained model are stored
+		# self.config = config
+		self.f_d_metrics_pickle = f_d_metrics_pickle #file path where metrics of trained model are stored
+		self.f_d_U_metrics_pickle = f_d_U_metrics_pickle #file path where metrics of trained model are stored
+		self.f_d_adam_lr = f_d_adam_lr
+		self.f_d_U_adam_lr = f_d_U_adam_lr
+		self.early_stopping_p = early_stopping_p
+		self.f_d_primary_metric = f_d_primary_metric
+		self.mode = mode
+		self.data_dir = data_dir
 		self.init_metrics()
 		self.make_f_summary_ops()
 
@@ -136,7 +143,7 @@ class HLSTrain():
 				for i in range(total_batch):
 					batch_x, batch_y = datafeeder.get_f_d_next_batch()
 					feed_dict = {
-							self.hls.f_d_adam_lr: self.config.f_d_adam_lr,
+							self.hls.f_d_adam_lr: self.f_d_adam_lr,
 							self.hls.f_x: batch_x,
 							self.hls.f_d_labels: batch_y
 							}
@@ -168,14 +175,14 @@ class HLSTrain():
 					patience = 0 #rest patience if primary metric improved
 				else:
 					patience += 1
-					if patience > self.config.early_stopping_p:
+					if patience > self.early_stopping_p:
 						print("bye! stopping early!......")
 						break
 				# Save checkpoint
 				print()
 				self.hls.mru_saver.save(global_step)
 				print()
-				best_saver_f_d.save_if_best(metrics_dict[self.config.f_d_primary_metric])
+				best_saver_f_d.save_if_best(metrics_dict[self.f_d_primary_metric])
 				print()
 			print("Optimization Finished for f_d!")
 
@@ -227,14 +234,14 @@ class HLSTrain():
 		best_saver_f_d_U = self.hls.best_savers.get_best_saver(f_d_U)
 		metrics_dict = {} #{'config': self.config}
 
-		if 'label_snorkel' == self.config.mode or 'pure_snorkel' == self.config.mode or 'gcross_snorkel' == self.config.mode:
+		if 'label_snorkel' == self.mode or 'pure_snorkel' == self.mode or 'gcross_snorkel' == self.mode:
 		    label_model = LabelModel(cardinality=self.hls.num_classes, verbose=True)
-		    if os.path.isfile(os.path.join(self.config.data_dir,"saved_label_model")):
-		        label_model = label_model.load(os.path.join(self.config.data_dir,"saved_label_model"))
+		    if os.path.isfile(os.path.join(self.data_dir,"saved_label_model")):
+		        label_model = label_model.load(os.path.join(self.data_dir,"saved_label_model"))
 		    else:
 		        print("LABEL MODEL NOT SAVED")
 		        exit()
-		if 'gcross' in self.config.mode or 'learn2reweight' in self.config.mode:
+		if 'gcross' in self.mode or 'learn2reweight' in self.mode:
 		    majority_model = MajorityLabelVoter(cardinality=self.hls.num_classes)
 
 		with sess.as_default():
@@ -254,7 +261,7 @@ class HLSTrain():
 							datafeeder.get_f_d_U_next_batch()
 
 					feed_dict={
-							self.hls.f_d_U_adam_lr: self.config.f_d_U_adam_lr,
+							self.hls.f_d_U_adam_lr: self.f_d_U_adam_lr,
 							self.hls.f_d_U_x: batch_x,
 							self.hls.f_d_U_l : batch_l,
 							self.hls.f_d_U_m : batch_m, 
@@ -265,11 +272,11 @@ class HLSTrain():
 
 					batch_lsnork = conv_l_to_lsnork(batch_l,batch_m)
 
-					if 'label_snorkel' == self.config.mode or 'pure_snorkel' == self.config.mode or 'gcross_snorkel' == self.config.mode:                        
+					if 'label_snorkel' == self.mode or 'pure_snorkel' == self.mode or 'gcross_snorkel' == self.mode:                        
 						batch_snork_L = label_model.predict_proba(L=batch_lsnork) #snorkel_probs
 						feed_dict[self.hls.f_d_U_snork_L] = batch_snork_L
 
-					if 'gcross' == self.config.mode or 'learn2reweight' == self.config.mode:
+					if 'gcross' == self.mode or 'learn2reweight' == self.mode:
 						batch_snork_L = majority_model.predict(L=batch_lsnork) #majority votes
 						batch_snork_L = np.eye(self.hls.num_classes)[batch_snork_L] #one hot rep
 						feed_dict[self.hls.f_d_U_snork_L] = batch_snork_L                        
@@ -308,14 +315,14 @@ class HLSTrain():
 					patience = 0 #rest patience if primary metric improved
 				else:
 					patience += 1
-					if patience > self.config.early_stopping_p:
+					if patience > self.early_stopping_p:
 						print("bye! stopping early!......")
 						break
 				# Save checkpoint
 				print()
 				self.hls.mru_saver.save(global_step)
 				print()
-				best_saver_f_d_U.save_if_best(metrics_dict[self.config.f_d_primary_metric])
+				best_saver_f_d_U.save_if_best(metrics_dict[self.f_d_primary_metric])
 				print()
 				global_step += 1
 			print("Optimization Finished for f_d_U!")
@@ -333,8 +340,8 @@ class HLSTrain():
 		
 		'''
 		self.metrics_file = {
-				f_d: self.config.f_d_metrics_pickle,
-				f_d_U: self.config.f_d_U_metrics_pickle,
+				f_d: self.f_d_metrics_pickle,
+				f_d_U: self.f_d_U_metrics_pickle,
 				}
 	
 		self.best_metric = {}
@@ -366,7 +373,7 @@ class HLSTrain():
 		Output:
 		the required metrics_dict
 		'''
-		return metrics_dict[self.config.f_d_primary_metric]
+		return metrics_dict[self.f_d_primary_metric]
 
 	def save_metrics(self, run_type, metrics_dict):
 		'''

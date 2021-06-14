@@ -1,4 +1,6 @@
-import tensorflow as tf
+# import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 # implementation of generalizer cross entropy loss 
 # eq6 of paper https://arxiv.org/pdf/1805.07836.pdf 
@@ -28,7 +30,7 @@ def generalized_cross_entropy(logits, one_hot_labels,q=0.6):
         loss = tf.reduce_mean(loss)
     else:
         exp_logits = tf.exp(logits)
-        normalizer = tf.reduce_sum(exp_logits,axis=-1,keep_dims=True)
+        normalizer = tf.reduce_sum(exp_logits,axis=-1)#,keep_dims=True)
         normalizer_q = tf.pow(normalizer,q)
         exp_logits_q = tf.exp(logits*q)
         f_j_q = exp_logits_q / normalizer_q

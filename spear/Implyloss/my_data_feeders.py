@@ -6,13 +6,16 @@ import pickle
 import inspect
 import time
 
+# from spear.Implyloss import *
+
 from my_data_types import *
-import my_data_feeder_utils as utils
+from my_data_feeder_utils import *
 
 class DataFeeder():
-    def __init__(self, d_pickle, U_pickle, validation_pickle,
-            out_dir='./',
-            config=None):
+    def __init__(self, d_pickle, U_pickle, validation_pickle, map_json, 
+            shuffle_batches, num_load_d, num_load_U, num_classes, 
+            f_d_class_sampling, min_rule_coverage, rule_classes, num_load_validation, 
+            f_d_batch_size, f_d_U_batch_size, test_w_batch_size, out_dir='./'):
         '''
         Func Desc:
         Initialize the object with the given parameter files
@@ -23,25 +26,24 @@ class DataFeeder():
         U_pickle - unlabelled data file
         validation_pickle - validation data file
         out_dir (Default = './') - output directory
-        config (Default = None) - config file
 
         Output:
         Void
         '''
         self.f_d_U_start = 0
-        self.shuffle_batches=config.shuffle_batches
+        self.shuffle_batches=shuffle_batches
         self.out_dir = out_dir
+        
+        self.raw_d = load_data(d_pickle, map_json, num_load_d)
+        self.raw_U = load_data(U_pickle, map_json, num_load_U)
 
-        self.raw_d = utils.load_data(d_pickle, config.num_load_d)
-        self.raw_U = utils.load_data(U_pickle, config.num_load_U)
-
-        if config.num_classes is not None:
-            self.num_classes = config.num_classes
+        if num_classes is not None:
+            self.num_classes = num_classes
             assert self.num_classes >= np.max(self.raw_d.L) + 1
         else:
             self.num_classes = np.max(self.raw_d.L) + 1
 
-        self.f_d_class_sampling = config.f_d_class_sampling
+        self.f_d_class_sampling = f_d_class_sampling
         if self.f_d_class_sampling:
             assert len(self.f_d_class_sampling) == self.num_classes
         else:
@@ -54,7 +56,7 @@ class DataFeeder():
         self.num_rules = self.raw_d.l.shape[1]
 
         # If min coverage threshold is specified for rules then apply it
-        self.min_rule_coverage = config.min_rule_coverage
+        self.min_rule_coverage = min_rule_coverage
         self.num_rules_to_train = self.num_rules
         if self.min_rule_coverage > 0:
             self.satisfying_rules, self.not_satisfying_rules, \
@@ -76,9 +78,9 @@ class DataFeeder():
                         self.rule_map_old_to_new)
 
         # Determine rule classes from the truncated rule list
-        self.rule_classes = config.rule_classes 
+        self.rule_classes = rule_classes 
         if not self.rule_classes:
-            self.rule_classes = utils.get_rule_classes(self.raw_d.l, self.num_classes)
+            self.rule_classes = get_rule_classes(self.raw_d.l, self.num_classes)
 
         print('Rule classes: ', self.rule_classes)
 
@@ -91,8 +93,8 @@ class DataFeeder():
 
         self.f_d = self.convert_raw_d_to_f_d(self.raw_d, num_load=0)
 
-        raw_test_data = utils.load_data(validation_pickle,
-                config.num_load_validation)
+        raw_test_data = load_data(validation_pickle, map_json,
+                num_load_validation)
 
         self.test_f_x, self.test_f_labels, self.test_f_labels_one_hot, \
                 self.test_f_l, self.test_f_m, self.test_f_d, self.test_f_r  = \
@@ -116,9 +118,9 @@ class DataFeeder():
         print('test_w len: ', self.data_lens[test_w])
 
         self.batch_size = {
-                f_d: config.f_d_batch_size ,
-                f_d_U: config.f_d_U_batch_size,
-                test_w: config.test_w_batch_size,
+                f_d: f_d_batch_size ,
+                f_d_U: f_d_U_batch_size,
+                test_w: test_w_batch_size,
                 }
 
         self.data_store = {
@@ -232,7 +234,7 @@ class DataFeeder():
         #
         # Note that we cannot oversample U according to their true labels since these should not be available
         # during training.
-        raw_d = utils.oversample_d(raw_d, d_class_sampling)
+        raw_d = oversample_d(raw_d, d_class_sampling)
         print('Size of d after oversampling: ', len(raw_d.x))
 
         new_d_d = np.ones_like(raw_d.d)
@@ -276,7 +278,7 @@ class DataFeeder():
 
         x = raw_d.x[0:num_load]
         label = np.squeeze(raw_d.L[0:num_load])
-        x, label = utils.oversample_f_d(x, label, self.f_d_class_sampling)
+        x, label = oversample_f_d(x, label, self.f_d_class_sampling)
         print('num instances in d: ', len(x))
         return F_d_Data(x, label)    
 
