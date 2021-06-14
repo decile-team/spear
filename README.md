@@ -1,6 +1,15 @@
 ![PyPI](https://img.shields.io/pypi/v/spear)
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/en/master)
-[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
+<p>
+    <a href="#">
+        <img alt="GitHub Stars" src="https://img.shields.io/github/stars/decile-team/spear">
+    </a>
+    <a href="#">
+        <img alt="GitHub Forks" src="https://img.shields.io/github/forks/decile-team/spear">
+    </a>
+</p>
 # SPEAR by DECILE
 ## Semi-Supervised Data Programming for Data Efficient Machine Learning
 SPEAR is a library for data programming with semi-supervision. The package implements several recent data programming approaches including facility to programmatically label and build training data.
