@@ -11,13 +11,16 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 * compare against semi-supervised data programming approaches
 * use subset selection to reduce annotation effort
 
-# Quick Links
-* [DECILE website](https://decile.org)
-* [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
-* [SPEAR documentation](https://spear-decile.readthedocs.io/)
-
 # Installation
 
 SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
 ```git clone https://github.com/decile-team/spear/```
 ```pip install -r requirements.txt```
+
+# Quick Links
+* [DECILE website](https://decile.org)
+* [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
+* [SPEAR documentation](https://spear-decile.readthedocs.io/)
+* [SubModLib - Summarize massive datasets using submodular optimization](https://github.com/decile-team/submodlib)
+* [DISTIL- Deep Diversified Interactive Learning](https://github.com/decile-team/distil)
+* [CORDS- COResets and Data Subset Selection](https://github.com/decile-team/cords)
