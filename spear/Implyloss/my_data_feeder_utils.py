@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import json
 #from .config import flags as config
 
 from my_data_types import *
@@ -8,8 +9,29 @@ from my_data_types import *
 reduce_x_features = False
 seq_len = 25
 
+def change_values(l,user_class_to_num_map):
+    '''
+    Func Desc:
+    Replace the class labels in l by sequential labels - 0,1,2,..
 
-def load_data(fname, num_load=None):
+    Input:
+    l - the class label matrix
+    user_class_to_num_map - dictionary storing mapping from original class labels to sequential labels
+
+    Output:
+    l - with sequential labels
+    '''
+    A = l.shape
+    d0 = A[0]
+    d1 = A[1]
+    for i in range(d0):
+        for j in range(d1):
+            # print(l[i][j])
+            l[i][j] = user_class_to_num_map[l[i][j]]
+            # print("Hi")
+    return l
+
+def load_data(fname, jname, num_load=None):
     '''
     Func Desc:
     load the data from the given file
@@ -24,20 +46,108 @@ def load_data(fname, num_load=None):
     print('Loading from hoff ', fname)
     with open(fname, 'rb') as f:
         x = pickle.load(f)
-        l = pickle.load(f).astype(np.int32)
+        l = pickle.load(f)#.astype(np.int32)
         m = pickle.load(f).astype(np.int32)
         L = pickle.load(f).astype(np.int32)
         d = pickle.load(f).astype(np.int32)
         r = pickle.load(f).astype(np.int32)
+        a1 = pickle.load(f)
+        a2 = pickle.load(f)
+        a3 = pickle.load(f)
+        num_classes_pickle = pickle.load(f)#.astype(np.int32)
+
+        # len_x = len(x)
+        # assert len(l) == len_x
+        # assert len(m) == len_x
+        # assert len(L) == len_x
+        # assert len(d) == len_x
+        # assert len(r) == len_x
+
+        # L = np.reshape(L, (L.shape[0], 1))
+        # d = np.reshape(d, (d.shape[0], 1))
+
+        print("batch size", x.shape[0])
+        print("num features", x.shape[1])
+        print("num classes", num_classes_pickle)
+        print("num rules", m.shape[1])
+
+        with open(jname, 'rb') as j:
+            enum_map_pickle = json.load(j) # {1->Red, 3->Green, 5->Blue}
+
+        # print(type(enum_map_pickle))
+        
+        user_class_to_num_map =dict()
+        val = 0
+        for user_class in enum_map_pickle:
+            print(user_class," -> ",val)
+            user_class_to_num_map[int(user_class)] = val
+            # user_class_to_num_map.add(user_class,val)
+            val = val+1
+        print("None"," -> ",num_classes_pickle)
+        user_class_to_num_map[None] = num_classes_pickle
+
+        print("----------------------------")
+        print(user_class_to_num_map)
+        print("----------------------------")
 
         len_x = len(x)
+        print("len_x", len_x)
+        # print(r)
+        # print(m.shape)
+        if(r.shape[0]==0):
+            r = np.zeros((m.shape))
+        print("len_r", len(r))
+        print("--------------------------")
+
+        print("Working with l")
+        # print(l.shape)
+        # print(l)
+        # print("Part l1") 
+        if(l.shape[0]==0):
+        # if l is None:
+            print("l is empty")
+            l=np.empty(len_x)
+            l.fill(None)
+        # print(l.shape)
+        # print(l)
+        # print("Part l2") 
+        l = change_values(l,user_class_to_num_map)
+        # print(l.shape)
+        # print(l)
+        # print("Part l3") 
+        # l = user_class_to_num_map[l]
+        # l = np.vectorize(user_class_to_num_map.get)(l)
+
+        print("--------------------------")  
+
+        print("Working with L")
+        # print(L.shape)
+        # print(L)
+        # print("Part L1")   
+        if(L.shape[0]==0):
+        # if L is None:
+            print("L is empty")
+            # L=np.empty(len_x)
+            # L.fill(None)
+            # L = np.reshape(L, (L.shape[0], 1))
+            L = np.full((len_x,1),None)
+        # print(L.shape)
+        # print(L)
+        # print("Part L2")
+        L = change_values(L,user_class_to_num_map)
+        # print(L.shape)
+        # print(L)
+        # print("Part L3")
+        # L = user_class_to_num_map[L]
+
+        print("--------------------------")
+
         assert len(l) == len_x
         assert len(m) == len_x
         assert len(L) == len_x
         assert len(d) == len_x
         assert len(r) == len_x
-
-        L = np.reshape(L, (L.shape[0], 1))
+        
         d = np.reshape(d, (d.shape[0], 1))
 
         if reduce_x_features:
@@ -67,6 +177,8 @@ def get_rule_classes(l, num_classes):
     Output:
     rule_classes ([num_rules,1]) - the list of valid classes labelled by rules (say class 2 by r0, class 1 by r1, class 4 by r2 => [2,1,4])
     '''
+    # print("rule_class l", l)
+    # print(num_classes)
     num_rules = l.shape[1]
     rule_classes = []
     for rule in range(num_rules):
@@ -76,6 +188,9 @@ def get_rule_classes(l, num_classes):
             if lbl != num_classes:
                 assert lbl < num_classes
                 if rule_class != num_classes:
+                    # print("rule", rule)
+                    # print("labels", labels)
+                    # print("rule_class", rule_class)
                     #print('rule is: ', rule, 'Rule class is: ', rule_class, 'newly found label is: ', lbl, 'num_classes is: ', num_classes)
                     assert(lbl == rule_class)
                 else:
