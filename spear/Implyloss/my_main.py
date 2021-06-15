@@ -1,7 +1,6 @@
-from my_data_feeders import DataFeeder
-
-from my_model import HighLevelSupervisionNetwork
-import my_networks
+from .my_data_feeders import DataFeeder
+from .my_model import HighLevelSupervisionNetwork
+import .my_networks
 
 import numpy as np
 import sys, os, shutil

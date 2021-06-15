@@ -6,10 +6,10 @@ import pickle
 import inspect
 import time
 
-# from spear.Implyloss import *
+from spear.Implyloss import *
 
-from my_data_types import *
-from my_data_feeder_utils import *
+from .my_data_types import *
+from .my_data_feeder_utils import *
 
 class DataFeeder():
     def __init__(self, d_pickle, U_pickle, validation_pickle, map_json, 

@@ -1,5 +1,5 @@
-from my_utils import *
-from my_data_types import test_w
+from .my_utils import *
+from .my_data_types import test_w
 
 # from utils import merge_dict_a_into_b
 # import data_utils

@@ -3,7 +3,7 @@ import numpy as np
 import json
 #from .config import flags as config
 
-from my_data_types import *
+from .my_data_types import *
 
 #reduce_x_features = config.w_network == 'textcnn'
 reduce_x_features = False
