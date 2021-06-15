@@ -1,6 +1,6 @@
-from my_data_types import f_d, f_d_U
-from my_utils import *
-import my_utils, my_data_types
+from .my_data_types import f_d, f_d_U
+from .my_utils import *
+# import .my_utils, my_data_types
 
 # import metrics_utils
 import json

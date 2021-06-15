@@ -4,8 +4,8 @@ tf.disable_v2_behavior()
 import numpy as np
 import os
 
-from my_checkmate import BestCheckpointSaver, get_best_checkpoint
-from my_data_types import train_modes
+from .my_checkmate import BestCheckpointSaver, get_best_checkpoint
+from .my_data_types import train_modes
 checkpoint_dir = "./checkpoint"
 if not os.path.exists(checkpoint_dir):
 	os.makedirs(checkpoint_dir)

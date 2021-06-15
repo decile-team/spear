@@ -6,14 +6,16 @@ import math
 import numpy as np
 import sys,os
 
-from my_checkpoints import MRUCheckpoint, CheckpointsFactory
-from my_data_types import *
-import my_gen_cross_entropy_utils as gcross_utils
-# from my_gen_cross_entropy_utils import *
-import my_pr_utils
-from my_test import HLSTest
-from my_train import HLSTrain
-from my_utils import print_tf_global_variables, updated_theta_copy
+from .my_checkpoints import MRUCheckpoint, CheckpointsFactory
+from .my_data_types import *
+# import my_gen_cross_entropy_utils as gcross_utils
+from .my_gen_cross_entropy_utils import *
+from .my_gen_cross_entropy_utils import *
+# import my_pr_utils
+from .my_pr_utils import *
+from .my_test import HLSTest
+from .my_train import HLSTrain
+from .my_utils import print_tf_global_variables, updated_theta_copy
 
 
 
@@ -337,15 +339,16 @@ class HighLevelSupervisionNetwork:
 						var_list=training_var_list)
 
 		if 'pr_loss' == self.mode:
-			pr_loss = my_pr_utils.pr_loss(m=self.f_d_U_m,
-									   f_logits=f_logits, 
-									   w_logits=w_logits, 
-									   f_probs=self.f_d_U_probs,
-									   weights=self.f_d_U_weights,
-									   rule_classes=self.rule_classes,
-									   num_classes=self.num_classes, 
-									   C=0.1,
-									   d=d)
+# 			pr_loss = my_pr_utils.pr_loss(m=self.f_d_U_m,
+			pr_loss = pr_loss(m=self.f_d_U_m,
+									f_logits=f_logits, 
+									w_logits=w_logits, 
+									f_probs=self.f_d_U_probs,
+									weights=self.f_d_U_weights,
+									rule_classes=self.rule_classes,
+									num_classes=self.num_classes, 
+									C=0.1,
+									d=d)
 			self.pr_loss = LL_theta + LL_phi + self.gamma*pr_loss 
 			with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 				self.pr_train_op = f_cross_training_optimizer.minimize(
@@ -359,7 +362,9 @@ class HighLevelSupervisionNetwork:
 					name='f_d_U_snork_L')
 
 			loss_on_d = LL_theta
-			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+# 			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+# 													self.lamda)
+			loss_on_U = generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
 													self.lamda)
 			self.gcross_loss = loss_on_d + self.gamma*loss_on_U
 			with tf.control_dependencies([inc_f_d_U_global_step,  ]):
@@ -374,7 +379,9 @@ class HighLevelSupervisionNetwork:
 					name='f_d_U_snork_L')
 
 			loss_on_d = LL_theta
-			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+# 			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+# 													self.lamda)
+			loss_on_U = generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
 													self.lamda)
 			self.snork_gcross_loss = loss_on_d + self.gamma*loss_on_U
 			#self.snork_gcross_loss = loss_on_d + loss_on_U
@@ -511,7 +518,8 @@ class HighLevelSupervisionNetwork:
 													   logits=w_logits)
 		loss = m*loss
 		loss = (tf.to_float(tf.not_equal(l,L)) * loss) + (tf.to_float(tf.equal(l,L)) * r * loss)
-		gcross_loss = gcross_utils.generalized_cross_entropy_bernoulli(weights,0.2)
+# 		gcross_loss = gcross_utils.generalized_cross_entropy_bernoulli(weights,0.2)
+		gcross_loss = generalized_cross_entropy_bernoulli(weights,0.2)
 		gcross_loss = gcross_loss * m * tf.to_float(tf.equal(l,L)) * (1-r)
 		loss = loss + gcross_loss
 		loss = tf.reduce_sum(loss,axis=-1)

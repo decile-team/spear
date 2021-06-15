@@ -7,7 +7,7 @@ import inspect
 import json
 import os
 
-from my_utils import merge_dict_a_into_b
+from .my_utils import merge_dict_a_into_b
 
 w_layers = [512, 512] # comma-separated list of number of neurons in each layer of the fully-connected w network
 f_layers = [512, 512] # comma-separated list of number of neurons in each layer of the fully-connected f network

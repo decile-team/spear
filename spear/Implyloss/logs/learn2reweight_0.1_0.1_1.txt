@@ -142,7 +142,7 @@ Number of epochs: 4!
 
 ========== epoch : 0 ============
 
-cost: 0.4207095903975348
+cost: 0.4143982459941217
 
 patience: 0
 
@@ -159,15 +159,15 @@ Saved new best checkpoint to path:  ./checkpoint/f_d_U/best.ckpt-124
 
 ========== epoch : 1 ============
 
-cost: 0.3448832413301834
+cost: 0.2641634323273696
 
 patience: 1
 
 
-metrics_dict:  {'f1_score_1': 1.0, 'precision_1': 1.0, 'recall_1': 1.0, 'support_1': 89, 'f1_score': array([1.000, 1.000]), 'precision': array([1.000, 1.000]), 'recall': array([1.000, 1.000]), 'support': array([11, 89]), 'avg_f1_score': 1.0, 'avg_precision': 1.0, 'avg_recall': 1.0, 'accuracy': 1.0, 'epoch': 2.0, 'f_d_global_step': 248}
+metrics_dict:  {'f1_score_1': 0.9888888888888888, 'precision_1': 0.978021978021978, 'recall_1': 1.0, 'support_1': 89, 'f1_score': array([0.900, 0.989]), 'precision': array([1.000, 0.978]), 'recall': array([0.818, 1.000]), 'support': array([11, 89]), 'avg_f1_score': 0.9444444444444444, 'avg_precision': 0.989010989010989, 'avg_recall': 0.9090909090909092, 'accuracy': 0.98, 'epoch': 2.0, 'f_d_global_step': 248}
 
 Reporting f_d metrics to tensorboard
-Not saving metrics dict. Best metric value is 1.0 Current is: 1.0
+Not saving metrics dict. Best metric value is 1.0 Current is: 0.98
 
 Saved MRU checkpoint to path:  ./checkpoint/hls-model-249
 
@@ -176,7 +176,7 @@ Saved new best checkpoint to path:  ./checkpoint/f_d_U/best.ckpt-248
 
 ========== epoch : 2 ============
 
-cost: 0.2968134078677864
+cost: 0.3129617791442621
 
 patience: 2
 
@@ -188,23 +188,23 @@ Not saving metrics dict. Best metric value is 1.0 Current is: 1.0
 
 Saved MRU checkpoint to path:  ./checkpoint/hls-model-374
 
-No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-248
+Saved new best checkpoint to path:  ./checkpoint/f_d_U/best.ckpt-372
 
 
 ========== epoch : 3 ============
 
-cost: 0.2903550441016354
+cost: 0.2627490848272799
 
 patience: 3
 
 
-metrics_dict:  {'f1_score_1': 0.9944134078212291, 'precision_1': 0.9888888888888889, 'recall_1': 1.0, 'support_1': 89, 'f1_score': array([0.952, 0.994]), 'precision': array([1.000, 0.989]), 'recall': array([0.909, 1.000]), 'support': array([11, 89]), 'avg_f1_score': 0.9733971801010908, 'avg_precision': 0.9944444444444445, 'avg_recall': 0.9545454545454546, 'accuracy': 0.99, 'epoch': 4.0, 'f_d_global_step': 496}
+metrics_dict:  {'f1_score_1': 0.9888888888888888, 'precision_1': 0.978021978021978, 'recall_1': 1.0, 'support_1': 89, 'f1_score': array([0.900, 0.989]), 'precision': array([1.000, 0.978]), 'recall': array([0.818, 1.000]), 'support': array([11, 89]), 'avg_f1_score': 0.9444444444444444, 'avg_precision': 0.989010989010989, 'avg_recall': 0.9090909090909092, 'accuracy': 0.98, 'epoch': 4.0, 'f_d_global_step': 496}
 
 Reporting f_d metrics to tensorboard
-Not saving metrics dict. Best metric value is 1.0 Current is: 0.99
+Not saving metrics dict. Best metric value is 1.0 Current is: 0.98
 
 Saved MRU checkpoint to path:  ./checkpoint/hls-model-499
 
-No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-248
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-372
 
 Optimization Finished for f_d_U!
