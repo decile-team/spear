@@ -9,7 +9,8 @@
 SPEAR is a library for data programming with semi-supervision. The package implements several recent data programming approaches including facility to programmatically label and build training data.
 
 ### SPEAR provides functionality such as 
-* creation of LFs/rules/heuristics
+* development of LFs/rules/heuristics for quick labeling
+* automatic generation of LFs
 * compare against several data programming approaches
 * compare against semi-supervised data programming approaches
 * use subset selection to reduce annotation effort
@@ -17,7 +18,9 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 ## Installation
 
 SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
+
 ```git clone https://github.com/decile-team/spear/```
+
 ```pip install -r requirements.txt```
 
 ## Labelling Functions (LFs)
@@ -44,10 +47,10 @@ You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about be
 * [CORDS- COResets and Data Subset Selection](https://github.com/decile-team/cords)
 
 ## Acknowledgment
-SPEAR takes inspiration, builds upon, and uses pieces of code from several open source codebases. These include [Snorkel](https://github.com/snorkel-team/snorkel) & [Imply Loss](https://github.com/awasthiabhijeet/Learning-From-Rules). Also, SPEAR uses [Apricot](https://github.com/jmschrei/apricot) for subset selection.
+SPEAR takes inspiration, builds upon, and uses pieces of code from several open source codebases. These include [Snorkel](https://github.com/snorkel-team/snorkel), [Snuba](https://github.com/HazyResearch/reef)  & [Imply Loss](https://github.com/awasthiabhijeet/Learning-From-Rules). Also, SPEAR uses [Apricot](https://github.com/jmschrei/apricot) for subset selection.
 
 ## Team
-SPEAR is created and maintained by [Ayush](https://cse.iitb.ac.in/~ayusham), [Abhishek]( https://www.cse.iitb.ac.in/~gsaiabhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/), [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Pankaj](https://www.linkedin.com/in/pankaj-singh-b000894a/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your active learning research, and feel free to use it for your commercial projects. We will add the major contributors here.
+SPEAR is created and maintained by [Ayush](https://cse.iitb.ac.in/~ayusham), [Abhishek]( https://www.cse.iitb.ac.in/~gsaiabhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/), [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Pankaj](https://www.linkedin.com/in/pankaj-singh-b000894a/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your research, and feel free to use it for your commercial projects. We will add the major contributors here.
 
 ## Publications
 
