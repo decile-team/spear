@@ -171,7 +171,7 @@ class JL:
 			path_U: Path to pickle file of unlabelled instances
 			path_V: Path to pickle file of validation instances
 			path_T: Path to pickle file of test instances
-			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`DBLP:journals/corr/abs-2008-09887`
+			loss_func_mask: list of size 7 where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
@@ -194,7 +194,7 @@ class JL:
 		'''
 		assert type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
 		assert type(return_gm) == np.bool
-		assert len(loss_func_mask) == 7
+		assert (type(loss_func_mask) == list) and len(loss_func_mask) == 7
 		assert type(batch_size) == np.int or type(batch_size) == np.float
 		assert type(lr_fm) == np.int or type(lr_fm) == np.float
 		assert type(lr_gm) == np.int or type(lr_gm) == np.float
@@ -583,7 +583,7 @@ class JL:
 			path_U: Path to pickle file of unlabelled instances
 			path_V: Path to pickle file of validation instances
 			path_T: Path to pickle file of test instances
-			loss_func_mask: list/numpy array of size 7 or (7,) where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`DBLP:journals/corr/abs-2008-09887`
+			loss_func_mask: list of size 7 where loss_func_mask[i] should be 1 if Loss function (i+1) should be included, 0 else. Checkout Eq(3) in :cite:p:`DBLP:journals/corr/abs-2008-09887`
 			batch_size: Batch size, type should be integer
 			lr_fm: Learning rate for feature model, type is integer or float
 			lr_gm: Learning rate for graphical model(cage algorithm), type is integer or float
