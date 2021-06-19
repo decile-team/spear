@@ -2,7 +2,7 @@ import sys
 sys.path.append('../../')
 import numpy as np
 
-from spear.Cage import Cage
+from spear.cage import Cage
 from spear.utils import get_data, get_classes
 
 path_json = 'data_pipeline/sms_json.json'

@@ -91,11 +91,11 @@ def get_data(path, check_shapes = True, class_map = None):
 	is_dict_trivial_ = is_dict_trivial(class_map)
 	if not(is_dict_trivial_):
 		data[1] = np.vectorize(class_map.get)(data[1])
-		if not (data[3].shape[0] == 0):
+		if not(data[3].shape[0] == 0):
 			data[3] = np.vectorize(class_map.get)(data[3])
 	else:
 		data[1][data[1] == None] = data[9]
-		if not (data[3].shape[0] == 0):
+		if not(data[3].shape[0] == 0):
 			data[3][data[3] == None] = data[9]
 
 	data[6][data[6] == None] = 0 # s will have None values if LF is not continuous
