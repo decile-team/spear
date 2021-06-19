@@ -318,6 +318,9 @@ class LFAnalysis:
         else:
             lf_names = list(range(m))
 
+        # Remap the true labels values
+        Y = np.array([self.mapping[v] for v in Y])
+
         # Default LF stats
         d["Polarity"] = Series(data=self.lf_polarities(), index=lf_names)
         d["Coverage"] = Series(data=self.lf_coverages(), index=lf_names)
