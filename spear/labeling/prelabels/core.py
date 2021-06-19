@@ -24,8 +24,8 @@ class PreLabels:
         self,
         name: str,
         data: DataPoints,
-        data_feats: DataPoints,
         rules: LFSet,
+        data_feats: Optional[DataPoints] = np.array([]),
         gold_labels: Optional[DataPoints] = np.array([]),
         labels_enum = None,
         num_classes = -1,
@@ -127,7 +127,7 @@ class PreLabels:
         r=self._R                                                               # exemplars
 
         s=self._S                                                               # continuous scores
-        n=np.array([lf._is_cont for lf in self._rules.get_lfs()], dtype=bool)   # lf continuous or not
+        n=np.array([lf._is_cont for lf in self._rules.get_lfs()])               # lf continuous or not
         k=np.array([lf._label.value for lf in self._rules.get_lfs()])           # lf associated to which class
 
         output = [x,l,m,L,d,r,s,n,k,self._num_classes]

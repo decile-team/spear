@@ -6,13 +6,16 @@ import math
 import numpy as np
 import sys,os
 
-from my_checkpoints import MRUCheckpoint, CheckpointsFactory
-from my_data_types import *
-import my_gen_cross_entropy_utils as gcross_utils
-import my_pr_utils
-from my_test import HLSTest
-from my_train import HLSTrain
-from my_utils import print_tf_global_variables, updated_theta_copy
+from .my_checkpoints import MRUCheckpoint, CheckpointsFactory
+from .my_data_types import *
+# import my_gen_cross_entropy_utils as gcross_utils
+from .my_gen_cross_entropy_utils import *
+from .my_gen_cross_entropy_utils import *
+# import my_pr_utils
+from .my_pr_utils import *
+from .my_test import HLSTest
+from .my_train import HLSTrain
+from .my_utils import print_tf_global_variables, updated_theta_copy
 
 
 
@@ -29,7 +32,10 @@ class HighLevelSupervisionNetwork:
 	'''
 	def __init__(self, num_features, num_classes, num_rules,
 			num_rules_to_train, rule_classes,
-			w_network, f_network, raw_d_x=None, raw_d_L=None, config=None):
+			w_network, f_network, 
+			f_d_epochs, f_d_U_epochs, f_d_adam_lr, f_d_U_adam_lr, dropout_keep_prob, 
+			f_d_metrics_pickle, f_d_U_metrics_pickle, early_stopping_p, f_d_primary_metric, mode, data_dir, 
+			tensorboard_dir, checkpoint_dir, checkpoint_load_mode, gamma, lamda, raw_d_x=None, raw_d_L=None):
 		'''
 		Func Desc:
 		initializes the class member variables with the provided arguments
@@ -45,19 +51,18 @@ class HighLevelSupervisionNetwork:
 		f_network
 		raw_d_x (default = None)
 		raw_d_L (default = None)
-		config (default = None)
 
 		Output:
 
 		'''
 		
 		# Modules for testing/training
-		# self.train = HLSTrain(self, config)
-		# self.test = HLSTest(self, config)
 
+		self.mode = mode
+		self.gamma = gamma
+		self.lamda = lamda
 		self.raw_d_x = raw_d_x
 		self.raw_d_L = raw_d_L
-		self.config = config
 		self.rule_classes_list = rule_classes
 		self.rule_classes = tf.convert_to_tensor(rule_classes)
 		self.num_features = num_features
@@ -69,7 +74,7 @@ class HighLevelSupervisionNetwork:
 		self.w_network = functools.partial(w_network, self.w_var_scope,
 				self.num_rules)
 		self.f_network = functools.partial(f_network, self.f_var_scope)
-		self.parse_params(config)
+		self.parse_params(f_d_epochs, f_d_U_epochs, f_d_adam_lr, f_d_U_adam_lr)
 
 		# Save global step for each different kind of run
 		self.global_steps = {}
@@ -79,11 +84,18 @@ class HighLevelSupervisionNetwork:
 		# Create the compute graphs
 		# dropout rate used in f and w networks
 		self.dropout_keep_prob = tf.placeholder(tf.float32,name="keep_prob")
-		self.dropout_train_dict = {self.dropout_keep_prob: config.dropout_keep_prob}
+		self.dropout_train_dict = {self.dropout_keep_prob: dropout_keep_prob}
 		self.dropout_test_dict = {self.dropout_keep_prob: 1.0}
 		
-		self.train = HLSTrain(self, config)
-		self.test = HLSTest(self, config)
+		self.train = HLSTrain(self, f_d_metrics_pickle, 
+									f_d_U_metrics_pickle, 
+									f_d_adam_lr, 
+									f_d_U_adam_lr, 
+									early_stopping_p, 
+									f_d_primary_metric, 
+									mode, 
+									data_dir)
+		self.test = HLSTest(self)
 		
 		self.make_f_d_train_ops()
 		self.make_f_d_U_train_ops()
@@ -97,30 +109,29 @@ class HighLevelSupervisionNetwork:
 		sess_config.gpu_options.allow_growth = True
 		self.sess = tf.Session(config=sess_config)
 
-		self.writer = tf.summary.FileWriter(config.tensorboard_dir, self.sess.graph)
+		self.writer = tf.summary.FileWriter(tensorboard_dir, self.sess.graph)
 		# Now that all variables and the session is created, create a
 		# checkpoint saver. We use a single saver for all variables
-		self.mru_saver = MRUCheckpoint(config.checkpoint_dir, self.sess, tf.global_variables())
+		self.mru_saver = MRUCheckpoint(checkpoint_dir, self.sess, tf.global_variables())
 		self.best_savers = CheckpointsFactory(self.sess, self.global_steps)
 		feed_dict = {}
 		self.sess.run(self.init, feed_dict=feed_dict)
-		if config.checkpoint_load_mode == 'mru':
+		if checkpoint_load_mode == 'mru':
 			self.restored = self.mru_saver.restore_if_checkpoint_exists()
 		else:
-			saver = self.best_savers.get_best_saver(config.checkpoint_load_mode)
+			saver = self.best_savers.get_best_saver(checkpoint_load_mode)
 			self.restored = saver.restore_best_checkpoint_if_exists()
 			if not self.restored:
 				raise ValueError('Asked to restore best checkpoint of %s but not previously checkpointed' %
-						config.checkpoint_load_mode)
+						checkpoint_load_mode)
 
-	def parse_params(self, config):
+	def parse_params(self, f_d_epochs, f_d_U_epochs, f_d_adam_lr, f_d_U_adam_lr):
 		'''
 		Func Desc:
-		Parses the parameters present in the config file
+		Parses the given parameters 
 
 		Input:
-		self
-		config 
+		self 
 
 		Sets:
 		f_d_epochs
@@ -128,10 +139,10 @@ class HighLevelSupervisionNetwork:
 		initial_f_d_adam_lr
 		initial_f_d_U_adam_lr
 		'''
-		self.f_d_epochs     =   config.f_d_epochs
-		self.f_d_U_epochs   = config.f_d_U_epochs
-		self.initial_f_d_adam_lr = config.f_d_adam_lr
-		self.initial_f_d_U_adam_lr = config.f_d_U_adam_lr
+		self.f_d_epochs     =   f_d_epochs
+		self.f_d_U_epochs   = f_d_U_epochs
+		self.initial_f_d_adam_lr = f_d_adam_lr
+		self.initial_f_d_U_adam_lr = f_d_U_adam_lr
 
 	# Create the train op for training with d only
 	def make_f_d_train_ops(self):
@@ -310,7 +321,7 @@ class HighLevelSupervisionNetwork:
 		training_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
 
 
-		if 'implication' == self.config.mode:
+		if 'implication' == self.mode:
 			implication_loss = self.implication_loss(weights=self.f_d_U_weights,
 													f_probs=self.f_d_U_probs,
 													m=self.f_d_U_m,
@@ -320,61 +331,66 @@ class HighLevelSupervisionNetwork:
 			
 			self.f_d_U_implication_loss = LL_phi \
 										+ LL_theta \
-										+ self.config.gamma*implication_loss
+										+ self.gamma*implication_loss
 
 			with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 				self.f_d_U_implication_op = f_cross_training_optimizer.minimize(
 						self.f_d_U_implication_loss,
 						var_list=training_var_list)
 
-		if 'pr_loss' == self.config.mode:
-			pr_loss = pr_utils.pr_loss(m=self.f_d_U_m,
-									   f_logits=f_logits, 
-									   w_logits=w_logits, 
-									   f_probs=self.f_d_U_probs,
-									   weights=self.f_d_U_weights,
-									   rule_classes=self.rule_classes,
-									   num_classes=self.num_classes, 
-									   C=0.1,
-									   d=d)
-			self.pr_loss = LL_theta + LL_phi + self.config.gamma*pr_loss 
+		if 'pr_loss' == self.mode:
+# 			pr_loss = my_pr_utils.pr_loss(m=self.f_d_U_m,
+			pr_loss = pr_loss(m=self.f_d_U_m,
+									f_logits=f_logits, 
+									w_logits=w_logits, 
+									f_probs=self.f_d_U_probs,
+									weights=self.f_d_U_weights,
+									rule_classes=self.rule_classes,
+									num_classes=self.num_classes, 
+									C=0.1,
+									d=d)
+			self.pr_loss = LL_theta + LL_phi + self.gamma*pr_loss 
 			with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 				self.pr_train_op = f_cross_training_optimizer.minimize(
 									self.pr_loss,
 									var_list=training_var_list)
 
-		if 'gcross' == self.config.mode:
+		if 'gcross' == self.mode:
 			self.f_d_U_snork_L = tf.placeholder(
 					tf.float32,
 					shape=[None, self.num_classes],
 					name='f_d_U_snork_L')
 
 			loss_on_d = LL_theta
-			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
-													self.config.lamda)
-			self.gcross_loss = loss_on_d + self.config.gamma*loss_on_U
+# 			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+# 													self.lamda)
+			loss_on_U = generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+													self.lamda)
+			self.gcross_loss = loss_on_d + self.gamma*loss_on_U
 			with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 				self.gcross_train_op = f_cross_training_optimizer.minimize(
 									self.gcross_loss,
 									var_list=training_var_list)
 
-		if 'gcross_snorkel' == self.config.mode:
+		if 'gcross_snorkel' == self.mode:
 			self.f_d_U_snork_L = tf.placeholder(
 					tf.float32,
 					shape=[None, self.num_classes],
 					name='f_d_U_snork_L')
 
 			loss_on_d = LL_theta
-			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
-													self.config.lamda)
-			self.snork_gcross_loss = loss_on_d + self.config.gamma*loss_on_U
+# 			loss_on_U = gcross_utils.generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+# 													self.lamda)
+			loss_on_U = generalized_cross_entropy(f_logits,self.f_d_U_snork_L,
+													self.lamda)
+			self.snork_gcross_loss = loss_on_d + self.gamma*loss_on_U
 			#self.snork_gcross_loss = loss_on_d + loss_on_U
 			with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 				self.snork_gcross_train_op = f_cross_training_optimizer.minimize(
 									self.snork_gcross_loss,
 									var_list=training_var_list)
 
-		if 'label_snorkel' == self.config.mode or 'pure_snorkel' == self.config.mode:
+		if 'label_snorkel' == self.mode or 'pure_snorkel' == self.mode:
 			self.f_d_U_snork_L = tf.placeholder(
 					tf.float32,
 					shape=[None, self.num_classes],
@@ -383,21 +399,21 @@ class HighLevelSupervisionNetwork:
 			self.pure_snorkel_loss = tf.nn.softmax_cross_entropy_with_logits(
 									 labels=self.f_d_U_snork_L,logits=f_logits)
 			self.pure_snorkel_loss = tf.reduce_mean(self.pure_snorkel_loss)
-			self.label_snorkel_loss = loss_on_d + self.config.gamma*self.pure_snorkel_loss
+			self.label_snorkel_loss = loss_on_d + self.gamma*self.pure_snorkel_loss
 
-			if 'label_snorkel' == self.config.mode:
+			if 'label_snorkel' == self.mode:
 				with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 					self.label_snorkel_train_op = f_cross_training_optimizer.minimize(
 										self.label_snorkel_loss,
 										var_list=training_var_list)
 
-			if 'pure_snorkel' == self.config.mode:
+			if 'pure_snorkel' == self.mode:
 				with tf.control_dependencies([inc_f_d_U_global_step,  ]):
 					self.pure_snorkel_train_op = f_cross_training_optimizer.minimize(
 										self.pure_snorkel_loss,
 										var_list=training_var_list)
 
-		if 'learn2reweight' == self.config.mode:
+		if 'learn2reweight' == self.mode:
 			len_raw_d_x = len(self.raw_d_x)
 			raw_d_bs = min(len_raw_d_x,32)
 			raw_d_x = tf.get_variable(name="raw_d_x", initializer=self.raw_d_x, trainable=False)
@@ -439,7 +455,7 @@ class HighLevelSupervisionNetwork:
 			theta_hat = updated_theta_copy(
 													grads=grads_thetas,
 													variables=thetas,
-													lr=self.config.lamda,
+													lr=self.lamda,
 													mode=-1)
 
 			# 5. compute unweighted loss on raw_d with updated theta (theta_hat)            
@@ -502,7 +518,8 @@ class HighLevelSupervisionNetwork:
 													   logits=w_logits)
 		loss = m*loss
 		loss = (tf.to_float(tf.not_equal(l,L)) * loss) + (tf.to_float(tf.equal(l,L)) * r * loss)
-		gcross_loss = gcross_utils.generalized_cross_entropy_bernoulli(weights,0.2)
+# 		gcross_loss = gcross_utils.generalized_cross_entropy_bernoulli(weights,0.2)
+		gcross_loss = generalized_cross_entropy_bernoulli(weights,0.2)
 		gcross_loss = gcross_loss * m * tf.to_float(tf.equal(l,L)) * (1-r)
 		loss = loss + gcross_loss
 		loss = tf.reduce_sum(loss,axis=-1)
