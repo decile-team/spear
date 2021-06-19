@@ -69,7 +69,7 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	class_list.sort()
 	n_classes = len(class_dict)
 
-	class_map = {index : value for index, value in enumerate(class_list)}
+	class_map = {value : index for index, value in enumerate(class_list)}
 	class_map[None] = n_classes
 
 	use_cuda = torch.cuda.is_available()

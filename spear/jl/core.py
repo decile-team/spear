@@ -59,11 +59,10 @@ class JL:
 		path_json: Path to json file containing the dictionary of number to string(class name) map
 		n_lfs: number of labelling functions used to generate pickle files
 		n_features: number of features for each instance in the first array of pickle file aka feature matrix
-		n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
 		feature_model: The model intended to be used for features, allowed values are 'lr'(Logistic Regression) or 'nn'(Neural network with 2 hidden layer) string, default is 'nn'
-
+		n_hidden: Number of hidden layer nodes if feature model is 'nn', type is integer, default is 512
 	'''
-	def __init__(self, path_json, n_lfs, n_features, n_hidden = 512, feature_model = 'nn'):
+	def __init__(self, path_json, n_lfs, n_features, feature_model = 'nn', n_hidden = 512):
 		assert type(path_json) == str
 		assert type(n_lfs) == np.int or type(n_lfs) == np.float
 		assert type(n_features) == np.int or type(n_features) == np.float
@@ -80,7 +79,7 @@ class JL:
 		self.class_list.sort()
 		self.n_classes = len(self.class_dict)
 
-		self.class_map = {index : value for index, value in enumerate(self.class_list)}
+		self.class_map = {value: index for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
 
 		self.n_lfs = int(n_lfs)
