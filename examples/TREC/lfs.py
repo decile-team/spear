@@ -9,6 +9,13 @@ from spear.labeling import labeling_function, LFSet, ABSTAIN, preprocessor
 
 from preprocessor import convert_to_lower
 
+label_map = {"DESC": "DESCRIPTION",
+            "ENTY": "ENTITY",
+            "HUM": "HUMAN",
+            "ABBR": "ABBREVIATION",
+            "LOC": "LOCATION",
+            "NUM": "NUMERIC"}
+
 class ClassLabels(enum.Enum):
     DESCRIPTION     = 0
     ENTITY          = 1
@@ -25,7 +32,7 @@ def load_rules(file_name='rules.txt'):
         i = 0
         for line in f:
             list_in = line.strip().split("\t")
-            label = ClassLabels[list_in[0]]
+            label = ClassLabels[label_map[list_in[0]]]
             pattern = list_in[1]
             rule_name = "rule"+str(i)
             
