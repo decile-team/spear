@@ -29,11 +29,11 @@ def load_rules(file_name='rules.txt'):
             pattern = list_in[1]
             rule_name = "rule"+str(i)
             
-            @labeling_function(name=rule_name,resources=dict(pattern=pattern),pre=[convert_to_lower],label=label)
+            @labeling_function(name=rule_name,resources=dict(pattern=pattern,output=label),pre=[convert_to_lower],label=label)
             def f(x,**kwargs):
                 result = re.findall(kwargs["pattern"], x)
                 if result:
-                    return label
+                    return kwargs["output"]
                 else:
                     return ABSTAIN
 
