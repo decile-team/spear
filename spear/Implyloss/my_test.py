@@ -1,9 +1,10 @@
-# from hls_data_types import test_w
-from my_data_types import test_w
+from .my_utils import *
+from .my_data_types import test_w
+
 # from utils import merge_dict_a_into_b
 # import data_utils
 # import metrics_utils
-from my_utils import *
+# from hls_data_types import test_w
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
@@ -14,7 +15,7 @@ class HLSTest():
     Class Desc:
     This Class is designed to test the HLS model and its accuracy and precision obtained on the validation and test datasets
     '''
-    def __init__(self, hls, config):
+    def __init__(self, hls):
         '''
         Func Desc:
         Initializes the class member variables using the arguments provided
@@ -22,14 +23,12 @@ class HLSTest():
         Input:
         self
         hls - the hls model
-        config
 
         Sets:
         hls
-        config
         '''
         self.hls = hls
-        self.config = config
+        # self.config = config
 
     def maybe_save_predictions(self, save_filename, x, l, m, preds, d):
         '''
@@ -145,7 +144,7 @@ class HLSTest():
     # We test w using data from d
     #
     # data_type is either test_w or covered_U
-    def test_w(self, datafeeder, log_output=False, data_type=test_w, save_filename=None):
+    def test_w(self, datafeeder, log_output=False, data_type='test_w', save_filename=None):
         '''
         Func Desc:
         tests the w_network (rule network)
