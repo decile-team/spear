@@ -146,7 +146,7 @@ def get_predictions(proba, class_map, class_dict, need_strings):
 		final_labels = np.vectorize(remap_dict.get)(final_labels)
 	if need_strings:
 		class_dict_with_abstain = (class_dict).copy()
-		class_dict_with_abstain[None] = 'Abstain'
+		class_dict_with_abstain[None] = 'ABSTAIN'
 		return np.vectorize(class_dict_with_abstain.get)(final_labels)
 	else:
 		return final_labels
