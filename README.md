@@ -19,13 +19,13 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 
 SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
 
-```git clone https://github.com/decile-team/spear/```
-
-```pip install -r requirements.txt```
+```git clone https://github.com/decile-team/spear.git```
+```cd spear```
+```pip install -r requirements/requirements.txt```
 
 ## Labelling Functions (LFs)
 * discrete LFs - Users can define LFs that return discrete labels
-* continuous LFs - return continuous scores to assign labels
+* continuous LFs - return continuous scores/confidence to the labels assigned
 
 ## Approaches Implemented
 You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about below approaches
