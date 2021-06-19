@@ -54,7 +54,7 @@ CAGE
 
 :cite:t:`2020:CAGE`
 
-.. automodule:: spear.Cage.core
+.. automodule:: spear.cage.core
 	:members:
 
 ----
@@ -66,7 +66,7 @@ Joint Learning(JL)
 
 	From here on, Feature model(fm) imply Feature based classification model
 
-.. automodule:: spear.JL.core
+.. automodule:: spear.jl.core
 	:members:
 
 ----
@@ -77,7 +77,7 @@ Subset Selection
 Uses facilityLocation from :cite:t:`JMLR:v21:19-467`
 
 
-.. automodule:: spear.JL.subset_selection
+.. automodule:: spear.jl.subset_selection
 	:members:
 
 ----
@@ -116,7 +116,7 @@ JL utils
 Feature-based Models
 ---------------------
 
-.. automodule:: spear.JL.models.models
+.. automodule:: spear.jl.models.models
 	:members:
 
 ----
