@@ -2,7 +2,7 @@ import sys
 sys.path.append('../../')
 import numpy as np
 
-from spear.JL import JL
+from spear.jl import JL
 
 path_json = 'data_pipeline/sms_json.json'
 U_path_pkl = 'data_pipeline/sms_pickle_U.pkl'

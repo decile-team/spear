@@ -105,6 +105,7 @@ def apply_lfs_to_data_point(
         if (y==ABSTAIN and z is not None):
             labels.append((index, j, y, z))
             continue    
+        assert(lf._label == y)
         labels.append((index, j, y.value, z))
     return labels
 

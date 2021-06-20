@@ -19,13 +19,13 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 
 SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
 
-```git clone https://github.com/decile-team/spear/```
-
-```pip install -r requirements.txt```
+```git clone https://github.com/decile-team/spear.git```  
+```cd spear```  
+```pip install -r requirements/requirements.txt```  
 
 ## Labelling Functions (LFs)
 * discrete LFs - Users can define LFs that return discrete labels
-* continuous LFs - return continuous scores to assign labels
+* continuous LFs - return continuous scores/confidence to the labels assigned
 
 ## Approaches Implemented
 You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about below approaches
@@ -54,8 +54,8 @@ SPEAR is created and maintained by [Ayush](https://cse.iitb.ac.in/~ayusham), [Ab
 
 ## Publications
 
-[1] Maheshwari, Ayush, et al. "Data Programming using Semi-Supervision and Subset Selection.", In Findings of ACL (Long Paper) 2021.
+[1] Maheshwari, Ayush, et al. [Data Programming using Semi-Supervision and Subset Selection](https://arxiv.org/abs/2008.09887), In Findings of ACL (Long Paper) 2021.
 
-[2] Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. "Data Programming using Continuous and Quality-Guided Labeling Functions." In AAAI 2020.
+[2] Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. [Data Programming using Continuous and Quality-Guided Labeling Functions](https://arxiv.org/abs/1911.09860), In AAAI 2020.
 
-[3] Sahay, Atul, et al. "Rule augmented unsupervised constituency parsing." In Findings of ACL (Short Paper) 2021.
+[3] Sahay, Atul, et al. [Rule augmented unsupervised constituency parsing](https://arxiv.org/abs/2105.10193), In Findings of ACL (Short Paper) 2021.

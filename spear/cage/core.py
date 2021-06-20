@@ -34,7 +34,7 @@ class Cage:
 		self.class_list.sort()
 		self.n_classes = len(self.class_dict)
 
-		self.class_map = {index : value for index, value in enumerate(self.class_list)}
+		self.class_map = {value: index for index, value in enumerate(self.class_list)}
 		self.class_map[None] = self.n_classes
 
 		self.n_lfs = int(n_lfs)
@@ -143,6 +143,7 @@ class Cage:
 		if path_test != None:
 			data = get_data(path_test, True, self.class_map)
 			m_test, y_true_test, s_test = data[2], data[3], data[6]
+			assert m_test.shape[0] == y_true_test.shape[0]
 			y_true_test = y_true_test.flatten()
 			assert self.n_lfs == m_test.shape[1]
 			assert self.n_classes == data[9]
