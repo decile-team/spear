@@ -28,6 +28,7 @@ class LabelingFunction:
     ) -> None:
         """Instatiates LabelingFunction class object
         """
+        assert(label is not None)
         self.name = name
         self._f = f
         self._label = label
