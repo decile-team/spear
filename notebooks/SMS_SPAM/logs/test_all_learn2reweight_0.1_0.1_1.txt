@@ -1,0 +1,76 @@
+Loading from hoff  ../../examples/SMS_SPAM/data_pipeline/sms_pickle_L.pkl
+batch size 100
+num features 1024
+num classes 2
+num rules 16
+1  ->  0
+0  ->  1
+None  ->  2
+----------------------------
+{1: 0, 0: 1, None: 2}
+----------------------------
+len_x 100
+len_r 100
+--------------------------
+Working with l
+--------------------------
+Working with L
+--------------------------
+Loading from hoff  ../../examples/SMS_SPAM/data_pipeline/sms_pickle_U.pkl
+batch size 5174
+num features 1024
+num classes 2
+num rules 16
+1  ->  0
+0  ->  1
+None  ->  2
+----------------------------
+{1: 0, 0: 1, None: 2}
+----------------------------
+len_x 5174
+len_r 5174
+--------------------------
+Working with l
+--------------------------
+Working with L
+L is empty
+--------------------------
+No valid label found for rule:  2
+No valid label found for rule:  4
+No valid label found for rule:  6
+Rule classes:  [0, 0, 2, 1, 2, 1, 2, 0, 0, 0, 0, 1, 1, 1, 1, 0]
+length of covered U: 2984
+Size of d before oversampling:  100
+Size of U (covered) :  2984
+Size of d after oversampling:  1000
+Size of d_U after combining:  3984
+Loading 100 elements from d
+num instances in d:  1000
+Loading from hoff  ../../examples/SMS_SPAM/data_pipeline/sms_pickle_V.pkl
+batch size 100
+num features 1024
+num classes 2
+num rules 16
+1  ->  0
+0  ->  1
+None  ->  2
+----------------------------
+{1: 0, 0: 1, None: 2}
+----------------------------
+len_x 100
+len_r 100
+--------------------------
+Working with l
+--------------------------
+Working with L
+--------------------------
+Setting value of d to 0 for test data
+test_w len:  64
+test_w len:  64
+Number of features:  1024
+Number of classes:  2
+Print num of rules to train:  16
+Print num of rules:  16
+
+
+
