@@ -25,27 +25,39 @@ class PreLabels:
         name: str,
         data: DataPoints,
         rules: LFSet,
+        num_classes: int,
+        labels_enum,
         data_feats: Optional[DataPoints] = np.array([]),
         gold_labels: Optional[DataPoints] = np.array([]),
-        labels_enum = None,
-        num_classes = -1,
         exemplars: DataPoints=np.array([]),
     ) -> None:       
         """Instantiates PreLabels class with dataset and set of LFs to noisily label the dataset
         """
         self.name = name
         self._data = data
+        self._rules = rules
+        self._num_classes = num_classes
+        self._labels_enum = labels_enum
         self._data_feats = data_feats
         self._gold_labels = gold_labels
-        self._rules = rules
-        self._labels_enum = labels_enum
-        self._num_classes = num_classes
+        self._R = exemplars
         self._L = None
         self._S = None
-        self._R = exemplars
-        self._enum = enum
 
-        assert(num_classes == len(labels_enum))
+        assert num_classes == len(labels_enum) 
+        
+        lab_vals = set(item.value for item in self._labels_enum)
+        assert len(lab_vals)==self._num_classes 
+        
+        lab_nams = set(item.name for item in self._labels_enum)
+        assert 'ABSTAIN' not in lab_nams
+
+        assert (self._data_feats.shape[0]==0) or (self._data_feats.shape[0]==self._data.shape[0])
+        assert (len(self._gold_labels)==self._data.shape[0]) or (self._gold_labels.shape[0]==0)
+        unique_labs = set(np.unique(self._gold_labels))
+        assert unique_labs.issubset(lab_vals)
+        assert (self._R.shape[0]==0) or (self._R.shape[0]==self._data.shape[0] and self._R.shape[1]==len(self._rules))
+
 
     def get_labels(self):
         """Applies LFs to the dataset to generate noisy labels and returns noisy labels and confidence scores
