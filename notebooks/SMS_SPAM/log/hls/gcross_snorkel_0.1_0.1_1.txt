@@ -1,0 +1,156 @@
+Loading from hoff  ../../examples/SMS_SPAM/data_pipeline/sms_pickle_L.pkl
+batch size 100
+num features 1024
+num classes 2
+num rules 16
+1  ->  0
+0  ->  1
+None  ->  2
+----------------------------
+{1: 0, 0: 1, None: 2}
+----------------------------
+len_x 100
+len_r 100
+--------------------------
+Working with l
+--------------------------
+Working with L
+--------------------------
+Loading from hoff  ../../examples/SMS_SPAM/data_pipeline/sms_pickle_U.pkl
+batch size 5174
+num features 1024
+num classes 2
+num rules 16
+1  ->  0
+0  ->  1
+None  ->  2
+----------------------------
+{1: 0, 0: 1, None: 2}
+----------------------------
+len_x 5174
+len_r 5174
+--------------------------
+Working with l
+--------------------------
+Working with L
+L is empty
+--------------------------
+No valid label found for rule:  2
+No valid label found for rule:  4
+No valid label found for rule:  6
+Rule classes:  [0, 0, 2, 1, 2, 1, 2, 0, 0, 0, 0, 1, 1, 1, 1, 0]
+length of covered U: 2984
+Size of d before oversampling:  100
+Size of U (covered) :  2984
+Size of d after oversampling:  1000
+Size of d_U after combining:  3984
+Loading 100 elements from d
+num instances in d:  1000
+Loading from hoff  ../../examples/SMS_SPAM/data_pipeline/sms_pickle_V.pkl
+batch size 100
+num features 1024
+num classes 2
+num rules 16
+1  ->  0
+0  ->  1
+None  ->  2
+----------------------------
+{1: 0, 0: 1, None: 2}
+----------------------------
+len_x 100
+len_r 100
+--------------------------
+Working with l
+--------------------------
+Working with L
+--------------------------
+Setting value of d to 0 for test data
+test_w len:  64
+test_w len:  64
+Number of features:  1024
+Number of classes:  2
+Print num of rules to train:  16
+Print num of rules:  16
+
+
+
+Found prev best metric for run type f_d: 1.000
+best metrics dict:  {'f1_score_1': 1.0, 'precision_1': 1.0, 'recall_1': 1.0, 'support_1': 89, 'f1_score': array([1., 1.]), 'precision': array([1., 1.]), 'recall': array([1., 1.]), 'support': array([11, 89]), 'avg_f1_score': 1.0, 'avg_precision': 1.0, 'avg_recall': 1.0, 'accuracy': 1.0, 'epoch': 2.0, 'f_d_global_step': 124}
+Found prev best metric for run type f_d_U: 1.000
+best metrics dict:  {'f1_score_1': 1.0, 'precision_1': 1.0, 'recall_1': 1.0, 'support_1': 89, 'f1_score': array([1., 1.]), 'precision': array([1., 1.]), 'recall': array([1., 1.]), 'support': array([11, 89]), 'avg_f1_score': 1.0, 'avg_precision': 1.0, 'avg_recall': 1.0, 'accuracy': 1.0, 'epoch': 3.0, 'f_d_global_step': 372}
+[
+    "<tf.Variable 'global_step:0' shape=() dtype=int64_ref>",
+    "<tf.Variable 'f_d_global_step:0' shape=() dtype=int32_ref>",
+    "<tf.Variable 'f_network/dense/kernel:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel:0' shape=(512, 2) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias:0' shape=(2,) dtype=float32_ref>",
+    "<tf.Variable 'beta1_power:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'beta2_power:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_Adam:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_Adam_1:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_Adam:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_Adam_1:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_Adam:0' shape=(512, 2) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_Adam_1:0' shape=(512, 2) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_Adam:0' shape=(2,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_Adam_1:0' shape=(2,) dtype=float32_ref>",
+    "<tf.Variable 'f_d_U_global_step:0' shape=() dtype=int32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/kernel:0' shape=(1040, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_0/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/kernel:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_layer_1/bias:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/kernel:0' shape=(512, 1) dtype=float32_ref>",
+    "<tf.Variable 'w_network/w_linear_layer/bias:0' shape=(1,) dtype=float32_ref>",
+    "<tf.Variable 'beta1_power_1:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'beta2_power_1:0' shape=() dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_U_Adam:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/kernel/f_d_U_Adam_1:0' shape=(1024, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_U_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense/bias/f_d_U_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_U_Adam:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/kernel/f_d_U_Adam_1:0' shape=(512, 512) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_U_Adam:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_1/bias/f_d_U_Adam_1:0' shape=(512,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_U_Adam:0' shape=(512, 2) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/kernel/f_d_U_Adam_1:0' shape=(512, 2) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_U_Adam:0' shape=(2,) dtype=float32_ref>",
+    "<tf.Variable 'f_network/dense_2/bias/f_d_U_Adam_1:0' shape=(2,) dtype=float32_ref>"
+]
+Run mode is gcross_snorkel
+gcross_snorkel
+num_instances:  3984
+batch_size:  32
+total_batch:  124
+remaining:  16
+total_batch:  124
+LABEL MODEL NOT SAVED
+Checkpoint file does not exist
+Saved new best checkpoint to path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-51
+Restoring best checkpoint from path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-51
+Saved new best checkpoint to path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-52
+Restoring best checkpoint from path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-51
+Saved new best checkpoint to path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-53
+Saved new best checkpoint to path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-54
+Restoring best checkpoint from path:  /tmp/best_ckpt_0.859894/foo-bar/best.ckpt-53
+Best ckpt path:  /tmp/best_ckpt_0.010939/best.ckpt-13
+Best ckpt path:  /tmp/best_ckpt_0.010939/best.ckpt-13
+Best ckpt path:  /tmp/best_ckpt_0.010939/best.ckpt-16
+Best ckpt path:  /tmp/best_ckpt_0.010939/best.ckpt-15
+Saved MRU checkpoint to path:  /tmp/checkpoints/hls-model
+Restoring checkpoint from path:  /tmp/checkpoints/hls-model
+Restoring checkpoint from path:  /tmp/checkpoints/hls-model
+Saved MRU checkpoint to path:  /tmp/checkpoints_0.040903/hls-model-11
+Restoring checkpoint from path:  /tmp/checkpoints_0.040903/hls-model-11
+Saved MRU checkpoint to path:  /tmp/checkpoints_0.040903/hls-model-5
+Restoring checkpoint from path:  /tmp/checkpoints_0.040903/hls-model-5
+Saved MRU checkpoint to path:  /tmp/checkpoints_0.413632/hls-model-11
+Restoring checkpoint from path:  /tmp/checkpoints_0.413632/hls-model-11
+Saved MRU checkpoint to path:  /tmp/checkpoints_0.413632/hls-model-5
+Restoring checkpoint from path:  /tmp/checkpoints_0.413632/hls-model-5
