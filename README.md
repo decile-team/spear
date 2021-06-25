@@ -1,3 +1,10 @@
+<p align="center">
+    <br>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        <img src="https://github.com/decile-team/spear/blob/main/spear_logo.svg" width="500" height="150"/>
+    </br>
+</p>
+
 ![PyPI](https://img.shields.io/pypi/v/spear)
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/en/master)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
