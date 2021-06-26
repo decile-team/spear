@@ -18,9 +18,9 @@ We present SPEAR, an open-source python library for data programming with semi-s
  rules/heuristics and associate 'noisy' labels(or prelabels) to the training dataset. These noisy labels 
  are aggregated to assign labels to the unlabeled data for downstream tasks. Several label aggregation 
  approaches have been proposed that aggregate the noisy labels and then train the 'noisily' labeled set in 
- a cascaded manner, while other approaches 'jointly' aggregates and trains the model. In the python package,
-  we integrate several cascade and joint data-programming approaches while providing facility to define rules.
-   The code and tutorial notebooks are available `here <https://github.com/decile-team/spear>`_.
+ a cascaded manner, while other approaches 'jointly' aggregates and trains the model. In the python package, we
+ integrate several cascade and joint data-programming approaches while providing facility to define rules. 
+ The code and tutorial notebooks are available `here <https://github.com/decile-team/spear>`_.
 
 Labeling
 ==========
