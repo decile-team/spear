@@ -13,14 +13,14 @@ SPEAR: **S**\ emi-Su\ **pe**\ rvised D\ **a**\ ta Prog\ **r**\ amming
    :caption: Contents:
 
 We present SPEAR, an open-source python library for data programming with semi-supervision.
- The package implements several recent data programming approaches including facility to programmatically 
- label and build training data. SPEAR facilitates weak supervision, either pre-defined, in the form of 
- rules/heuristics and associate 'noisy' labels(or prelabels) to the training dataset. These noisy labels 
- are aggregated to assign labels to the unlabeled data for downstream tasks. Several label aggregation 
- approaches have been proposed that aggregate the noisy labels and then train the 'noisily' labeled set in 
- a cascaded manner, while other approaches 'jointly' aggregates and trains the model. In the python package,
-  we integrate several cascade and joint data-programming approaches while providing facility to define rules.
-   The code and tutorial notebooks are available `here <https://github.com/decile-team/spear>`_.
+The package implements several recent data programming approaches including facility to programmatically 
+label and build training data. SPEAR facilitates weak supervision, either pre-defined, in the form of 
+rules/heuristics and associate 'noisy' labels(or prelabels) to the training dataset. These noisy labels 
+are aggregated to assign labels to the unlabeled data for downstream tasks. Several label aggregation 
+approaches have been proposed that aggregate the noisy labels and then train the 'noisily' labeled set in 
+a cascaded manner, while other approaches 'jointly' aggregates and trains the model. In the python package, we
+integrate several cascade and joint data-programming approaches while providing facility to define rules. 
+The code and tutorial notebooks are available `here <https://github.com/decile-team/spear>`_.
 
 Labeling
 ==========
