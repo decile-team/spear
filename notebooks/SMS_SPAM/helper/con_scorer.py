@@ -8,7 +8,11 @@ from gensim.models.keyedvectors import KeyedVectors
 import gensim.matutils as gm
 
 print("model loading")
-model = KeyedVectors.load_word2vec_format('data/SMS_SPAM/glove_w2v.txt', binary=False)
+model = None
+try:
+    model = KeyedVectors.load_word2vec_format('data/SMS_SPAM/glove_w2v.txt', binary=False)
+except:
+    model = KeyedVectors.load_word2vec_format('../../data/SMS_SPAM/glove_w2v.txt', binary=False)
 print("model loaded")
 
 def get_word_vectors(btw_words):
