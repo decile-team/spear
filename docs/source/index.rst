@@ -6,7 +6,7 @@
 
 Welcome to SPEAR's documentation!
 ==================================
-SPEAR: **S**\ emi-Su\ **pe**\ rvised D\ **a**\ ta Prog\ **r**\ amming
+SPEAR: **S**\ emi-Su\ **p**\ ervis\ **e**\ d D\ **a**\ ta P\ **r**\ ogramming
 
 .. toctree::
    :maxdepth: 5
