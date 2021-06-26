@@ -6,7 +6,7 @@
 </p>
 
 ![PyPI](https://img.shields.io/pypi/v/spear)
-[![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/en/master)
+[![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
 
