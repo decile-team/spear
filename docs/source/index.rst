@@ -126,59 +126,59 @@ ImplyLoss
 
 Implyloss Checkmate
 ---------------------------
-.. automodule:: spear.Implyloss.my_checkmate
+.. automodule:: spear.Implyloss.checkmate
 	:members:
 
 Implyloss Checkpoints
 ---------------------------
-.. automodule:: spear.Implyloss.my_checkpoints
+.. automodule:: spear.Implyloss.checkpoints
 	:members:
 
-Implyloss Config
----------------------------
-.. automodule:: spear.Implyloss.my_config
-	:members:
+.. Implyloss Config
+.. ---------------------------
+.. .. automodule:: spear.Implyloss.config
+.. 	:members:
 
 Implyloss Data Feeders
 ---------------------------
-.. automodule:: spear.Implyloss.my_data_feeders
+.. automodule:: spear.Implyloss.data_feeders
 	:members:
 
 Implyloss Data Feeders Utils
 ----------------------------------
-.. automodule:: spear.Implyloss.my_data_feeder_utils
+.. automodule:: spear.Implyloss.data_feeder_utils
 	:members:
 
 Implyloss Gen Cross Entropy Utils
 ------------------------------------
-.. automodule:: spear.Implyloss.my_gen_cross_entropy_utils
+.. automodule:: spear.Implyloss.gen_cross_entropy_utils
 	:members:
 
 
 Implyloss Model
 ---------------------------
-.. automodule:: spear.Implyloss.my_model
+.. automodule:: spear.Implyloss.model
 	:members:
 
 Implyloss PR Utils
 ---------------------------
-.. automodule:: spear.Implyloss.my_pr_utils
+.. automodule:: spear.Implyloss.pr_utils
 	:members:
 
 Implyloss Test
 ---------------------------
-.. automodule:: spear.Implyloss.my_test
+.. automodule:: spear.Implyloss.test
 	:members:
 
 Implyloss Train
 ---------------------------
-.. automodule:: spear.Implyloss.my_train
+.. automodule:: spear.Implyloss.train
 	:members:
 
 
 Implyloss Utils
 ---------------------------
-.. automodule:: spear.Implyloss.my_utils
+.. automodule:: spear.Implyloss.utils
 	:members:
 
 
