@@ -44,8 +44,8 @@ def unsup_subset(x_train, n_unsup):
 	torch.backends.cudnn.benchmark = True
 
 	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
-	x_sub = fl.fit_transform(torch.from_numpy(x_train).to(device=device))
-	indices = find_indices(torch.from_numpy(x_train).to(device=device), x_sub)
+	x_sub = fl.fit_transform(x_train)
+	indices = find_indices(torch.from_numpy(x_train).to(device=device), torch.from_numpy(x_sub).to(device=device))
 	return np.sort(indices)
 
 def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
