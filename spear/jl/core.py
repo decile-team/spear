@@ -12,7 +12,7 @@ from sklearn.metrics import recall_score as recall_score
 
 from ..utils.data_editor import get_data, get_classes, get_predictions
 from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
-from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence, sleep_
+from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
 from .models.models import *
 
 #[Note: 
@@ -338,8 +338,8 @@ class JL:
 		stopped_epoch = -1
 		stop_early_fm, stop_early_gm = [], []
 
-		with tqdm(total=n_epochs_, position=0, leave=True) as pbar:
-			for epoch in tqdm((sleep_, range(n_epochs_)), position=0, leave=True):
+		with tqdm(total=n_epochs_) as pbar:
+			for epoch in range(n_epochs_):
 				
 				self.feature_model.train()
 
@@ -533,8 +533,8 @@ class JL:
 					stop_early_fm.append(fm_valid_acc)
 					stop_early_gm.append(gm_valid_acc)
 
-			pbar.update()
-			#epoch for loop ended
+				pbar.update()
+				#epoch for loop ended
 
 
 		if stopped_epoch == -1:
