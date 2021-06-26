@@ -338,125 +338,141 @@ class JL:
 		stopped_epoch = -1
 		stop_early_fm, stop_early_gm = [], []
 
-		for epoch in tqdm(range(n_epochs_)):
-			
-			self.feature_model.train()
+		with tqdm(total=n_epochs_, position=0, leave=True) as pbar:
+			for epoch in tqdm(range(n_epochs_), position=0, leave=True):
+				
+				self.feature_model.train()
 
-			for _, sample in enumerate(loader):
-				optimizer_fm.zero_grad()
-				optimizer_gm.zero_grad()
+				for _, sample in enumerate(loader):
+					optimizer_fm.zero_grad()
+					optimizer_gm.zero_grad()
 
-				for i in range(len(sample)):
-					sample[i] = sample[i].to(device = self.device)
+					for i in range(len(sample)):
+						sample[i] = sample[i].to(device = self.device)
 
-				supervised_indices = sample[4].nonzero().view(-1)
-				unsupervised_indices = (1-sample[4]).nonzero().squeeze()
+					supervised_indices = sample[4].nonzero().view(-1)
+					unsupervised_indices = (1-sample[4]).nonzero().squeeze()
 
-				if(loss_func_mask[0]):
-					if len(supervised_indices) > 0:
-						loss_1 = supervised_criterion(self.feature_model(sample[0][supervised_indices]), sample[1][supervised_indices])
+					if(loss_func_mask[0]):
+						if len(supervised_indices) > 0:
+							loss_1 = supervised_criterion(self.feature_model(sample[0][supervised_indices]), sample[1][supervised_indices])
+						else:
+							loss_1 = 0
 					else:
 						loss_1 = 0
-				else:
-					loss_1 = 0
 
-				if(loss_func_mask[1]):
-					unsupervised_fm_probability = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0][unsupervised_indices]))
-					loss_2 = entropy(unsupervised_fm_probability)
-				else:
-					loss_2 = 0
-
-				if(loss_func_mask[2]):
-					y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
-					loss_3 = supervised_criterion(self.feature_model(sample[0][unsupervised_indices]), torch.tensor(y_pred_unsupervised, device = self.device))
-				else:
-					loss_3 = 0
-
-				if (loss_func_mask[3] and len(supervised_indices) > 0):
-					loss_4 = log_likelihood_loss_supervised(self.theta, self.pi, sample[1][supervised_indices], sample[2][supervised_indices], sample[3][supervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
-				else:
-					loss_4 = 0
-
-				if(loss_func_mask[4]):
-					loss_5 = log_likelihood_loss(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
-				else:
-					loss_5 = 0
-
-				if(loss_func_mask[5]):
-					if(len(supervised_indices) >0):
-						supervised_indices = supervised_indices.tolist()
-						probs_graphical = probability(self.theta, self.pi, torch.cat([sample[2][unsupervised_indices], sample[2][supervised_indices]]),\
-						torch.cat([sample[3][unsupervised_indices],sample[3][supervised_indices]]), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+					if(loss_func_mask[1]):
+						unsupervised_fm_probability = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0][unsupervised_indices]))
+						loss_2 = entropy(unsupervised_fm_probability)
 					else:
-						probs_graphical = probability(self.theta, self.pi,sample[2][unsupervised_indices],sample[3][unsupervised_indices],\
-							self.k, self.n_classes, self.continuous_mask, qc_, self.device)
-					probs_graphical = (probs_graphical.t() / probs_graphical.sum(1)).t()
-					probs_fm = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0]))
-					loss_6 = kl_divergence(probs_fm, probs_graphical)
+						loss_2 = 0
+
+					if(loss_func_mask[2]):
+						y_pred_unsupervised = predict_gm_labels(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+						loss_3 = supervised_criterion(self.feature_model(sample[0][unsupervised_indices]), torch.tensor(y_pred_unsupervised, device = self.device))
+					else:
+						loss_3 = 0
+
+					if (loss_func_mask[3] and len(supervised_indices) > 0):
+						loss_4 = log_likelihood_loss_supervised(self.theta, self.pi, sample[1][supervised_indices], sample[2][supervised_indices], sample[3][supervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+					else:
+						loss_4 = 0
+
+					if(loss_func_mask[4]):
+						loss_5 = log_likelihood_loss(self.theta, self.pi, sample[2][unsupervised_indices], sample[3][unsupervised_indices], self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+					else:
+						loss_5 = 0
+
+					if(loss_func_mask[5]):
+						if(len(supervised_indices) >0):
+							supervised_indices = supervised_indices.tolist()
+							probs_graphical = probability(self.theta, self.pi, torch.cat([sample[2][unsupervised_indices], sample[2][supervised_indices]]),\
+							torch.cat([sample[3][unsupervised_indices],sample[3][supervised_indices]]), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+						else:
+							probs_graphical = probability(self.theta, self.pi,sample[2][unsupervised_indices],sample[3][unsupervised_indices],\
+								self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+						probs_graphical = (probs_graphical.t() / probs_graphical.sum(1)).t()
+						probs_fm = torch.nn.Softmax(dim = 1)(self.feature_model(sample[0]))
+						loss_6 = kl_divergence(probs_fm, probs_graphical)
+					else:
+						loss_6 = 0
+
+					if(loss_func_mask[6]):
+						prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
+					else:
+						prec_loss = 0
+
+					loss = loss_1 + loss_2 + loss_3 + loss_4 + loss_5 + loss_6 + prec_loss
+					if loss != 0:
+						loss.backward()
+						optimizer_gm.step()
+						optimizer_fm.step()
+
+				#gm test
+				y_pred = predict_gm_labels(self.theta, self.pi, l_test.to(device = self.device), s_test.to(device = self.device), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+				if use_accuracy_score:
+					gm_test_acc = accuracy_score(y_test, y_pred)
 				else:
-					loss_6 = 0
+					gm_test_acc = f1_score(y_test, y_pred, average = metric_avg)
+				gm_test_prec = prec_score(y_test, y_pred, average = metric_avg)
+				gm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
 
-				if(loss_func_mask[6]):
-					prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
+				#gm validation
+				y_pred = predict_gm_labels(self.theta, self.pi, l_valid.to(device = self.device), s_valid.to(device = self.device), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
+				if use_accuracy_score:
+					gm_valid_acc = accuracy_score(y_valid, y_pred)
 				else:
-					prec_loss = 0
+					gm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
 
-				loss = loss_1 + loss_2 + loss_3 + loss_4 + loss_5 + loss_6 + prec_loss
-				if loss != 0:
-					loss.backward()
-					optimizer_gm.step()
-					optimizer_fm.step()
+				(self.feature_model).eval()
 
-			#gm test
-			y_pred = predict_gm_labels(self.theta, self.pi, l_test.to(device = self.device), s_test.to(device = self.device), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
-			if use_accuracy_score:
-				gm_test_acc = accuracy_score(y_test, y_pred)
-			else:
-				gm_test_acc = f1_score(y_test, y_pred, average = metric_avg)
-			gm_test_prec = prec_score(y_test, y_pred, average = metric_avg)
-			gm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
+				#fm test
+				probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_test.to(device = self.device)))
+				y_pred = np.argmax(probs.cpu().detach().numpy(), 1)
+				if use_accuracy_score:
+					fm_test_acc = accuracy_score(y_test, y_pred)
+				else:
+					fm_test_acc = f1_score(y_test, y_pred, average = metric_avg)
+				fm_test_prec = prec_score(y_test, y_pred, average = metric_avg)
+				fm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
 
-			#gm validation
-			y_pred = predict_gm_labels(self.theta, self.pi, l_valid.to(device = self.device), s_valid.to(device = self.device), self.k, self.n_classes, self.continuous_mask, qc_, self.device)
-			if use_accuracy_score:
-				gm_valid_acc = accuracy_score(y_valid, y_pred)
-			else:
-				gm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
+				#fm validation
+				probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_valid.to(device = self.device)))
+				y_pred = np.argmax(probs.cpu().detach().numpy(), 1)
+				if use_accuracy_score:
+					fm_valid_acc = accuracy_score(y_valid, y_pred)
+				else:
+					fm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
 
-			(self.feature_model).eval()
+				(self.feature_model).train()
 
-			#fm test
-			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_test.to(device = self.device)))
-			y_pred = np.argmax(probs.cpu().detach().numpy(), 1)
-			if use_accuracy_score:
-				fm_test_acc = accuracy_score(y_test, y_pred)
-			else:
-				fm_test_acc = f1_score(y_test, y_pred, average = metric_avg)
-			fm_test_prec = prec_score(y_test, y_pred, average = metric_avg)
-			fm_test_recall = recall_score(y_test, y_pred, average = metric_avg)
+				if path_log != None:
+					file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
+					if epoch % 5 == 0:
+						file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(score_used, epoch, gm_test_acc, fm_test_acc))
+				else:
+					print("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
+					if epoch % 5 == 0:
+						print("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}".format(score_used, epoch, gm_test_acc, fm_test_acc))
 
-			#fm validation
-			probs = torch.nn.Softmax(dim = 1)(self.feature_model(x_valid.to(device = self.device)))
-			y_pred = np.argmax(probs.cpu().detach().numpy(), 1)
-			if use_accuracy_score:
-				fm_valid_acc = accuracy_score(y_valid, y_pred)
-			else:
-				fm_valid_acc = f1_score(y_valid, y_pred, average = metric_avg)
+				if epoch > start_len_ and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
+					if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
+						if best_score_gm_test < gm_test_acc or best_score_fm_test < fm_test_acc:
+							best_epoch = epoch
+							self.pi_optimal = (self.pi).detach().clone()
+							self.theta_optimal = (self.theta).detach().clone()
+							self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
-			(self.feature_model).train()
+							best_score_fm_val = fm_valid_acc
+							best_score_fm_test = fm_test_acc
+							best_score_gm_val = gm_valid_acc
+							best_score_gm_test = gm_test_acc
 
-			if path_log != None:
-				file.write("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}\n".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
-				if epoch % 5 == 0:
-					file.write("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}\n".format(score_used, epoch, gm_test_acc, fm_test_acc))
-			else:
-				print("{}: Epoch: {}\tgm_valid_score: {}\tfm_valid_score: {}".format(score_used, epoch, gm_valid_acc, fm_valid_acc))
-				if epoch % 5 == 0:
-					print("{}: Epoch: {}\tgm_test_score: {}\tfm_test_score: {}".format(score_used, epoch, gm_test_acc, fm_test_acc))
-
-			if epoch > start_len_ and gm_valid_acc >= best_score_gm_val and gm_valid_acc >= best_score_fm_val:
-				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
-					if best_score_gm_test < gm_test_acc or best_score_fm_test < fm_test_acc:
+							best_prec_fm_test = fm_test_prec
+							best_recall_fm_test  = fm_test_recall
+							best_prec_gm_test = gm_test_prec
+							best_recall_gm_test  = gm_test_recall
+					else:
 						best_epoch = epoch
 						self.pi_optimal = (self.pi).detach().clone()
 						self.theta_optimal = (self.theta).detach().clone()
@@ -471,32 +487,32 @@ class JL:
 						best_recall_fm_test  = fm_test_recall
 						best_prec_gm_test = gm_test_prec
 						best_recall_gm_test  = gm_test_recall
-				else:
-					best_epoch = epoch
-					self.pi_optimal = (self.pi).detach().clone()
-					self.theta_optimal = (self.theta).detach().clone()
-					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
+						stop_early_fm = []
+						stop_early_gm = []
 
-					best_score_fm_val = fm_valid_acc
-					best_score_fm_test = fm_test_acc
-					best_score_gm_val = gm_valid_acc
-					best_score_gm_test = gm_test_acc
+				if epoch > start_len_ and fm_valid_acc >= best_score_fm_val and fm_valid_acc >= best_score_gm_val:
+					if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
+						if best_score_fm_test < fm_test_acc or best_score_gm_test < gm_test_acc:
+							best_epoch = epoch
+							self.pi_optimal = (self.pi).detach().clone()
+							self.theta_optimal = (self.theta).detach().clone()
+							self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
-					best_prec_fm_test = fm_test_prec
-					best_recall_fm_test  = fm_test_recall
-					best_prec_gm_test = gm_test_prec
-					best_recall_gm_test  = gm_test_recall
-					stop_early_fm = []
-					stop_early_gm = []
+							best_score_fm_val = fm_valid_acc
+							best_score_fm_test = fm_test_acc
+							best_score_gm_val = gm_valid_acc
+							best_score_gm_test = gm_test_acc
 
-			if epoch > start_len_ and fm_valid_acc >= best_score_fm_val and fm_valid_acc >= best_score_gm_val:
-				if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
-					if best_score_fm_test < fm_test_acc or best_score_gm_test < gm_test_acc:
+							best_prec_fm_test = fm_test_prec
+							best_recall_fm_test  = fm_test_recall
+							best_prec_gm_test = gm_test_prec
+							best_recall_gm_test  = gm_test_recall
+					else:
 						best_epoch = epoch
 						self.pi_optimal = (self.pi).detach().clone()
 						self.theta_optimal = (self.theta).detach().clone()
 						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
-
+						
 						best_score_fm_val = fm_valid_acc
 						best_score_fm_test = fm_test_acc
 						best_score_gm_val = gm_valid_acc
@@ -506,33 +522,19 @@ class JL:
 						best_recall_fm_test  = fm_test_recall
 						best_prec_gm_test = gm_test_prec
 						best_recall_gm_test  = gm_test_recall
+						stop_early_fm = []
+						stop_early_gm = []
+
+				if len(stop_early_fm) > stop_len_ and len(stop_early_gm) > stop_len_ and (all(best_score_fm_val >= k for k in stop_early_fm) or \
+				all(best_score_gm_val >= k for k in stop_early_gm)):
+					stopped_epoch = epoch
+					break
 				else:
-					best_epoch = epoch
-					self.pi_optimal = (self.pi).detach().clone()
-					self.theta_optimal = (self.theta).detach().clone()
-					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
-					
-					best_score_fm_val = fm_valid_acc
-					best_score_fm_test = fm_test_acc
-					best_score_gm_val = gm_valid_acc
-					best_score_gm_test = gm_test_acc
+					stop_early_fm.append(fm_valid_acc)
+					stop_early_gm.append(gm_valid_acc)
 
-					best_prec_fm_test = fm_test_prec
-					best_recall_fm_test  = fm_test_recall
-					best_prec_gm_test = gm_test_prec
-					best_recall_gm_test  = gm_test_recall
-					stop_early_fm = []
-					stop_early_gm = []
-
-			if len(stop_early_fm) > stop_len_ and len(stop_early_gm) > stop_len_ and (all(best_score_fm_val >= k for k in stop_early_fm) or \
-			all(best_score_gm_val >= k for k in stop_early_gm)):
-				stopped_epoch = epoch
-				break
-			else:
-				stop_early_fm.append(fm_valid_acc)
-				stop_early_gm.append(gm_valid_acc)
-
-		#epoch for loop ended
+			pbar.update()
+			#epoch for loop ended
 
 
 		if stopped_epoch == -1:
