@@ -102,7 +102,7 @@ class JL:
 			exit(1)
 
 		self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
-		self.pi_optimal, self.theta_optimal = (self.pi).cpu().detach().clone(), (self.theta).cpu().detach().clone()
+		self.pi_optimal, self.theta_optimal = (self.pi).detach().clone(), (self.theta).detach().clone()
 
 	def save_params(self, save_path):
 		'''
@@ -458,8 +458,8 @@ class JL:
 				if gm_valid_acc == best_score_gm_val or gm_valid_acc == best_score_fm_val:
 					if best_score_gm_test < gm_test_acc or best_score_fm_test < fm_test_acc:
 						best_epoch = epoch
-						self.pi_optimal = (self.pi).cpu().detach().clone()
-						self.theta_optimal = (self.theta).cpu().detach().clone()
+						self.pi_optimal = (self.pi).detach().clone()
+						self.theta_optimal = (self.theta).detach().clone()
 						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 						best_score_fm_val = fm_valid_acc
@@ -473,8 +473,8 @@ class JL:
 						best_recall_gm_test  = gm_test_recall
 				else:
 					best_epoch = epoch
-					self.pi_optimal = (self.pi).cpu().detach().clone()
-					self.theta_optimal = (self.theta).cpu().detach().clone()
+					self.pi_optimal = (self.pi).detach().clone()
+					self.theta_optimal = (self.theta).detach().clone()
 					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 					best_score_fm_val = fm_valid_acc
@@ -493,8 +493,8 @@ class JL:
 				if fm_valid_acc == best_score_fm_val or fm_valid_acc == best_score_gm_val:
 					if best_score_fm_test < fm_test_acc or best_score_gm_test < gm_test_acc:
 						best_epoch = epoch
-						self.pi_optimal = (self.pi).cpu().detach().clone()
-						self.theta_optimal = (self.theta).cpu().detach().clone()
+						self.pi_optimal = (self.pi).detach().clone()
+						self.theta_optimal = (self.theta).detach().clone()
 						self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 
 						best_score_fm_val = fm_valid_acc
@@ -508,8 +508,8 @@ class JL:
 						best_recall_gm_test  = gm_test_recall
 				else:
 					best_epoch = epoch
-					self.pi_optimal = (self.pi).cpu().detach().clone()
-					self.theta_optimal = (self.theta).cpu().detach().clone()
+					self.pi_optimal = (self.pi).detach().clone()
+					self.theta_optimal = (self.theta).detach().clone()
 					self.fm_optimal_params = deepcopy((self.feature_model).state_dict())
 					
 					best_score_fm_val = fm_valid_acc
