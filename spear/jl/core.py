@@ -9,11 +9,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score as prec_score
 from sklearn.metrics import recall_score as recall_score
-import time
 
 from ..utils.data_editor import get_data, get_classes, get_predictions
 from ..utils.utils_cage import probability, log_likelihood_loss, precision_loss, predict_gm_labels
-from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence
+from ..utils.utils_jl import log_likelihood_loss_supervised, entropy, kl_divergence, sleep_
 from .models.models import *
 
 #[Note: 
@@ -340,7 +339,7 @@ class JL:
 		stop_early_fm, stop_early_gm = [], []
 
 		with tqdm(total=n_epochs_, position=0, leave=True) as pbar:
-			for epoch in tqdm((time.sleep(0.3), range(n_epochs_)), position=0, leave=True):
+			for epoch in tqdm((sleep_, range(n_epochs_)), position=0, leave=True):
 				
 				self.feature_model.train()
 

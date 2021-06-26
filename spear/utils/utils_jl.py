@@ -1,8 +1,16 @@
 import torch.nn as nn
 from torch import log
 import numpy as np
+from time import sleep
 
 from .utils_cage import probability
+
+def sleep_():
+	'''
+		sleep for 0.3 seconds
+	'''
+	sleep(0.3)
+	return
 
 def log_likelihood_loss_supervised(theta, pi, y, m, s, k, n_classes, continuous_mask, qc, device):
 	'''
