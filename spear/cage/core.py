@@ -152,30 +152,32 @@ class Cage:
 
 		assert np.all(np.logical_and(y_true_test >= 0, y_true_test < self.n_classes))
 
-		for epoch in tqdm(range(n_epochs_)):
-			optimizer.zero_grad()
-			loss = log_likelihood_loss(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_, self.device)
-			prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
-			loss += prec_loss
+		with tqdm(total=n_epochs_) as pbar:
+			for epoch in range(n_epochs_):
+				optimizer.zero_grad()
+				loss = log_likelihood_loss(self.theta, self.pi, m, s, self.k, self.n_classes, self.n, qc_, self.device)
+				prec_loss = precision_loss(self.theta, self.k, self.n_classes, qt_, self.device)
+				loss += prec_loss
 
-			if path_test != None:
-				y_pred = self.__predict_specific(m_test, s_test, qc_)
-				if path_log != None:
-					file.write("Epoch: {}\ttest_accuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
-				else:
-					print("Epoch: {}\ttest_accuracy_score: {}".format(epoch, accuracy_score(y_true_test, y_pred)))
-				if epoch == n_epochs_-1:
-					print("final_test_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
-				for temp in metric_avg_:
+				if path_test != None:
+					y_pred = self.__predict_specific(m_test, s_test, qc_)
 					if path_log != None:
-						file.write("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+						file.write("Epoch: {}\ttest_accuracy_score: {}\n".format(epoch, accuracy_score(y_true_test, y_pred)))
 					else:
-						print("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+						print("Epoch: {}\ttest_accuracy_score: {}".format(epoch, accuracy_score(y_true_test, y_pred)))
 					if epoch == n_epochs_-1:
-						print("test_average_metric: {}\tfinal_test_f1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
+						print("final_test_accuracy_score: {}".format(accuracy_score(y_true_test, y_pred)))
+					for temp in metric_avg_:
+						if path_log != None:
+							file.write("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}\n".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+						else:
+							print("Epoch: {}\ttest_average_metric: {}\ttest_f1_score: {}".format(epoch, temp, f1_score(y_true_test, y_pred, average = temp)))
+						if epoch == n_epochs_-1:
+							print("test_average_metric: {}\tfinal_test_f1_score: {}".format(temp, f1_score(y_true_test, y_pred, average = temp)))
 
-			loss.backward()
-			optimizer.step()
+				loss.backward()
+				optimizer.step()
+				pbar.update()
 
 		if path_test != None and path_log != None:
 			file.close()
