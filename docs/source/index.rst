@@ -131,15 +131,15 @@ Feature-based Models
 
 ----
 
-ImplyLoss
+Hls
 ============
 
-Implyloss Checkmate
+Hls Checkmate
 ---------------------------
 .. automodule:: spear.Implyloss.checkmate
 	:members:
 
-Implyloss Checkpoints
+Hls Checkpoints
 ---------------------------
 .. automodule:: spear.Implyloss.checkpoints
 	:members:
@@ -149,44 +149,44 @@ Implyloss Checkpoints
 .. .. automodule:: spear.Implyloss.config
 .. 	:members:
 
-Implyloss Data Feeders
+Hls Data Feeders
 ---------------------------
 .. automodule:: spear.Implyloss.data_feeders
 	:members:
 
-Implyloss Data Feeders Utils
+Hls Data Feeders Utils
 ----------------------------------
 .. automodule:: spear.Implyloss.data_feeder_utils
 	:members:
 
-Implyloss Gen Cross Entropy Utils
+Hls Gen Cross Entropy Utils
 ------------------------------------
 .. automodule:: spear.Implyloss.gen_cross_entropy_utils
 	:members:
 
 
-Implyloss Model
+Hls Model
 ---------------------------
 .. automodule:: spear.Implyloss.model
 	:members:
 
-Implyloss PR Utils
+Hls PR Utils
 ---------------------------
 .. automodule:: spear.Implyloss.pr_utils
 	:members:
 
-Implyloss Test
+Hls Test
 ---------------------------
 .. automodule:: spear.Implyloss.test
 	:members:
 
-Implyloss Train
+Hls Train
 ---------------------------
 .. automodule:: spear.Implyloss.train
 	:members:
 
 
-Implyloss Utils
+Hls Utils
 ---------------------------
 .. automodule:: spear.Implyloss.utils
 	:members:
