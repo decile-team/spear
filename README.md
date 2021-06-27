@@ -15,7 +15,7 @@
 <p align="center">
     <br>
         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-        <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="800" height="240" style="border-radius:10px"/>
+        <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="800" height="240" />
     </br>
 </p>
 
