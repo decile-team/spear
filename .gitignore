@@ -1,7 +1,7 @@
-__pycache__/
+**/__pycache__/
 *.py[cod]
 data/
-docs/build/
+docs/_build/
 
 *.so
 
