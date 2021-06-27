@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>spear.utils.data_editor &mdash; SPEAR(DECILE) 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SPEAR(DECILE)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SPEAR(DECILE)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>spear.utils.data_editor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for spear.utils.data_editor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">The common utils to CAGE and JL algorithms are in this file. Don&#39;t change the name or location of this file.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">pickle</span><span class="o">,</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span> <span class="k">as</span> <span class="n">check_path</span>
+
+<div class="viewcode-block" id="is_dict_trivial"><a class="viewcode-back" href="../../../index.html#spear.utils.data_editor.is_dict_trivial">[docs]</a><span class="k">def</span> <span class="nf">is_dict_trivial</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;	</span>
+<span class="sd">		A helper function that checks if the dictionary have key and value equal values for all keys except if its null</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		dict: the dictionary</span>
+<span class="sd">	</span>
+<span class="sd">	Return:</span>
+<span class="sd">		True if all keys(which are not None) are equal to respective values. False otherwise</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+		<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+					<span class="k">continue</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">return</span> <span class="kc">False</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">return</span> <span class="kc">False</span>
+	<span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../../index.html#spear.utils.data_editor.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">check_shapes</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">class_map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Standard format in pickle file contains the NUMPY ndarrays x, l, m, L, d, r, s, n, k and an int n_classes</span>
+<span class="sd">			x: (num_instances, num_features), x[i][j] is jth feature of ith instance. Note that the dimension fo this array can vary depending on the dimension of input</span>
+<span class="sd">			</span>
+<span class="sd">			l: (num_instances, num_lfs), l[i][j] is the prediction of jth LF(co-domain: the values used in Enum) on ith instance. l[i][j] = None imply Abstain</span>
+<span class="sd">			</span>
+<span class="sd">			m: (num_instances, num_lfs), m[i][j] is 1 if jth LF didn&#39;t Abstain on ith instance. Else it&#39;s 0</span>
+<span class="sd">			</span>
+<span class="sd">			L: (num_instances, 1), L[i] is true label(co-domain: the values used in Enum) of ith instance, if available. Else L[i] is None</span>
+<span class="sd">			</span>
+<span class="sd">			d: (num_instances, 1), d[i] is 1 if ith instance is labelled. Else it is 0</span>
+<span class="sd">			</span>
+<span class="sd">			r: (num_instances, num_lfs), r[i][j] is 1 if ith instance is an exemplar for jth rule. Else it&#39;s 0</span>
+<span class="sd">			</span>
+<span class="sd">			s: (num_instances, num_lfs), s[i][j] is the continuous score of ith instance given by jth continuous LF. If jth LF is not continuous, then s[i][j] is None</span>
+<span class="sd">			</span>
+<span class="sd">			n: (num_lfs,), n[i] is 1 if ith LF has continuous counter part, else n[i] is 0</span>
+<span class="sd">			</span>
+<span class="sd">			k: (num_lfs,), k[i] is the class of ith LF, co-domain: the values used in Enum</span>
+
+<span class="sd">			n_classes: total number of classes</span>
+
+<span class="sd">			In case the numpy array is not available(can be possible for x, L, d, r, s), it is stored as numpy.zeros(0)</span>
+
+<span class="sd">	Args: </span>
+<span class="sd">		path: path to pickle file with data in the format above</span>
+<span class="sd">		check_shapes: if true, checks whether the shapes of numpy arrays in pickle file are consistent as per the format mentioned above. Else it doesn&#39;t check. Default is True. </span>
+<span class="sd">		class_map: dictionary of class numbers(sorted, mapped to [0,n_classes-1]) are per the Enum defined in labeling part. l,L are modified(needed inside algorithms) before returning, using class_map. Default is None which doesn&#39;t do any mapping</span>
+
+<span class="sd">	Return:</span>
+<span class="sd">		A list containing all the numpy arrays mentioned above. The arrays l, L are modified using the class_map </span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">assert</span> <span class="n">check_path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+	<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+			<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+			<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+		<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+	
+	<span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span>
+
+	<span class="k">if</span> <span class="n">check_shapes</span><span class="p">:</span>
+		<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># l, m</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># l, r</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># l, s</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="c1">#L, l</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="c1">#d, l</span>
+		<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span> <span class="c1">#n, l</span>
+		<span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span> <span class="c1">#k, l</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#x, l</span>
+		<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">#m</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)))</span> <span class="c1">#d</span>
+		<span class="k">assert</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="p">)</span><span class="c1">#r</span>
+		<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">#n</span>
+
+	<span class="k">if</span> <span class="n">class_map</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">data</span>
+
+	<span class="n">is_dict_trivial_</span> <span class="o">=</span> <span class="n">is_dict_trivial</span><span class="p">(</span><span class="n">class_map</span><span class="p">)</span>
+	<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">is_dict_trivial_</span><span class="p">):</span>
+		<span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">class_map</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">class_map</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+		<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+
+	<span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># s will have None values if LF is not continuous</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">continue</span>
+		<span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+			<span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="get_classes"><a class="viewcode-back" href="../../../index.html#spear.utils.data_editor.get_classes">[docs]</a><span class="k">def</span> <span class="nf">get_classes</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		The json file should contain a dictionary of number to string(class name) map as defined in Enum</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			path: path to json file with contents mentioned above</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			A dictionary (number to string(class name) map)</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">assert</span> <span class="n">check_path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+	<span class="n">json_object</span> <span class="o">=</span> <span class="kc">None</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+		<span class="n">json_object</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+	<span class="n">json_object</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">json_object</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+	<span class="k">return</span> <span class="n">json_object</span></div>
+
+<div class="viewcode-block" id="get_predictions"><a class="viewcode-back" href="../../../index.html#spear.utils.data_editor.get_predictions">[docs]</a><span class="k">def</span> <span class="nf">get_predictions</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">class_map</span><span class="p">,</span> <span class="n">class_dict</span><span class="p">,</span> <span class="n">need_strings</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		This function takes probaility of instances being a class and gives what class each instance belongs to, using the maximum of probabilities</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		proba: probability numpy.ndarray of shape (num_instances, num_classes)</span>
+<span class="sd">		class_map: dictionary mapping the class numbers(as per Enum class defined) to numbers in range [0, num_classes-1]</span>
+<span class="sd">		class_dict: dictionary consisting of number to string(class name) mapping as per the Enum class defined</span>
+<span class="sd">		need_trings: If True, the output conatians strings(of class names), else it consists of numbers(class numbers as used in Enum definition)</span>
+
+<span class="sd">	Return:</span>
+<span class="sd">		numpy.ndarray of shape (num_instances,), where elements are class_names/class_numbers depending on need_strings is True/False, where the elements</span>
+<span class="sd">		represent the class of each instance</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">final_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># this is actually labels_with_altered_class_values</span>
+	<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">is_dict_trivial</span><span class="p">(</span><span class="n">class_map</span><span class="p">)):</span>
+		<span class="n">remap_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span><span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">class_map</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+		<span class="n">final_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">remap_dict</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">final_labels</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">need_strings</span><span class="p">:</span>
+		<span class="n">class_dict_with_abstain</span> <span class="o">=</span> <span class="p">(</span><span class="n">class_dict</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+		<span class="n">class_dict_with_abstain</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ABSTAIN&#39;</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">class_dict_with_abstain</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">final_labels</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">final_labels</span></div>
+
+<div class="viewcode-block" id="get_enum"><a class="viewcode-back" href="../../../index.html#spear.utils.data_editor.get_enum">[docs]</a><span class="k">def</span> <span class="nf">get_enum</span><span class="p">(</span><span class="n">np_array</span><span class="p">,</span> <span class="n">enm</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		This function is used to convert a numpy array of numbers to a numpy array of enums based on the Enum class provided &#39;enm&#39;</span>
+
+<span class="sd">	Args:</span>
+<span class="sd">		np_array: a numpy.ndarray of any shape consisting of numbers</span>
+<span class="sd">		enm: An class derived from &#39;Enum&#39; class, which must contain map from every number in np_array to an enum</span>
+
+<span class="sd">	Return:</span>
+<span class="sd">		numpy.ndarray of shape shape as np_array but now contains enums(as per the mapping in &#39;enm&#39;) instead of numbers</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">ans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">enm</span><span class="p">)(</span><span class="n">np_array</span><span class="p">)</span>
+	<span class="k">except</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in get_enum function in utils.py: maybe enm doesn&#39;t containt the map for the numbers in np_array&quot;</span><span class="p">)</span>
+		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">ans</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021 DECILE.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
