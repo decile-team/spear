@@ -1,12 +1,10 @@
-./data/
 __pycache__/
 *.py[cod]
+data/
 docs/build/
 
-# C extensions
 *.so
 
-# Distribution / packaging
 bin/
 build/
 develop-eggs/
@@ -21,6 +19,5 @@ var/
 .installed.cfg
 *.egg
 
-# Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
