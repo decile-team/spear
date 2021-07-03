@@ -54,8 +54,8 @@ You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about be
 
 ## Quick Links
 * [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
-* [DECILE website](https://decile.org)
 * [SPEAR documentation](https://spear-decile.readthedocs.io/)
+* [DECILE website](https://decile.org)
 * [SubModLib - Summarize massive datasets using submodular optimization](https://github.com/decile-team/submodlib)
 * [DISTIL- Deep Diversified Interactive Learning](https://github.com/decile-team/distil)
 * [CORDS- COResets and Data Subset Selection](https://github.com/decile-team/cords)
