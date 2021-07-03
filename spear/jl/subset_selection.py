@@ -1,5 +1,4 @@
 from submodlib.functions.facilityLocation import FacilityLocationFunction
-#import apricot
 
 import numpy as np
 import torch
@@ -50,7 +49,7 @@ def unsup_subset(x_train, n_unsup):
 	#indices = find_indices(torch.from_numpy(x_train).to(device=device), torch.from_numpy(np.array(x_sub)).to(device=device))
 
 	fl = FacilityLocationFunction(n = x_train.shape[0], mode = "dense", data = x_train, metric = "euclidean")
-	x_sub = fl.maximize(budget = int(n_unsup),optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
+	x_sub = fl.maximize(budget = int(n_unsup), optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
 	indices = np.array([i[0] for i in x_sub])
 
 	return np.sort(indices)
@@ -104,7 +103,7 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	#indices = find_indices(torch.from_numpy(sim_mat).to(device=device), torch.from_numpy(np.array(sim_sub)).to(device=device))
 
 	fl = FacilityLocationFunction(n = sim_mat.shape[0], mode = "dense", sijs = sim_mat, separate_rep = False)
-	sim_sub = fl.maximize(budget = int(n_sup),optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
+	sim_sub = fl.maximize(budget = int(n_sup), optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
 	indices = np.array([i[0] for i in sim_sub])
 
 	return np.sort(indices), data
