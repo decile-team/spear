@@ -25,7 +25,7 @@ The code and tutorial notebooks are available `here <https://github.com/decile-t
 Labeling
 ==========
 
-This module takes inspiration from :cite:t:`snorkel:2020`
+This module takes inspiration and build upon :cite:t:`snorkel:2020`
 
 LF
 ------
