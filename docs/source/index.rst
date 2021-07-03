@@ -84,8 +84,7 @@ Joint Learning(JL)
 Subset Selection
 ==================
 
-Uses facilityLocation from `submodlib <https://github.com/decile-team/submodlib>`_ 
-library which is also provided by `DECILE <https://decile.org/>`_ for submodular optimization
+Uses facilityLocation from `submodlib <https://github.com/decile-team/submodlib>`_ library which is also provided by `DECILE <https://decile.org/>`_ for submodular optimization
 
 
 .. automodule:: spear.jl.subset_selection
