@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 master_doc = 'index'
-autodoc_mock_imports = ["scipy","pandas" ,"matplotlib", "tqdm", "apricot", "numpy","torch", "sklearn", "utils_jl", "models", "tensorflow", "snorkel", 
+autodoc_mock_imports = ["scipy", "pandas" ,"matplotlib", "submodlib", "tqdm", "numpy","torch", "sklearn", "utils_jl", "models", "tensorflow", "snorkel", 
 "checkmate", "checkpoints", "data_feeder_utils", "data_types",  
 "gen_cross_entropy_utils", "pr_utils", "test", "train", "utils"] #config
 
