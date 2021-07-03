@@ -1,4 +1,6 @@
 import apricot
+#from submodlib.functions.facilityLocation import FacilityLocationFunction
+
 import numpy as np
 import torch
 from sklearn.metrics.pairwise import euclidean_distances
@@ -45,6 +47,10 @@ def unsup_subset(x_train, n_unsup):
 
 	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
 	x_sub = fl.fit_transform(x_train)
+
+	#fl = FacilityLocationFunction(n = x_train.shape[0], mode = "dense", data = x_train, metric = "euclidean")
+	#x_sub = fl.maximize(budget = int(n_unsup),optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
+
 	indices = find_indices(torch.from_numpy(x_train).to(device=device), torch.from_numpy(x_sub).to(device=device))
 	return np.sort(indices)
 
@@ -91,8 +97,13 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	kernel = get_similarity_kernel(y_train_pred)
 	similarity = euclidean_distances(data[0])
 	sim_mat = kernel * similarity
-	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, metric = 'precomputed', n_samples = n_sup)
+
+	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, metric = 'precomputed', n_samples = int(n_sup))
 	sim_sub = fl.fit_transform(sim_mat)
+
+	#fl = FacilityLocationFunction(n = sim_mat.shape[0], mode = "dense", sijs = sim_mat, separate_master = False)
+	#sim_sub = fl.maximize(budget = int(n_sup),optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
+
 	indices = find_indices(torch.from_numpy(sim_mat).to(device=device), torch.from_numpy(sim_sub).to(device=device))
 
 	return np.sort(indices), data
