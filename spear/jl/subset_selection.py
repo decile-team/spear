@@ -1,5 +1,5 @@
-#import apricot
 from submodlib.functions.facilityLocation import FacilityLocationFunction
+#import apricot
 
 import numpy as np
 import torch
