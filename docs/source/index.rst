@@ -25,7 +25,7 @@ The code and tutorial notebooks are available `here <https://github.com/decile-t
 Labeling
 ==========
 
-This module takes inspiration from :cite:t:`snorkel:2020`
+This module takes inspiration and build upon :cite:t:`snorkel:2020`
 
 LF
 ------
@@ -84,7 +84,7 @@ Joint Learning(JL)
 Subset Selection
 ==================
 
-Uses facilityLocation from :cite:t:`JMLR:v21:19-467`
+Uses facilityLocation from `submodlib <https://github.com/decile-team/submodlib>`_ library which is also provided by `DECILE <https://decile.org/>`_ for submodular optimization
 
 
 .. automodule:: spear.jl.subset_selection

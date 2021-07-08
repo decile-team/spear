@@ -1,21 +1,23 @@
-<p align="center">
-    <br>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-        <img src="https://github.com/decile-team/spear/blob/main/spear_logo.svg" width="500" height="150"/>
-    </br>
-</p>
 
+[![](https://tokei.rs/b1/github/decile-team/spear?category=code)](https://github.com/decile-team/spear)
 ![PyPI](https://img.shields.io/pypi/v/spear)
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
+
+<p align="center">
+    <br>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        <img src="https://github.com/decile-team/spear/blob/main/spear_logo_1.png" width="540" height="150"/>
+    </br>
+</p>
 
 # SPEAR by DECILE
 
 <p align="center">
     <br>
         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-        <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="800" height="240"/>
+        <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="1000" height="300" />
     </br>
 </p>
 
@@ -24,7 +26,7 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 
 ### SPEAR provides functionality such as 
 * development of LFs/rules/heuristics for quick labeling
-* automatic generation of LFs
+* incorporation of automatically generated LFs
 * compare against several data programming approaches
 * compare against semi-supervised data programming approaches
 * use subset selection to reduce annotation effort
@@ -44,27 +46,26 @@ SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
 ## Approaches Implemented
 You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about below approaches
 * Only-L 
-* L + Umaj
 * Learning to Reweight
-* L + USnorkel
 * Posterior Regularization
 * Imply Loss
 * CAGE
-* SPEAR
+* Joint Learning
 
 ## Quick Links
 * [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
-* [DECILE website](https://decile.org)
 * [SPEAR documentation](https://spear-decile.readthedocs.io/)
+* SMS SPAM: [CAGE colab](https://colab.research.google.com/drive/1vec-Q-xO9wQtM3p_CZ7237gCq0xIR9b9?usp=sharing), [JL colab](https://colab.research.google.com/drive/1HqkqQ8ytWjP9on3du-vVB07IQvo8Li3W?usp=sharing)
+* [DECILE website](https://decile.org)
 * [SubModLib - Summarize massive datasets using submodular optimization](https://github.com/decile-team/submodlib)
 * [DISTIL- Deep Diversified Interactive Learning](https://github.com/decile-team/distil)
 * [CORDS- COResets and Data Subset Selection](https://github.com/decile-team/cords)
 
 ## Acknowledgment
-SPEAR takes inspiration, builds upon, and uses pieces of code from several open source codebases. These include [Snorkel](https://github.com/snorkel-team/snorkel), [Snuba](https://github.com/HazyResearch/reef)  & [Imply Loss](https://github.com/awasthiabhijeet/Learning-From-Rules). Also, SPEAR uses [Apricot](https://github.com/jmschrei/apricot) for subset selection.
+SPEAR takes inspiration, builds upon, and uses pieces of code from several open source codebases. These include [Snorkel](https://github.com/snorkel-team/snorkel), [Snuba](https://github.com/HazyResearch/reef)  & [Imply Loss](https://github.com/awasthiabhijeet/Learning-From-Rules). Also, SPEAR uses [SUBMODLIB](https://github.com/decile-team/submodlib) for subset selection, which is provided by [DECILE](https://decile.org/) too.
 
 ## Team
-SPEAR is created and maintained by [Ayush](https://cse.iitb.ac.in/~ayusham), [Abhishek]( https://www.cse.iitb.ac.in/~gsaiabhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/), [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Pankaj](https://www.linkedin.com/in/pankaj-singh-b000894a/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your research, and feel free to use it for your commercial projects. We will add the major contributors here.
+SPEAR is created and maintained by [Ayush](https://www.cse.iitb.ac.in/~ayusham), [Abhishek]( https://www.cse.iitb.ac.in/~gsaiabhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/), [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Pankaj](https://www.linkedin.com/in/pankaj-singh-b000894a/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your research, and feel free to use it for your commercial projects. We will add the major contributors here.
 
 ## Publications
 
