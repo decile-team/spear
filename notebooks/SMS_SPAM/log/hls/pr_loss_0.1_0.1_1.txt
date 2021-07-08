@@ -296,3 +296,83 @@ No new best checkpoint. Did not save a new best checkpoint. Last checkpointed fi
 
 Optimization Finished for f_d_U!
 pr_loss training end
+pr_loss training started
+num_instances:  3984
+batch_size:  32
+total_batch:  124
+remaining:  16
+total_batch:  124
+Optimization started for f_d_U with pr_loss loss!
+Batch size: 32!
+Batches per epoch : 124!
+Number of epochs: 4!
+
+========== epoch : 0 ============
+
+cost: 0.06379583305228623
+
+patience: 0
+
+
+metrics_dict:  {'f1_score_1': 0.9832402234636872, 'precision_1': 0.9777777777777777, 'recall_1': 0.9887640449438202, 'support_1': 89, 'f1_score': array([0.857, 0.983]), 'precision': array([0.900, 0.978]), 'recall': array([0.818, 0.989]), 'support': array([11, 89]), 'avg_f1_score': 0.9201915403032722, 'avg_precision': 0.9388888888888889, 'avg_recall': 0.9034729315628192, 'accuracy': 0.97, 'epoch': 9.0, 'f_d_global_step': 1116}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 1.0 Current is: 0.97
+
+Saved MRU checkpoint to path:  ./checkpoint/hls-model-124
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-124
+
+
+========== epoch : 1 ============
+
+cost: 0.0566180380917485
+
+patience: 1
+
+
+metrics_dict:  {'f1_score_1': 0.9404761904761905, 'precision_1': 1.0, 'recall_1': 0.8876404494382022, 'support_1': 89, 'f1_score': array([0.688, 0.940]), 'precision': array([0.524, 1.000]), 'recall': array([1.000, 0.888]), 'support': array([11, 89]), 'avg_f1_score': 0.8139880952380953, 'avg_precision': 0.7619047619047619, 'avg_recall': 0.9438202247191011, 'accuracy': 0.9, 'epoch': 10.0, 'f_d_global_step': 1240}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 1.0 Current is: 0.9
+
+Saved MRU checkpoint to path:  ./checkpoint/hls-model-249
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-124
+
+
+========== epoch : 2 ============
+
+cost: 0.036173886142580984
+
+patience: 2
+
+
+metrics_dict:  {'f1_score_1': 0.927710843373494, 'precision_1': 1.0, 'recall_1': 0.8651685393258427, 'support_1': 89, 'f1_score': array([0.647, 0.928]), 'precision': array([0.478, 1.000]), 'recall': array([1.000, 0.865]), 'support': array([11, 89]), 'avg_f1_score': 0.7873848334514528, 'avg_precision': 0.7391304347826086, 'avg_recall': 0.9325842696629214, 'accuracy': 0.88, 'epoch': 11.0, 'f_d_global_step': 1364}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 1.0 Current is: 0.88
+
+Saved MRU checkpoint to path:  ./checkpoint/hls-model-374
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-124
+
+
+========== epoch : 3 ============
+
+cost: 0.0457319649229307
+
+patience: 3
+
+
+metrics_dict:  {'f1_score_1': 0.8944099378881988, 'precision_1': 1.0, 'recall_1': 0.8089887640449438, 'support_1': 89, 'f1_score': array([0.564, 0.894]), 'precision': array([0.393, 1.000]), 'recall': array([1.000, 0.809]), 'support': array([11, 89]), 'avg_f1_score': 0.7292562509953815, 'avg_precision': 0.6964285714285714, 'avg_recall': 0.9044943820224719, 'accuracy': 0.83, 'epoch': 12.0, 'f_d_global_step': 1488}
+
+Reporting f_d metrics to tensorboard
+Not saving metrics dict. Best metric value is 1.0 Current is: 0.83
+
+Saved MRU checkpoint to path:  ./checkpoint/hls-model-499
+
+No new best checkpoint. Did not save a new best checkpoint. Last checkpointed file:  ./checkpoint/f_d_U/best.ckpt-124
+
+Optimization Finished for f_d_U!
+pr_loss training ended
