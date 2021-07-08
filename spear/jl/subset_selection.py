@@ -1,4 +1,5 @@
-import apricot
+from submodlib.functions.facilityLocation import FacilityLocationFunction
+
 import numpy as np
 import torch
 from sklearn.metrics.pairwise import euclidean_distances
@@ -43,9 +44,14 @@ def unsup_subset(x_train, n_unsup):
 	device = torch.device("cuda" if use_cuda else "cpu")
 	torch.backends.cudnn.benchmark = True
 
-	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
-	x_sub = fl.fit_transform(x_train)
-	indices = find_indices(torch.from_numpy(x_train).to(device=device), torch.from_numpy(x_sub).to(device=device))
+	#fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, n_samples = int(n_unsup))
+	#x_sub = fl.fit_transform(x_train)
+	#indices = find_indices(torch.from_numpy(x_train).to(device=device), torch.from_numpy(np.array(x_sub)).to(device=device))
+
+	fl = FacilityLocationFunction(n = x_train.shape[0], mode = "dense", data = x_train, metric = "euclidean")
+	x_sub = fl.maximize(budget = int(n_unsup), optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
+	indices = np.array([i[0] for i in x_sub])
+
 	return np.sort(indices)
 
 def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
@@ -91,11 +97,74 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	kernel = get_similarity_kernel(y_train_pred)
 	similarity = euclidean_distances(data[0])
 	sim_mat = kernel * similarity
-	fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, metric = 'precomputed', n_samples = n_sup)
-	sim_sub = fl.fit_transform(sim_mat)
-	indices = find_indices(torch.from_numpy(sim_mat).to(device=device), torch.from_numpy(sim_sub).to(device=device))
+
+	#fl = apricot.functions.facilityLocation.FacilityLocationSelection(random_state = 0, metric = 'precomputed', n_samples = int(n_sup))
+	#sim_sub = fl.fit_transform(sim_mat)
+	#indices = find_indices(torch.from_numpy(sim_mat).to(device=device), torch.from_numpy(np.array(sim_sub)).to(device=device))
+
+	fl = FacilityLocationFunction(n = sim_mat.shape[0], mode = "dense", sijs = sim_mat, separate_rep = False)
+	sim_sub = fl.maximize(budget = int(n_sup), optimizer = 'LazyGreedy', stopIfZeroGain = False, stopIfNegativeGain = False, verbose = False)
+	indices = np.array([i[0] for i in sim_sub])
 
 	return np.sort(indices), data
+
+def sup_subset_indices(path_json, path_pkl, n_sup, qc = 0.85):
+	'''
+		A function for supervised subset selection(the subset to be labeled) whcih just returns indices
+	
+	Args:
+		path_json: Path to json file of number to string(class name) map
+		path_pkl: Path to the pickle file containing all the training data in standard format
+		n_sup: Number of instances to be found during supervised subset selection
+		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
+
+	Return:
+		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,num_instances)), the result of subset selection
+	'''
+	indices, _ = sup_subset(path_json, path_pkl, n_sup, qc)
+
+	return indices
+
+def sup_subset_save_files(path_json, path_pkl, path_save_L, path_save_U, n_sup, qc = 0.85):
+	'''
+		A function for supervised subset selection(the subset to be labeled) which makes separate pickle files of data, one for those to be labelled, other that can be left unlabelled
+	
+	Args:
+		path_json: Path to json file of number to string(class name) map
+		path_pkl: Path to the pickle file containing all the training data in standard format
+		path_save_L: Path to save the pickle file of set of instances to be labelled. Note that instances are not labelled yet. Extension should be .pkl
+		path_save_U: Path to save the pickle file of set of instances that can be left unlabelled. Extension should be .pkl
+		n_sup: number of instances to be found during supervised subset selection
+		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
+
+	Return:
+		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,num_instances)), the result of subset selection. Also two pickle files are saved at path_save_L and path_save_U
+	'''
+	indices, data = sup_subset(path_json, path_pkl, n_sup, qc)
+
+	false_mask = np.ones(data[0].shape[0], dtype = bool)
+	false_mask[indices] = False
+
+	save_file_L = open(path_save_L, 'wb')
+	save_file_U = open(path_save_U, 'wb')
+
+	for i in range(10):
+		if i < 7:
+			if data[i].shape[0] == 0:
+				pickle.dump(data[i], save_file_L)
+				pickle.dump(data[i], save_file_U)
+			else:
+				pickle.dump(data[i][indices], save_file_L)
+				pickle.dump(data[i][false_mask], save_file_U)
+		elif i >= 7:
+			pickle.dump(data[i], save_file_L)
+			pickle.dump(data[i], save_file_U)
+
+	save_file_L.close()
+	save_file_U.close()
+
+	return indices
+
 
 def replace_in_pkl(path, path_save, np_array, index):
 	'''
@@ -163,60 +232,3 @@ def insert_true_labels(path, path_save, labels):
 	save_file.close()
 
 	return
-
-def sup_subset_indices(path_json, path_pkl, n_sup, qc = 0.85):
-	'''
-		A function for supervised subset selection(the subset to be labeled) whcih just returns indices
-	
-	Args:
-		path_json: Path to json file of number to string(class name) map
-		path_pkl: Path to the pickle file containing all the training data in standard format
-		n_sup: Number of instances to be found during supervised subset selection
-		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-
-	Return:
-		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,num_instances)), the result of subset selection
-	'''
-	indices, _ = sup_subset(path_json, path_pkl, n_sup, qc)
-
-	return indices
-
-def sup_subset_save_files(path_json, path_pkl, path_save_L, path_save_U, n_sup, qc = 0.85):
-	'''
-		A function for supervised subset selection(the subset to be labeled) which makes separate pickle files of data, one for those to be labelled, other that can be left unlabelled
-	
-	Args:
-		path_json: Path to json file of number to string(class name) map
-		path_pkl: Path to the pickle file containing all the training data in standard format
-		path_save_L: Path to save the pickle file of set of instances to be labelled. Note that instances are not labelled yet. Extension should be .pkl
-		path_save_U: Path to save the pickle file of set of instances that can be left unlabelled. Extension should be .pkl
-		n_sup: number of instances to be found during supervised subset selection
-		qc: Quality index of shape (n_lfs,) of type numpy.ndarray OR a float. Values must be between 0 and 1. Default is 0.85
-
-	Return:
-		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,num_instances)), the result of subset selection. Also two pickle files are saved at path_save_L and path_save_U
-	'''
-	indices, data = sup_subset(path_json, path_pkl, n_sup, qc)
-
-	false_mask = np.ones(data[0].shape[0], dtype = bool)
-	false_mask[indices] = False
-
-	save_file_L = open(path_save_L, 'wb')
-	save_file_U = open(path_save_U, 'wb')
-
-	for i in range(10):
-		if i < 7:
-			if data[i].shape[0] == 0:
-				pickle.dump(data[i], save_file_L)
-				pickle.dump(data[i], save_file_U)
-			else:
-				pickle.dump(data[i][indices], save_file_L)
-				pickle.dump(data[i][false_mask], save_file_U)
-		elif i >= 7:
-			pickle.dump(data[i], save_file_L)
-			pickle.dump(data[i], save_file_U)
-
-	save_file_L.close()
-	save_file_U.close()
-
-	return indices
