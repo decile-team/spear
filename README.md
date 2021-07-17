@@ -39,7 +39,8 @@ SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
 ```cd spear```  
 ```pip install -r requirements/requirements.txt```  
 
-data folder for SMS can be found [here](https://drive.google.com/file/d/11PnhtU-w01BrdNYYoeKUkJVLUiGqI6G1/view?usp=sharing).
+
+data folder for SMS can be found [here](https://drive.google.com/file/d/11PnhtU-w01BrdNYYoeKUkJVLUiGqI6G1/view?usp=sharing). This folder needs to be placed in the same directory as notebooks folder is in, to run the notebooks or examples.
 
 ## Labelling Functions (LFs)
 * discrete LFs - Users can define LFs that return discrete labels
