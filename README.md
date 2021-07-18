@@ -2,7 +2,7 @@
 [![](https://tokei.rs/b1/github/decile-team/spear?category=code)](https://github.com/decile-team/spear)
 ![PyPI](https://img.shields.io/pypi/v/spear)
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
-[![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/decile-team/spear/blob/main/LICENSE.txt)
 [![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
 
 <p align="center">
