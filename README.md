@@ -29,7 +29,7 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 * incorporation of automatically generated LFs
 * compare against several data programming approaches
 * compare against semi-supervised data programming approaches
-* use subset selection to reduce annotation effort
+* use subset selection to make best use of the annotation efforts
 
 ## Installation
 
