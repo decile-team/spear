@@ -33,7 +33,7 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 
 ## Installation
 
-SPEAR requires Python 3.6 or later. To install SPEAR, we recommend using `pip`:
+SPEAR requires Python 3.6 or later. First install submodlib [from here](https://github.com/decile-team/submodlib#setup). Then to install SPEAR:
 
 ```git clone https://github.com/decile-team/spear.git```  
 ```cd spear```  
