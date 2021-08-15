@@ -25,12 +25,12 @@
 SPEAR is a library for data programming with semi-supervision. The package implements several recent data programming approaches including facility to programmatically label and build training data.
 
 ### Pipeline
-* Design LFs
+* Design Labeling functions(LFs)
 * generate pickle file containing labels by passing raw data to LFs
 * Use one of the Label Aggregators(LA) to get final labels
 
 ### SPEAR provides functionality such as 
-* development of Labeling functions(LFs)/rules/heuristics for quick labeling
+* development of LFs/rules/heuristics for quick labeling
 * compare against several data programming approaches
 * compare against semi-supervised data programming approaches
 * use subset selection to make best use of the annotation efforts
