@@ -8,7 +8,7 @@
 <p align="center">
     <br>
         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-        <img src="https://github.com/decile-team/spear/blob/main/spear_logo_1.png" width="540" height="150"/>
+        <img src="https://github.com/decile-team/spear/blob/main/spear_logo.png" width="540" height="150"/>
     </br>
 </p>
 
