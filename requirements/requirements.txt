@@ -5,3 +5,7 @@ matplotlib>=3.3.4
 pandas>=1.1.5
 numpy>=1.19.5
 scipy>=1.5.4
+tensorflow>=2.2.0
+json>=2.0.9
+sklearn>=0.22
+snorkel>=0.9.7
