@@ -3,14 +3,15 @@ import setuptools
 
 setup(
     name='spear',
-    version='1.0.0',
+    version='1.0.1',
     author='Ayush Maheshwari, Guttu Sai Abhishek',
     author_email='ayush.hakmn@gmail.com',
-    #packages=['cords', 'cords/selectionstrategies', 'cords/utils'],
     url='https://github.com/decile-team/spear',
     license='LICENSE.txt',
     packages=setuptools.find_packages(),
     description='SPEAR is a library for data programming with semi-supervision that provides facility to programmatically label and build training data',
+    long_description='README.md',
+    long_description_content_type="text/markdown",
     install_requires=[
         "tqdm>=4.59.0",
         "torch>=1.8.0",
@@ -18,6 +19,7 @@ setup(
         "matplotlib>=3.3.4",
         "pandas>=1.1.5",
         "numpy>=1.19.5",
-        "scipy>=1.5.4"
+        "scipy>=1.5.4",
+        "tensorflow>=2.2.0"
     ],
 )
