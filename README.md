@@ -12,14 +12,6 @@
     </br>
 </p>
 
-# SPEAR by DECILE
-
-<p align="center">
-    <br>
-        <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="1000" height="300" />
-    </br>
-</p>
-
 ## Semi-Supervised Data Programming for Data Efficient Machine Learning
 SPEAR is a library for data programming with semi-supervision. The package implements several recent data programming approaches including facility to programmatically label and build training data.
 
@@ -27,6 +19,13 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 * Design Labeling functions(LFs)
 * generate pickle file containing labels by passing raw data to LFs
 * Use one of the Label Aggregators(LA) to get final labels
+
+<p align="center">
+    <br>
+        <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="1000" height="300" />
+    </br>
+</p>
+
 
 ### SPEAR provides functionality such as 
 * development of LFs/rules/heuristics for quick labeling
