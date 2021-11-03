@@ -4,10 +4,10 @@
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/decile-team/spear/blob/main/LICENSE.txt)
 [![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
+![GitHub repo size](https://img.shields.io/github/repo-size/decile-team/spear)
 
 <p align="center">
     <br>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
         <img src="https://github.com/decile-team/spear/blob/main/spear_logo.png" width="540" height="150"/>
     </br>
 </p>
@@ -16,7 +16,6 @@
 
 <p align="center">
     <br>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
         <img src="https://github.com/decile-team/spear/blob/main/spear_pipeline.svg" width="1000" height="300" />
     </br>
 </p>
