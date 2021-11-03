@@ -34,16 +34,23 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 * compare against semi-supervised data programming approaches
 * use subset selection to make best use of the annotation efforts
 
+
 ## Installation
 
-SPEAR requires Python 3.6 or later. First install [submodlib](https://github.com/decile-team/submodlib#setup). Then to install SPEAR:
+1. To install latest version of SPEAR package using PyPI:
+ ```python 
+ pip install -i https://test.pypi.org/simple/ spear 
+ ```
+    
+2. SPEAR requires Python 3.6 or later. First install [submodlib](https://github.com/decile-team/submodlib#setup). Then install SPEAR:
 
-```git clone https://github.com/decile-team/spear.git```  
-```cd spear```  
-```pip install -r requirements/requirements.txt```  
+```bash
+git clone https://github.com/decile-team/spear.git
+cd spear
+pip install -r requirements/requirements.txt
+```
 
-
-data folder for SMS can be found [here](https://drive.google.com/file/d/11PnhtU-w01BrdNYYoeKUkJVLUiGqI6G1/view?usp=sharing). This folder needs to be placed in the same directory as notebooks folder is in, to run the notebooks or examples.
+Data folder for SMS can be found [here](https://drive.google.com/file/d/11PnhtU-w01BrdNYYoeKUkJVLUiGqI6G1/view?usp=sharing). This folder needs to be placed in the same directory as notebooks folder is in, to run the notebooks or examples.
 
 ## Labelling Functions (LFs)
 * discrete LFs - Users can define LFs that return discrete labels
