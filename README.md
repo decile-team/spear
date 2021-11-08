@@ -33,29 +33,11 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 * compare against semi-supervised data programming approaches
 * use subset selection to make best use of the annotation efforts
 
-
-## Installation
-
-1. To install latest version of SPEAR package using PyPI:
- ```python 
- pip install -i https://test.pypi.org/simple/ spear 
- ```
-    
-2. SPEAR requires Python 3.6 or later. First install [submodlib](https://github.com/decile-team/submodlib#setup). Then install SPEAR:
-
-```bash
-git clone https://github.com/decile-team/spear.git
-cd spear
-pip install -r requirements/requirements.txt
-```
-
-Data folder for SMS can be found [here](https://drive.google.com/file/d/11PnhtU-w01BrdNYYoeKUkJVLUiGqI6G1/view?usp=sharing). This folder needs to be placed in the same directory as notebooks folder is in, to run the notebooks or examples.
-
-## Labelling Functions (LFs)
+#### Labelling Functions (LFs)
 * discrete LFs - Users can define LFs that return discrete labels
 * continuous LFs - return continuous scores/confidence to the labels assigned
 
-## Approaches Implemented
+#### Approaches Implemented
 You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about below approaches
 * Only-L 
 * Learning to Reweight
@@ -64,7 +46,36 @@ You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about be
 * CAGE
 * Joint Learning
 
-## Quick Links
+Data folder for SMS can be found [here](https://drive.google.com/file/d/11PnhtU-w01BrdNYYoeKUkJVLUiGqI6G1/view?usp=sharing). This folder needs to be placed in the same directory as notebooks folder is in, to run the notebooks or examples.
+
+## Installation
+#### Method 1
+To install latest version of SPEAR package using PyPI:
+ ```python 
+ pip install decile-spear
+ ```
+#### Method 2    
+SPEAR requires Python 3.6 or later. First install [submodlib](https://github.com/decile-team/submodlib#setup). Then install SPEAR:
+
+```bash
+git clone https://github.com/decile-team/spear.git
+cd spear
+pip install -r requirements/requirements.txt
+```
+
+## Citation
+```bibtex
+@misc{abhishek2021spear,
+      title={SPEAR : Semi-supervised Data Programming in Python}, 
+      author={Guttu Sai Abhishek and Harshad Ingole and Parth Laturia and Vineeth Dorna and Ayush Maheshwari and Ganesh Ramakrishnan and Rishabh Iyer},
+      year={2021},
+      eprint={2108.00373},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
+
+### Quick Links
 * [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
 * [SPEAR documentation](https://spear-decile.readthedocs.io/)
 * SMS SPAM: [CAGE colab](https://colab.research.google.com/drive/1vec-Q-xO9wQtM3p_CZ7237gCq0xIR9b9?usp=sharing), [JL colab](https://colab.research.google.com/drive/1HqkqQ8ytWjP9on3du-vVB07IQvo8Li3W?usp=sharing)
@@ -73,11 +84,14 @@ You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about be
 * [DISTIL- Deep Diversified Interactive Learning](https://github.com/decile-team/distil)
 * [CORDS- COResets and Data Subset Selection](https://github.com/decile-team/cords)
 
-## Acknowledgment
+
+
+### Acknowledgment
 SPEAR takes inspiration, builds upon, and uses pieces of code from several open source codebases. These include [Snorkel](https://github.com/snorkel-team/snorkel), [Snuba](https://github.com/HazyResearch/reef)  & [Imply Loss](https://github.com/awasthiabhijeet/Learning-From-Rules). Also, SPEAR uses [SUBMODLIB](https://github.com/decile-team/submodlib) for subset selection, which is provided by [DECILE](https://decile.org/) too.
 
-## Team
+### Team
 SPEAR is created and maintained by [Ayush](https://www.cse.iitb.ac.in/~ayusham), [Abhishek](https://www.linkedin.com/in/guttu-sai-abhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/), [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Pankaj](https://www.linkedin.com/in/pankaj-singh-b000894a/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your research, and feel free to use it for your commercial projects. We will add the major contributors here.
+
 
 ## Publications
 
