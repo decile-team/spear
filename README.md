@@ -78,8 +78,8 @@ pip install -r requirements/requirements.txt
 ### Quick Links
 * [SPEAR tutorials](https://github.com/decile-team/spear/tree/main/notebooks)
 * [SPEAR documentation](https://spear-decile.readthedocs.io/)
-* [Demonstartion of Cage and Joint Learning using SPEAR](https://youtu.be/qdukvO3B8YU)
-* [Demonstartion of Imply Loss, Learn2Reweight using SPEAR](https://youtu.be/SN9YYK4FlU0)
+* [Demonstration of Cage and Joint Learning using SPEAR](https://youtu.be/qdukvO3B8YU)
+* [Demonstration of Imply Loss, Learn2Reweight using SPEAR](https://youtu.be/SN9YYK4FlU0)
 * SMS SPAM: [CAGE colab](https://colab.research.google.com/drive/1vec-Q-xO9wQtM3p_CZ7237gCq0xIR9b9?usp=sharing), [JL colab](https://colab.research.google.com/drive/1HqkqQ8ytWjP9on3du-vVB07IQvo8Li3W?usp=sharing)
 * [DECILE website](https://decile.org)
 * [SubModLib - Summarize massive datasets using submodular optimization](https://github.com/decile-team/submodlib)
