@@ -49,6 +49,8 @@ You can read [this paper](https://arxiv.org/pdf/2008.09887.pdf) to know about be
 Data folder for SMS & TREC can be found [here](https://drive.google.com/file/d/1CJZ73nNa7Ho0BOSDgGx9CRvXoepVSpet/view?usp=sharing). This folder needs to be placed in the same directory as notebooks folder is in, to run the notebooks or examples.
 
 ## Installation
+* Install Submodlib library
+`pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ submodlib`
 #### Method 1
 To install latest version of SPEAR package using PyPI:
  ```python 
