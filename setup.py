@@ -2,8 +2,8 @@ from setuptools import setup
 import setuptools
 
 setup(
-    name='spear',
-    version='1.0.1',
+    name='decile-spear',
+    version='1.0.5',
     author='Ayush Maheshwari, Guttu Sai Abhishek',
     author_email='ayush.hakmn@gmail.com',
     url='https://github.com/decile-team/spear',
@@ -12,6 +12,9 @@ setup(
     description='SPEAR is a library for data programming with semi-supervision that provides facility to programmatically label and build training data',
     long_description='README.md',
     long_description_content_type="text/markdown",
+    package_dir={"": "."},
+    # packages=setuptools.find_packages(where="spear"),
+    python_requires=">=3.6",
     install_requires=[
         "tqdm>=4.59.0",
         "torch>=1.8.0",
