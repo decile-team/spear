@@ -1,10 +1,11 @@
 
-[![](https://tokei.rs/b1/github/decile-team/spear?category=code)](https://github.com/decile-team/spear)
+<!-- [![](https://tokei.rs/b1/github/decile-team/spear?category=code)](https://github.com/decile-team/spear) -->
+[![Lines of code](https://img.shields.io/tokei/lines/github/decile-team/spear)]()
 ![PyPI](https://img.shields.io/pypi/v/spear)
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/decile-team/spear/blob/main/LICENSE.txt)
 [![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
-![Lines of code](https://img.shields.io/tokei/lines/github/decile-team/spear?style=plastic)
+
 <!-- ![GitHub repo size](https://img.shields.io/github/repo-size/decile-team/spear) -->
 
 <p align="center">
