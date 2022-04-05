@@ -4,7 +4,8 @@
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/decile-team/spear/blob/main/LICENSE.txt)
 [![website](https://img.shields.io/badge/website-online-green)](https://decile.org/)
-![GitHub repo size](https://img.shields.io/github/repo-size/decile-team/spear)
+![Lines of code](https://img.shields.io/tokei/lines/github/decile-team/spear?style=plastic)
+<!-- ![GitHub repo size](https://img.shields.io/github/repo-size/decile-team/spear) -->
 
 <p align="center">
     <br>
@@ -32,6 +33,7 @@ SPEAR is a library for data programming with semi-supervision. The package imple
 * compare against several data programming approaches
 * compare against semi-supervised data programming approaches
 * use subset selection to make best use of the annotation efforts
+* facility to store and save data in [pickle file](https://spear-decile.readthedocs.io/en/latest/index.html#spear.utils.data_editor.get_data)
 
 #### Labelling Functions (LFs)
 * discrete LFs - Users can define LFs that return discrete labels
