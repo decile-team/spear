@@ -328,7 +328,7 @@ class JL:
 		supervised_criterion = torch.nn.CrossEntropyLoss()
 
 		dataset = TensorDataset(x_train, y_train, l, s, supervised_mask)
-		loader = DataLoader(dataset, batch_size = batch_size_, shuffle = True, pin_memory = True)
+		loader = DataLoader(dataset, batch_size = batch_size_, shuffle = True, drop_last = False, pin_memory = True)
 
 		best_score_fm_test, best_score_gm_test, best_epoch, best_score_fm_val, best_score_gm_val = 0,0,0,0,0
 		best_prec_fm_test, best_recall_fm_test, best_prec_gm_test, best_recall_gm_test= 0,0,0,0
