@@ -1,6 +1,7 @@
 
 <!-- [![](https://tokei.rs/b1/github/decile-team/spear?category=code)](https://github.com/decile-team/spear) -->
 [![Lines of code](https://img.shields.io/tokei/lines/github/decile-team/spear)]()
+![visitors](https://visitor-badge.glitch.me/badge?page_id=decile-team/spear)
 ![PyPI](https://img.shields.io/pypi/v/spear)
 [![docs](https://readthedocs.org/projects/spear-decile/badge)](https://spear-decile.readthedocs.io/)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/decile-team/spear/blob/main/LICENSE.txt)
