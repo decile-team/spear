@@ -319,7 +319,8 @@ class LFAnalysis:
             lf_names = list(range(m))
 
         # Remap the true labels values
-        Y = np.array([self.mapping[v] for v in Y])
+        if Y is not None:
+            Y = np.array([self.mapping[v] for v in Y])
 
         # Default LF stats
         d["Polarity"] = Series(data=self.lf_polarities(), index=lf_names)
@@ -332,7 +333,7 @@ class LFAnalysis:
                 np.concatenate((Y.flatten(), self.L.flatten(), np.array([-1])))
             )
             confusions = [
-                confusion_matrix(Y, self.L[:, i], labels)[1:, 1:] for i in range(m)
+                confusion_matrix(Y, self.L[:, i], labels=labels)[1:, 1:] for i in range(m)
             ]
             corrects = [np.diagonal(conf).sum() for conf in confusions]
             incorrects = [
