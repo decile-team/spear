@@ -319,6 +319,7 @@ class LFAnalysis:
             lf_names = list(range(m))
 
         # Remap the true labels values
+        print('Y is ', Y)
         if Y is not None:
             Y = np.array([self.mapping[v] for v in Y])
 

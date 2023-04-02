@@ -77,13 +77,22 @@ pip install -r requirements/requirements.txt
 
 ## Citation
 ```bibtex
-@misc{abhishek2021spear,
-      title={SPEAR : Semi-supervised Data Programming in Python}, 
-      author={Guttu Sai Abhishek and Harshad Ingole and Parth Laturia and Vineeth Dorna and Ayush Maheshwari and Ganesh Ramakrishnan and Rishabh Iyer},
-      year={2021},
-      eprint={2108.00373},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@inproceedings{abhishek-etal-2022-spear,
+    title = "{SPEAR} : Semi-supervised Data Programming in Python",
+    author = "Abhishek, Guttu  and
+      Ingole, Harshad  and
+      Laturia, Parth  and
+      Dorna, Vineeth  and
+      Maheshwari, Ayush  and
+      Ramakrishnan, Ganesh  and
+      Iyer, Rishabh",
+    booktitle = "Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
+    month = dec,
+    year = "2022",
+    address = "Abu Dhabi, UAE",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.emnlp-demos.12",
+    pages = "121--127",
 }
 ```
 
