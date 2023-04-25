@@ -1,17 +1,16 @@
-.. SPEAR(DECILE) documentation master file, created by
-   sphinx-quickstart on Sat Apr 17 15:41:01 2021.
+.. SPEAR documentation master file, created by
+   sphinx-quickstart on Wed Apr 12 13:40:49 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
 Welcome to SPEAR's documentation!
-==================================
+=================================
 SPEAR: **S**\ emi-Su\ **p**\ ervis\ **e**\ d D\ **a**\ ta P\ **r**\ ogramming
 
 .. toctree::
    :maxdepth: 5
    :caption: Contents:
-
+   
 We present SPEAR, an open-source python library for data programming with semi-supervision.
 The package implements several recent data programming approaches including facility to programmatically 
 label and build training data. SPEAR facilitates weak supervision, either pre-defined, in the form of 
@@ -21,7 +20,7 @@ approaches have been proposed that aggregate the noisy labels and then train the
 a cascaded manner, while other approaches 'jointly' aggregates and trains the model. In the python package, we
 integrate several cascade and joint data-programming approaches while providing facility to define rules. 
 The code and tutorial notebooks are available `here <https://github.com/decile-team/spear>`_.
-
+   
 Labeling
 ==========
 
@@ -46,6 +45,11 @@ LFSet
 ------
 .. automodule:: spear.labeling.lf_set.core
 	:members: LFSet
+	
+LFgen
+------
+.. automodule:: spear.labeling.lf_gen.core
+	:members: LFgenerator, LFgenerator2
 
 LFAnalysis
 -------------
@@ -56,6 +60,14 @@ Pre Labels
 ---------------
 .. automodule:: spear.labeling.prelabels.core
 	:members: PreLabels
+
+----
+
+WISDOM
+==================
+
+.. automodule:: spear.wisdom.core
+	:members: Reweight
 
 ----
 

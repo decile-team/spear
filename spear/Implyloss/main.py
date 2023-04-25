@@ -4,7 +4,7 @@
 
 from .data_feeders import DataFeeder
 from .model import HighLevelSupervisionNetwork
-import .networks
+from .networks import *
 
 import numpy as np
 import sys, os, shutil

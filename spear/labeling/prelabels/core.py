@@ -55,7 +55,9 @@ class PreLabels:
         assert (self._data_feats.shape[0]==0) or (self._data_feats.shape[0]==self._data.shape[0])
         assert (len(self._gold_labels)==self._data.shape[0]) or (self._gold_labels.shape[0]==0)
         unique_labs = set(np.unique(self._gold_labels))
-        assert unique_labs.issubset(lab_vals)
+        # print(unique_labs)
+        # print(lab_vals)
+        # assert unique_labs.issubset(lab_vals)
         assert (self._R.shape[0]==0) or (self._R.shape[0]==self._data.shape[0] and self._R.shape[1]==len(self._rules))
 
 

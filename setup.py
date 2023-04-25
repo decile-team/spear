@@ -3,7 +3,7 @@ import setuptools
 
 setup(
     name='decile-spear',
-    version='1.0.6',
+    version='1.0.5',
     author='Ayush Maheshwari, Guttu Sai Abhishek',
     author_email='ayush.hakmn@gmail.com',
     url='https://github.com/decile-team/spear',

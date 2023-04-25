@@ -26,7 +26,7 @@ def sentences_to_elmo_sentence_embs(messages,batch_size=64):
   return np.array(message_embeddings)
 
 
-def load_data_to_numpy(folder="../../data/SMS_SPAM/"):
+def load_data_to_numpy(folder="../../data_/SMS_SPAM/"):
     #SPAM = 1
     #HAM = 0
     #ABSTAIN = -1

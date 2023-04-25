@@ -26,7 +26,12 @@ def sentences_to_elmo_sentence_embs(messages,batch_size=64):
   return np.array(message_embeddings)
 
 
-def load_data_to_numpy(folder="../../data_/TREC/",file_name="train.txt"):
+def load_data_to_numpy(folder="../../data_/TREC/",file_name="test.txt"):
+    """
+    Hi
+    This is a function.
+    Bye
+    """
     label_map = {"DESC": 0, "ENTY": 1, "HUM": 2, "ABBR": 3, "LOC": 4,
            "NUM": 5}
     
@@ -53,6 +58,7 @@ def load_data_to_numpy(folder="../../data_/TREC/",file_name="train.txt"):
     feat_file = folder + feat
     try:
         X_feats = np.load(folder+feat)
+        print(f'embeddings loaded from {folder+feat}')
     except:
         print("embeddings are absent in the input folder")
         X_feats=sentences_to_elmo_sentence_embs(X)
