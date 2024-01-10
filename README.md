@@ -61,6 +61,7 @@ gdown 1CJZ73nNa7Ho0BOSDgGx9CRvXoepVSpet
 ## Installation
 * Install Submodlib library
 `pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ submodlib`
+In case of installation issues with the submodlib, please consult [Submodlib Github](https://github.com/decile-team/submodlib).
 #### Method 1
 To install latest version of SPEAR package using PyPI:
  ```python 
