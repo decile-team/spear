@@ -1,16 +1,19 @@
 from setuptools import setup
 import setuptools
+from pathlib import Path
 
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 setup(
     name='decile-spear',
-    version='1.0.6',
+    version='1.0.8',
     author='Ayush Maheshwari, Guttu Sai Abhishek',
     author_email='ayush.hakmn@gmail.com',
     url='https://github.com/decile-team/spear',
     license='LICENSE.txt',
     packages=setuptools.find_packages(),
     description='SPEAR is a library for data programming with semi-supervision that provides facility to programmatically label and build training data',
-    long_description='README.md',
+    long_description=long_description,
     long_description_content_type="text/markdown",
     package_dir={"": "."},
     # packages=setuptools.find_packages(where="spear"),
@@ -23,6 +26,7 @@ setup(
         "pandas>=1.1.5",
         "numpy>=1.19.5",
         "scipy>=1.5.4",
-        "tensorflow>=2.2.0"
+        "tensorflow>=2.2.0",
+        "TextBlob"
     ],
 )

@@ -117,13 +117,31 @@ SPEAR takes inspiration, builds upon, and uses pieces of code from several open 
 SPEAR is created and maintained by [Ayush](https://www.cse.iitb.ac.in/~ayusham), [Abhishek](https://www.linkedin.com/in/guttu-sai-abhishek/), [Vineeth](https://www.cse.iitb.ac.in/~vineethdorna/), [Harshad](https://www.cse.iitb.ac.in/~harshadingole/), [Parth](https://www.cse.iitb.ac.in/~parthlaturia/), [Pankaj](https://www.linkedin.com/in/pankaj-singh-b000894a/), [Rishabh Iyer](https://www.rishiyer.com), and [Ganesh Ramakrishnan](https://www.cse.iitb.ac.in/~ganesh/). We look forward to have SPEAR more community driven. Please use it and contribute to it for your research, and feel free to use it for your commercial projects. We will add the major contributors here.
 
 
-## Publications
-[1] Abhishek et al. [SPEAR : Semi-supervised Data Programming in Python](https://arxiv.org/abs/2108.00373), Demonstration Paper.
+## Related Publications
 
-[2] Maheshwari et al. [Learning to Robustly Aggregate Labeling Functions for Semi-supervised Data Programming](https://arxiv.org/abs/2109.11410), In Findings of ACL (Long Paper) 2022.
+1. Divya Jyoti Bajpai, Ayush Maheshwari, Manjesh Kumar Hanawal, Ganesh Ramakrishnan (2024). [FAIR: Filtering of Automatically Induced Rules](https://arxiv.org/abs/2402.15472). In EACL, 2024.
 
-[3] Maheshwari, Ayush, et al. [Data Programming using Semi-Supervision and Subset Selection](https://arxiv.org/abs/2008.09887), In Findings of ACL (Long Paper) 2021.
+1. Akshat Gautam, Anurag Shandilya, Akshit Srivastava, Venkatapathy Subramanian, Ganesh Ramakrishnan, Kshitij Jadhav (2024). [INSITE: labelling medical images using submodular functions and semi-supervised data programming](https://arxiv.org/abs/2402.07173). In ISBI, 2024.
 
-[4] Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. [Data Programming using Continuous and Quality-Guided Labeling Functions](https://arxiv.org/abs/1911.09860), In AAAI 2020.
+1. Dhruv Kudale, Badri Vishal Kasuba, Venkatapathy Subramanian, Parag Chaudhuri, Ganesh Ramakrishnan. [TEXTRON: Weakly Supervised Multilingual Text Detection through Data Programming](https://arxiv.org/abs/2402.09811). In WACV, 2024.
+ 
 
-[5] Sahay, Atul, et al. [Rule augmented unsupervised constituency parsing](https://arxiv.org/abs/2105.10193), In Findings of ACL (Short Paper) 2021.
+1. Ayush Maheshwari, Piyush Sharma, Preethi Jyothi, Ganesh Ramakrishnan (2023). [DICTDIS: Dictionary Constrained Disambiguation for Improved NMT](https://arxiv.org/abs/2210.06996)
+
+
+1.  Abhishek Singh, Venkatapathy Subramanian, Ayush Maheshwari, Pradeep Narayan, Devi Prasad Shetty, Ganesh Ramakrishnan (2023). [EIGEN: Expert-Informed Joint Learning Aggregation for High-Fidelity Information Extraction from Document Images](https://proceedings.mlr.press/v225/singh23a.html). In Proceedings of ML4Health Conference, 2023 (co-located with Neurips).
+
+1. Ayush Maheshwari, Ajay Ravindran, Venkatapathy Subramanian, Ganesh Ramakrishnan (2023). [UDAAN - Machine Learning based Post-Editing tool for Document Translation](https://arxiv.org/abs/2203.01644). Best Paper Award In CODS-COMAD 2023.
+
+1. Durga S, Ayush Maheshwari, Pradeep Shenoy, Prathosh AP, Ganesh Ramakrishnan (2022). [Reweighing auxiliary losses in supervised learning](https://arxiv.org/abs/2202.03250). In AAAI 2023.
+
+
+1. Maheshwari et al. [Learning to Robustly Aggregate Labeling Functions for Semi-supervised Data Programming](https://arxiv.org/abs/2109.11410), In Findings of ACL (Long Paper) 2022.
+
+1. Maheshwari, Ayush, et al. [Data Programming using Semi-Supervision and Subset Selection](https://arxiv.org/abs/2008.09887), In Findings of ACL (Long Paper) 2021.
+
+1. Sahay, Atul, et al. [Rule augmented unsupervised constituency parsing](https://arxiv.org/abs/2105.10193), In Findings of ACL (Short Paper) 2021.
+
+1. Chatterjee, Oishik, Ganesh Ramakrishnan, and Sunita Sarawagi. [Data Programming using Continuous and Quality-Guided Labeling Functions](https://arxiv.org/abs/1911.09860), In AAAI 2020.
+
+
