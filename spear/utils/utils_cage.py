@@ -80,7 +80,10 @@ def probability_s_given_y_l(pi, s, y, m, k, continuous_mask, qc):
 		a tensor of shape [n_instances], the psi_pi value for each instance, for the given label(true label y)
 	'''
 	eq = torch.eq(k.view(-1, 1), y).double().t()
-	r = qc * eq.squeeze() + (1 - qc) * (1 - eq.squeeze())
+
+	device = qc.device  # Assuming qc is on the correct device
+	eq = eq.to(device)
+	r = qc.to(device) * eq.squeeze() + (1 - qc.to(device)) * (1 - eq.squeeze())
 	params = torch.exp(pi)
 	probability = 1
 	for i in range(k.shape[0]):
