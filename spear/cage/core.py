@@ -23,7 +23,7 @@ class Cage:
 	'''
 	def __init__(self, path_json, n_lfs):
 		assert type(path_json) == str
-		assert type(n_lfs) == np.int or type(n_lfs) == np.float
+		assert type(n_lfs) == int or type(n_lfs) == float
 
 		use_cuda = torch.cuda.is_available()
 		self.device = torch.device("cuda" if use_cuda else "cpu")
@@ -96,16 +96,16 @@ class Cage:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 		'''
 		assert  type(path_pkl) == str
-		assert (type(qt) == np.float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
-		 or (type(qt) == np.int and (qt == 0 or qt == 1))
+		assert (type(qt) == float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
+		 or (type(qt) == int and (qt == 0 or qt == 1))
 
-		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
-		 or (type(qc) == np.int and (qc == 0 or qc == 1))
+		assert (type(qc) == float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == int and (qc == 0 or qc == 1))
 
 		for temp in metric_avg:
 			assert temp in ['micro', 'macro', 'samples','weighted', 'binary'] or metric_avg is None
-		assert type(n_epochs) == np.int or type(n_epochs) == np.float
-		assert type(lr) == np.int or type(lr) == np.float
+		assert type(n_epochs) == int or type(n_epochs) == float
+		assert type(lr) == int or type(lr) == float
 
 		data = get_data(path_pkl, True, self.class_map)
 		m = torch.abs(torch.tensor(data[2], device = self.device).long())
@@ -238,8 +238,8 @@ class Cage:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]
 		'''
-		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
-		 or (type(qc) == np.int and (qc == 0 or qc == 1))
+		assert (type(qc) == float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == int and (qc == 0 or qc == 1))
 		data = get_data(path_test, True, self.class_map)
 		assert (data[2]).shape[1] == self.n_lfs and data[9] == self.n_classes
 		temp_k = torch.tensor(data[8], device = self.device).long()
