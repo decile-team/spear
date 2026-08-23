@@ -21,9 +21,9 @@ def rand_subset(n_all, n_instances):
 	Return:
 		A numpy.ndarray of the indices(of shape (n_sup,) and each element in the range [0,n_all-1)) to be labeled
 	'''
-	assert type(n_all) == np.int or type(n_all) == np.float
-	assert type(n_instances) == np.int or type(n_instances) == np.float
-	assert np.int(n_all) > np.int(n_instances)
+	assert type(n_all) == int or type(n_all) == float
+	assert type(n_instances) == int or type(n_instances) == float
+	assert int(n_all) > int(n_instances)
 	return np.sort(np.random.choice(int(n_all), int(n_instances), replace = False))
 
 def unsup_subset(x_train, n_unsup):
@@ -67,8 +67,8 @@ def sup_subset(path_json, path_pkl, n_sup, qc = 0.85):
 	Return:
 		numpy.ndarray of indices(shape is (n_sup,), each element lies in [0,num_instances)), the result of subset selection AND the data which is list of contents of path_pkl
 	'''
-	assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
-		 or (type(qc) == np.int and (qc == 0 or qc == 1))
+	assert (type(qc) == float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == int and (qc == 0 or qc == 1))
 
 	class_dict = get_classes(path_json)
 	class_list = list((class_dict).keys())
@@ -178,7 +178,7 @@ def replace_in_pkl(path, path_save, np_array, index):
 	Return:
 		No return value. A pickle file is generated at path_save
 	'''
-	assert type(index) == np.int and index >=0 and index < 9
+	assert type(index) == int and index >=0 and index < 9
 	assert check_path.exists(path) #path is imported from os above
 	data = []
 	with open(path, 'rb') as file:

@@ -102,7 +102,7 @@ def get_rule_precision(l,L,m):
 	comp - 
 	'''
 	L = L.reshape([L.shape[0],1])
-	comp = np.equal(l,L).astype(np.float)
+	comp = np.equal(l,L).astype(float)
 	comp = comp * m
 	comp = np.sum(comp,0)
 	support = np.sum(m,0)
@@ -276,7 +276,7 @@ def conv_l_to_lsnork(l,m):
 	lsnork([batch_size, num_rules])
 	'''
 	lsnork = l*m + -1*(1-m)
-	return lsnork.astype(np.int)
+	return lsnork.astype(int)
 
 # from metric_utils
 def compute_accuracy(support, recall):

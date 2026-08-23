@@ -64,9 +64,9 @@ class JL:
 	'''
 	def __init__(self, path_json, n_lfs, n_features, feature_model = 'nn', n_hidden = 512):
 		assert type(path_json) == str
-		assert type(n_lfs) == np.int or type(n_lfs) == np.float
-		assert type(n_features) == np.int or type(n_features) == np.float
-		assert type(n_hidden) == np.int or type(n_hidden) == np.float
+		assert type(n_lfs) == int or type(n_lfs) == float
+		assert type(n_features) == int or type(n_features) == float
+		assert type(n_hidden) == int or type(n_hidden) == float
 		assert feature_model == 'lr' or feature_model == 'nn'
 		
 		use_cuda = torch.cuda.is_available()
@@ -194,18 +194,18 @@ class JL:
 		assert type(path_L) == str and type(path_V) == str and type(path_V) == str and type(path_T) == str
 		assert type(return_gm) == np.bool
 		assert (type(loss_func_mask) == list) and len(loss_func_mask) == 7
-		assert type(batch_size) == np.int or type(batch_size) == np.float
-		assert type(lr_fm) == np.int or type(lr_fm) == np.float
-		assert type(lr_gm) == np.int or type(lr_gm) == np.float
+		assert type(batch_size) == int or type(batch_size) == float
+		assert type(lr_fm) == int or type(lr_fm) == float
+		assert type(lr_gm) == int or type(lr_gm) == float
 		assert type(use_accuracy_score) == np.bool
-		assert type(n_epochs) == np.int or type(n_epochs) == np.float
-		assert type(start_len) == np.int or type(start_len) == np.float
-		assert type(stop_len) == np.int or type(stop_len) == np.float
+		assert type(n_epochs) == int or type(n_epochs) == float
+		assert type(start_len) == int or type(start_len) == float
+		assert type(stop_len) == int or type(stop_len) == float
 		assert type(is_qt) == np.bool and type(is_qc) == np.bool
-		assert (type(qt) == np.float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
-		 or (type(qt) == np.int and (qt == 0 or qt == 1))
-		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
-		 or (type(qc) == np.int and (qc == 0 or qc == 1))
+		assert (type(qt) == float and (qt >= 0 and qt <= 1)) or (type(qt) == np.ndarray and (np.all(np.logical_and(qt>=0, qt<=1)) ) )\
+		 or (type(qt) == int and (qt == 0 or qt == 1))
+		assert (type(qc) == float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == int and (qc == 0 or qc == 1))
 		assert metric_avg in ['micro', 'macro', 'samples', 'weighted', 'binary']
 
 		batch_size_ = int(batch_size)
@@ -628,8 +628,8 @@ class JL:
 			numpy.ndarray of shape (num_instances, num_classes) where i,j-th element is the probability of ith instance being the jth class(the jth value when sorted in ascending order of values in Enum)
 			[Note: no aggregration/algorithm-running will be done using the current input]. It is suggested to use the probailities of feature model
 		'''
-		assert (type(qc) == np.float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
-		 or (type(qc) == np.int and (qc == 0 or qc == 1))
+		assert (type(qc) == float and (qc >= 0 and qc <= 1)) or (type(qc) == np.ndarray and (np.all(np.logical_and(qc>=0, qc<=1)) ) )\
+		 or (type(qc) == int and (qc == 0 or qc == 1))
 
 		data = get_data(path_test, True, self.class_map)
 		s_test = torch.tensor(data[6], device = self.device).double()
