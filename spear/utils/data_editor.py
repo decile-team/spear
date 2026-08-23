@@ -69,7 +69,7 @@ def get_data(path, check_shapes = True, class_map = None):
 			assert type(data[i]) == np.ndarray
 		data.append(pickle.load(file))
 	
-	assert type(data[9]) == np.int
+	assert type(data[9]) == int
 
 	if check_shapes:
 		assert data[1].shape == data[2].shape # l, m
